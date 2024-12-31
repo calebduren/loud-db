@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { useUserReleases } from '../../hooks/useUserReleases';
-import { ReleaseList } from '../releases/ReleaseList';
-import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from '../LoadingSpinner';
-import { CreateReleaseButton } from '../releases/CreateReleaseButton';
-import { ReleaseFormModal } from '../admin/ReleaseFormModal';
-import { usePermissions } from '../../hooks/usePermissions';
-import { Release } from '../../types/database';
-import { AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { useUserReleases } from "../../hooks/useUserReleases";
+import { ReleaseList } from "../releases/ReleaseList";
+import { useAuth } from "../../hooks/useAuth";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { ReleaseFormModal } from "../admin/ReleaseFormModal";
+import { usePermissions } from "../../hooks/usePermissions";
+import { Release } from "../../types/database";
+import { AlertCircle } from "lucide-react";
 
 export function CreatedReleases() {
   const { user } = useAuth();
@@ -45,18 +44,18 @@ export function CreatedReleases() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">Your Created Releases</h1>
-        <CreateReleaseButton onClick={() => setIsCreateModalOpen(true)} />
+        <h1 className="text-3xl font-bold text-white">Releases you created</h1>
       </div>
 
       {releases.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-white/60 mb-4">You haven't created any releases yet.</p>
-          <CreateReleaseButton onClick={() => setIsCreateModalOpen(true)} />
+          <p className="text-white/60 mb-4">
+            You haven't created any releases yet.
+          </p>
         </div>
       ) : (
-        <ReleaseList 
-          releases={releases} 
+        <ReleaseList
+          releases={releases}
           showActions
           onEdit={setEditingRelease}
           onDelete={refetch}
