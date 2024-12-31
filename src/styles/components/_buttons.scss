@@ -1,0 +1,28 @@
+@use '../abstracts/colors' as *;
+@use '../abstracts/mixins' as *;
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  @include transition;
+  
+  &-primary {
+    background-color: $color-white;
+    color: $color-primary;
+    
+    &:hover {
+      background-color: rgba($color-white, 0.9);
+    }
+  }
+  
+  &-secondary {
+    background-color: rgba($color-white, 0.1);
+    color: $color-white;
+    
+    &:hover {
+      background-color: rgba($color-white, 0.2);
+    }
+  }
+}

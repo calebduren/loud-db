@@ -1,0 +1,14 @@
+@use 'colors' as *;
+
+@mixin transition {
+  transition: all 0.2s ease-in-out;
+}
+
+@mixin focus-ring {
+  &:focus {
+    outline: none;
+    ring-width: 2px;
+    ring-color: $color-focus;
+    border-color: $color-focus;
+  }
+}

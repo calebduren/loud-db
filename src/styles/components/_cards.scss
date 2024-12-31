@@ -1,0 +1,15 @@
+@use '../abstracts/colors' as *;
+@use '../abstracts/mixins' as *;
+
+.card {
+  background-color: rgba($color-white, 0.05);
+  border: 1px solid rgba($color-white, 0.1);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  
+  &:hover {
+    border-color: rgba($color-white, 0.2);
+  }
+  
+  @include transition;
+}
