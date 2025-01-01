@@ -1,11 +1,10 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { AllReleases } from './components/releases/AllReleases';
 import { ProfileLayout } from './components/user/ProfileLayout';
-import { ProfilePage } from './components/user/profile/ProfilePage';
 import { LikedReleases } from './components/user/LikedReleases';
 import { CreatedReleases } from './components/user/CreatedReleases';
 import { PreferenceSettings } from './components/user/preferences/PreferenceSettings';
@@ -41,7 +40,7 @@ export default function App() {
               
               {/* Profile Routes */}
               <Route path="/profile/*" element={<ProfileLayout />}>
-                <Route index element={<ProfilePage />} />
+                <Route index element={<Navigate to="/profile/likes" replace />} />
                 <Route path="likes" element={<LikedReleases />} />
                 <Route path="created" element={<CreatedReleases />} />
                 <Route path="preferences" element={<PreferenceSettings />} />

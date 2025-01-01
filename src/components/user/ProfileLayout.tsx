@@ -24,7 +24,12 @@ export function ProfileLayout() {
           <ProfileHeaderSkeleton />
           <ProfileStatsSkeleton />
         </div>
-        <ProfileNav />
+        <div className="flex gap-8">
+          <div className="w-64 shrink-0">
+            <ProfileNav />
+          </div>
+          <div className="min-h-[200px] flex-1 animate-pulse bg-white/5 rounded-lg" />
+        </div>
       </div>
     );
   }
@@ -61,8 +66,14 @@ export function ProfileLayout() {
           />
         )}
       </div>
-      <ProfileNav />
-      <Outlet />
+      <div className="flex gap-8">
+        <div className="w-64 shrink-0">
+          <ProfileNav />
+        </div>
+        <div className="flex-1">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }

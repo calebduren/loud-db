@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { User, Heart, Plus, Settings, Sliders } from 'lucide-react';
+import { Heart, Plus, Settings, Sliders } from 'lucide-react';
 import { usePermissions } from '../../hooks/usePermissions';
 
 export function ProfileNav() {
   const { canManageReleases } = usePermissions();
 
   const linkClass = ({ isActive }: { isActive: boolean }) => `
-    flex items-center gap-2 px-4 py-2 text-sm
+    flex items-center gap-3 px-4 py-3 text-sm w-full
     ${isActive 
       ? 'text-white bg-white/10' 
       : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -16,11 +16,7 @@ export function ProfileNav() {
   `;
 
   return (
-    <nav className="flex gap-2 mb-8">
-      <NavLink to="/profile" className={linkClass} end>
-        <User className="w-4 h-4" />
-        Profile
-      </NavLink>
+    <nav className="flex flex-col gap-1 w-full">
       <NavLink to="/profile/likes" className={linkClass}>
         <Heart className="w-4 h-4" />
         Likes
