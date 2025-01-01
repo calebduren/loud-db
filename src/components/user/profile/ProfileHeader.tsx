@@ -1,7 +1,7 @@
-import React from 'react';
-import { User } from 'lucide-react';
-import { Profile } from '../../../types/database';
-import { formatDate } from '../../../lib/utils/dateUtils';
+import React from "react";
+import { User } from "lucide-react";
+import { Profile } from "../../../types/database";
+import { formatDate } from "../../../lib/utils/dateUtils";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -12,8 +12,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
     <div className="flex items-center gap-6 mb-8">
       <div className="relative w-24 h-24 rounded-full overflow-hidden bg-white/10">
         {profile.avatar_url ? (
-          <img 
-            src={profile.avatar_url} 
+          <img
+            src={profile.avatar_url}
             alt={profile.username}
             className="w-full h-full object-cover"
           />
@@ -23,7 +23,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </div>
         )}
       </div>
-      
+
       <div>
         <h1 className="text-3xl font-bold mb-1">{profile.username}</h1>
         <p className="text-white/60">
