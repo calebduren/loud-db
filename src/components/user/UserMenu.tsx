@@ -1,9 +1,9 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { User, Settings, LogOut } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import { useProfile } from '../../hooks/useProfile';
-import { supabase } from '../../lib/supabase';
+import React from "react";
+import { Link } from "react-router-dom";
+import { User, Settings, LogOut } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { useProfile } from "../../hooks/useProfile";
+import { supabase } from "../../lib/supabase";
 
 export function UserMenu() {
   const { user } = useAuth();
@@ -16,7 +16,7 @@ export function UserMenu() {
       await supabase.auth.signOut();
       setIsOpen(false);
     } catch (error) {
-      console.error('[UserMenu] Error signing out:', error);
+      console.error("[UserMenu] Error signing out:", error);
     }
   };
 
@@ -31,8 +31,8 @@ export function UserMenu() {
       >
         <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10">
           {profile.avatar_url ? (
-            <img 
-              src={profile.avatar_url} 
+            <img
+              src={profile.avatar_url}
               alt={profile.username}
               className="w-full h-full object-cover"
             />
@@ -47,7 +47,7 @@ export function UserMenu() {
       {/* Dropdown Menu */}
       {isOpen && (
         <>
-          <div 
+          <div
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
@@ -56,17 +56,17 @@ export function UserMenu() {
               <p className="font-medium">{profile.username}</p>
               <p className="text-sm text-white/60">{user?.email}</p>
             </div>
-            
+
             <div className="p-2">
               <Link
-                to={`/user/${profile.username}`}
+                to={`/${profile.username}`}
                 className="flex items-center gap-2 w-full p-2 text-sm text-white/80 hover:bg-white/10 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
                 <User className="w-4 h-4" />
                 View Profile
               </Link>
-              
+
               <Link
                 to="/settings"
                 className="flex items-center gap-2 w-full p-2 text-sm text-white/80 hover:bg-white/10 rounded-md"
@@ -75,7 +75,7 @@ export function UserMenu() {
                 <Settings className="w-4 h-4" />
                 Settings
               </Link>
-              
+
               <button
                 onClick={handleSignOut}
                 className="flex items-center gap-2 w-full p-2 text-sm text-red-500 hover:bg-white/10 rounded-md"

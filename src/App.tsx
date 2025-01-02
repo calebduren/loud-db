@@ -1,10 +1,11 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { AllReleases } from './components/releases/AllReleases';
 import { ProfileLayout } from './components/user/ProfileLayout';
+import { UserProfileLayout } from './components/user/profile/UserProfileLayout';
 import { LikedReleases } from './components/user/LikedReleases';
 import { CreatedReleases } from './components/user/CreatedReleases';
 import { PreferenceSettings } from './components/user/preferences/PreferenceSettings';
@@ -18,6 +19,8 @@ import { Terms } from './pages/Terms';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { useAuth } from './hooks/useAuth';
 import { usePermissions } from './hooks/usePermissions';
+
+const RESERVED_PATHS = ['profile', 'admin', 'privacy', 'terms'];
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
@@ -38,13 +41,22 @@ export default function App() {
               {/* Main Routes */}
               <Route path="/" element={<AllReleases />} />
               
-              {/* Profile Routes */}
+              {/* Profile Management Routes */}
               <Route path="/profile/*" element={<ProfileLayout />}>
                 <Route index element={<Navigate to="/profile/likes" replace />} />
                 <Route path="likes" element={<LikedReleases />} />
-                <Route path="created" element={<CreatedReleases />} />
                 <Route path="preferences" element={<PreferenceSettings />} />
                 <Route path="account" element={<AccountSettings />} />
+              </Route>
+
+              {/* Public Profile Routes */}
+              <Route path="/:username/*" element={
+                <RestrictedRoute reservedPaths={RESERVED_PATHS}>
+                  <UserProfileLayout />
+                </RestrictedRoute>
+              }>
+                <Route index element={<LikedReleases />} />
+                <Route path="likes" element={<LikedReleases />} />
               </Route>
 
               {/* Admin Routes */}
@@ -66,4 +78,14 @@ export default function App() {
       <ToastContainer />
     </>
   );
+}
+
+function RestrictedRoute({ children, reservedPaths }: { children: React.ReactNode, reservedPaths: string[] }) {
+  const { username } = useParams();
+  
+  if (username && reservedPaths.includes(username)) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
 }

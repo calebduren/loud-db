@@ -1,12 +1,26 @@
 import React from 'react';
-import { useReleases } from '../../hooks/useReleases';
-import { ReleaseList } from './ReleaseList';
-import { ReleaseFilters } from '../filters/ReleaseFilters';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { useReleaseFilters } from '../../hooks/useReleaseFilters';
 import { useLikedReleases } from '../../hooks/useLikedReleases';
+import { useLikedReleasesByUser } from '../../hooks/useLikedReleasesByUser';
+import { useProfile } from '../../hooks/useProfile';
+import { ReleaseList } from './ReleaseList';
+import { ReleaseFilters } from '../filters/ReleaseFilters';
 
 export function LikedReleases() {
-  const { releases, loading } = useLikedReleases();
+  const { username } = useParams();
+  const { user } = useAuth();
+  const { profile } = useProfile(username);
+  
+  // If viewing someone else's profile, use their ID
+  const isOwnProfile = !username || user?.username === username;
+  const { releases: ownReleases, loading: ownLoading } = useLikedReleases();
+  const { releases: userReleases, loading: userLoading } = useLikedReleasesByUser(profile?.id);
+  
+  const releases = isOwnProfile ? ownReleases : userReleases;
+  const loading = isOwnProfile ? ownLoading : userLoading;
+
   const {
     selectedType,
     selectedGenres,
@@ -20,7 +34,9 @@ export function LikedReleases() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Your Liked Releases</h1>
+      <h1 className="text-3xl font-bold text-white mb-8">
+        {isOwnProfile ? "Your Liked Releases" : `${profile?.username}'s Liked Releases`}
+      </h1>
 
       <ReleaseFilters
         selectedType={selectedType}
