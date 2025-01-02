@@ -9,6 +9,7 @@ import { useLikedReleasesByUser } from "../../../hooks/useLikedReleasesByUser";
 import { useUserReleases } from "../../../hooks/useUserReleases";
 import { useAuth } from "../../../hooks/useAuth";
 import { ProfileNav } from "../ProfileNav";
+import { LikedReleases } from "../LikedReleases";
 
 export function UserProfileLayout() {
   const { username } = useParams();
@@ -16,6 +17,8 @@ export function UserProfileLayout() {
   const { profile, loading: profileLoading } = useProfile(username);
   const { releases: likedReleases, loading: likesLoading } = useLikedReleasesByUser(profile?.id);
   const { count: releasesCount, loading: releasesLoading } = useUserReleases(profile?.id);
+
+  const isOwnProfile = currentUser?.username === username;
 
   if (!username) {
     return <Navigate to="/" replace />;
@@ -49,14 +52,18 @@ export function UserProfileLayout() {
           />
         )}
       </div>
-      <div className="flex gap-8">
-        <div className="w-64 shrink-0">
-          <ProfileNav />
+      {isOwnProfile ? (
+        <div className="flex gap-8">
+          <div className="w-64 shrink-0">
+            <ProfileNav />
+          </div>
+          <div className="flex-1">
+            <Outlet />
+          </div>
         </div>
-        <div className="flex-1">
-          <Outlet />
-        </div>
-      </div>
+      ) : (
+        <LikedReleases />
+      )}
     </div>
   );
 }

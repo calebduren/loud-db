@@ -50,14 +50,11 @@ export default function App() {
               </Route>
 
               {/* Public Profile Routes */}
-              <Route path="/:username/*" element={
+              <Route path="/:username" element={
                 <RestrictedRoute reservedPaths={RESERVED_PATHS}>
                   <UserProfileLayout />
                 </RestrictedRoute>
-              }>
-                <Route index element={<LikedReleases />} />
-                <Route path="likes" element={<LikedReleases />} />
-              </Route>
+              } />
 
               {/* Admin Routes */}
               {isAdmin && (
