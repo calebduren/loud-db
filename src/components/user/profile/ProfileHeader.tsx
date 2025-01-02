@@ -6,6 +6,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
 import { validateImage } from "../../../lib/validation/imageValidation";
 import { MAX_IMAGE_SIZE_MB } from "../../../lib/constants";
+import { PixelAvatar } from "./PixelAvatar";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -65,8 +66,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
                   </div>
                 </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                  <User className="w-12 h-12 text-white/40" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <PixelAvatar seed={profile.username} size={96} />
                 </div>
               )}
             </div>
@@ -81,7 +82,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <User className="w-12 h-12 text-white/40" />
+                <PixelAvatar seed={profile.username} size={96} />
               </div>
             )}
           </div>

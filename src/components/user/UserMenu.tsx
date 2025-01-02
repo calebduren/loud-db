@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { User, Settings, LogOut } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import { supabase } from "../../lib/supabase";
+import { PixelAvatar } from "./profile/PixelAvatar";
 
 export function UserMenu() {
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
       setIsOpen(false);
@@ -24,10 +24,10 @@ export function UserMenu() {
 
   return (
     <div className="relative">
-      {/* Profile Button */}
+      {/* Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:bg-white/10 rounded-full p-1 transition-colors"
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
       >
         <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10">
           {profile.avatar_url ? (
@@ -37,9 +37,7 @@ export function UserMenu() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <User className="w-4 h-4 text-white/40" />
-            </div>
+            <PixelAvatar seed={profile.username} size={32} />
           )}
         </div>
       </button>
@@ -51,8 +49,8 @@ export function UserMenu() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden z-20 border border-white/10">
-            <div className="p-3 border-b border-white/10">
+          <div className="absolute right-0 mt-2 w-56 bg-gray-900 rounded-lg shadow-lg overflow-hidden z-20">
+            <div className="px-4 py-3 border-b border-white/10">
               <p className="font-medium">{profile.username}</p>
               <p className="text-sm text-white/60">{user?.email}</p>
             </div>
@@ -68,7 +66,7 @@ export function UserMenu() {
               </Link>
 
               <Link
-                to="/settings"
+                to="/profile/preferences"
                 className="flex items-center gap-2 w-full p-2 text-sm text-white/80 hover:bg-white/10 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
