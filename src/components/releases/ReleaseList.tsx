@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Release } from '../../types/database';
 import { Music, ExternalLink } from 'lucide-react';
 import { LikeButton } from '../common/LikeButton';
-import { GenreDisplay } from './GenreDisplay';
 import { ReleaseModal } from './ReleaseModal';
 import { ReleaseSkeleton } from './ReleaseSkeleton';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -46,76 +45,100 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
       {releases.map((release) => (
         <div 
           key={release.id} 
-          className="relative group cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
+          className="relative group cursor-pointer overflow-hidden bg-[#262626] border border-white/[0.02] rounded-[12px] shadow-[0px_12px_20px_0px_rgba(0,0,0,0.40),1px_1px_1px_0px_rgba(255,255,255,0.10)_inset]"
           onClick={() => setSelectedRelease(release)}
           data-release-id={release.id}
         >
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-black">
-            {/* Cover Image */}
-            <div className="absolute inset-0">
-              {release.cover_url ? (
-                <img 
-                  src={release.cover_url} 
-                  alt={`${release.name} cover`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                  <Music className="w-12 h-12 text-gray-700" />
-                </div>
-              )}
+          {/* Cover Image Container */}
+          <div className="relative aspect-square">
+            {/* Image */}
+            {release.cover_url ? (
+              <img 
+                src={release.cover_url} 
+                alt={`${release.name} cover`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                <Music className="w-12 h-12 text-gray-700" />
+              </div>
+            )}
+
+            {/* Release Type Pill */}
+            <div className="absolute top-4 left-4">
+              <div className="pill pill--release-type">{release.type || 'Album'}</div>
             </div>
 
-            {/* Content Overlay */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-white">{release.name}</h3>
-                <p className="text-white/80">
+            {/* Overlay Content */}
+            <div className="absolute inset-0 flex flex-col justify-end bg-[linear-gradient(180deg,rgba(38,38,38,0.00)_0%,rgba(38,38,38,0.80)_80%,#262626_100%)] p-6">
+              {/* Genre Pills */}
+              {release.genres?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {release.genres.map(genre => (
+                    <div key={genre} className="pill pill--genre">
+                      {genre}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Title and Artist */}
+              <div>
+                <p className="text-[24px] text-white mb-1">
                   {release.artists
                     .sort((a, b) => a.position - b.position)
                     .map(ra => ra.artist.name)
                     .join(', ')}
                 </p>
-                {release.genres?.length > 0 && (
-                  <div className="pt-2">
-                    <GenreDisplay genres={release.genres} />
-                  </div>
-                )}
+                <h3 className="text-[24px] font-medium text-white italic">{release.name}</h3>
               </div>
+            </div>
+          </div>
 
-              {/* Release Info Grid */}
-              <div className="grid grid-cols-3 gap-4 text-sm my-4">
+          {/* Content */}
+          <div className="p-6">
+            {/* Release Info Grid */}
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-x-8">
                 <div>
-                  <p className="text-white/60">Released</p>
-                  <p className="text-white">
+                  <p className="text-[12px] font-mono text-white/40 mb-1">Tracks</p>
+                  <p className="text-[12px] font-medium text-white">{release.track_count}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] font-mono text-white/40 mb-1">Released</p>
+                  <p className="text-[12px] font-medium text-white">
                     {new Date(release.release_date).toLocaleDateString('en-US', {
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric'
                     })}
                   </p>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-x-8">
                 <div>
-                  <p className="text-white/60">Tracks</p>
-                  <p className="text-white">{release.track_count}</p>
+                  <p className="text-[12px] font-mono text-white/40 mb-1">Type</p>
+                  <p className="text-[12px] font-medium text-white">{release.type || 'Album'}</p>
                 </div>
                 <div>
-                  <p className="text-white/60">Label</p>
-                  <p className="text-white">{release.record_label || '—'}</p>
+                  <p className="text-[12px] font-mono text-white/40 mb-1">Label</p>
+                  <p className="text-[12px] font-medium text-white">{release.record_label || '—'}</p>
                 </div>
               </div>
+            </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-between pointer-events-auto">
-                <div className="flex gap-4">
+            {/* Actions */}
+            <div className="pt-4 border-t border-white/[0.08]">
+              <div className="flex items-center">
+                <div className="flex gap-6 flex-1">
                   {release.spotify_url && (
                     <a
                       href={release.spotify_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="text-[#1DB954] hover:text-[#1ed760] transition-colors flex items-center gap-1"
+                      className="text-[#FF5353] hover:text-[#ff6e6e] transition-colors flex items-center gap-1.5 text-lg font-medium"
                     >
-                      Spotify <ExternalLink className="w-3 h-3" />
+                      Spotify <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
                   {release.apple_music_url && (
@@ -124,15 +147,18 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="text-[#FA57C1] hover:text-[#ff57c1] transition-colors flex items-center gap-1"
+                      className="text-[#FF5353] hover:text-[#ff6e6e] transition-colors flex items-center gap-1.5 text-lg font-medium"
                     >
-                      Apple Music <ExternalLink className="w-3 h-3" />
+                      Apple Music <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
                 </div>
 
-                <div onClick={e => e.stopPropagation()}>
-                  <LikeButton releaseId={release.id} />
+                <div className="pl-6 border-l border-white/[0.08] flex items-center gap-2">
+                  <div onClick={e => e.stopPropagation()}>
+                    <LikeButton releaseId={release.id} />
+                  </div>
+                  <span className="text-2xl font-medium text-white">0</span>
                 </div>
               </div>
             </div>

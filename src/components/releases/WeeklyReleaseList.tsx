@@ -1,6 +1,6 @@
 import React from 'react';
 import { Release } from '../../types/database';
-import { ReleaseList } from '../user/ReleaseList';
+import { ReleaseList } from './ReleaseList';
 import { groupReleasesByWeek, formatWeekHeader } from '../../lib/dates/weekGrouping';
 import { ReleaseSkeleton } from './ReleaseSkeleton';
 

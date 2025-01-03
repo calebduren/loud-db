@@ -5,7 +5,7 @@ import { useReleaseFilters } from '../../hooks/useReleaseFilters';
 import { useLikedReleases } from '../../hooks/useLikedReleases';
 import { useLikedReleasesByUser } from '../../hooks/useLikedReleasesByUser';
 import { useProfile } from '../../hooks/useProfile';
-import { ReleaseList } from './ReleaseList';
+import { ReleaseList } from '../releases/ReleaseList';
 import { ReleaseFilters } from '../filters/ReleaseFilters';
 
 export function LikedReleases() {

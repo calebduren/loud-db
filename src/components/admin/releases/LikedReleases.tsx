@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReleaseList } from '../../user/ReleaseList';
+import { ReleaseList } from '../../releases/ReleaseList';
 import { useLikedReleases } from '../../../hooks/useLikedReleases';
 
 export function LikedReleases() {

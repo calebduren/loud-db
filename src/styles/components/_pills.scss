@@ -1,0 +1,21 @@
+@layer components {
+  .pill {
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+
+    &--genre {
+      background: rgba(255, 255, 255, 0.30);
+      backdrop-filter: blur(4px);
+    }
+
+    &--release-type {
+      background: rgba(32, 32, 32, 0.50);
+      backdrop-filter: blur(4px);
+    }
+  }
+}
