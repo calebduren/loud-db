@@ -4,7 +4,6 @@ import { Layout } from './components/Layout';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { AllReleases } from './components/releases/AllReleases';
-import { ProfileLayout } from './components/user/ProfileLayout';
 import { UserProfileLayout } from './components/user/profile/UserProfileLayout';
 import { LikedReleases } from './components/user/LikedReleases';
 import { CreatedReleases } from './components/user/CreatedReleases';
@@ -40,14 +39,14 @@ export default function App() {
             <>
               {/* Main Routes */}
               <Route path="/" element={<AllReleases />} />
+              <Route path="/likes" element={<LikedReleases />} />
+              <Route path="/created" element={<CreatedReleases />} />
               
-              {/* Profile Management Routes */}
-              <Route path="/profile/*" element={<ProfileLayout />}>
-                <Route index element={<Navigate to="/profile/likes" replace />} />
-                <Route path="likes" element={<LikedReleases />} />
-                <Route path="preferences" element={<PreferenceSettings />} />
-                <Route path="account" element={<AccountSettings />} />
-              </Route>
+              {/* Profile Routes */}
+              <Route path="/profile" element={<Navigate to="/profile/likes" replace />} />
+              <Route path="/profile/likes" element={<LikedReleases />} />
+              <Route path="/preferences" element={<PreferenceSettings />} />
+              <Route path="/account" element={<AccountSettings />} />
 
               {/* Public Profile Routes */}
               <Route path="/:username" element={
