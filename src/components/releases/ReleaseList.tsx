@@ -107,7 +107,7 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                 <div>
                   <p className="text-[12px] font-mono text-white/40 mb-1">Released</p>
                   <p className="text-[12px] font-medium text-white">
-                    {new Date(release.release_date).toLocaleDateString('en-US', {
+                    {new Date(new Date(release.release_date).getTime() + new Date().getTimezoneOffset() * 60000).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric'
                     })}

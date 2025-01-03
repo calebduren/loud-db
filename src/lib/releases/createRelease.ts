@@ -34,6 +34,17 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
     throw new Error('Invalid release date');
   }
 
+  // Ensure the date is in UTC and set to noon to avoid timezone issues
+  const utcDate = new Date(Date.UTC(
+    releaseDate.getFullYear(),
+    releaseDate.getMonth(),
+    releaseDate.getDate(),
+    12, // Set to noon UTC
+    0,
+    0,
+    0
+  ));
+
   try {
     // Process artists first to ensure they exist
     const artistIds = await Promise.all(
@@ -65,7 +76,7 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
         track_count: Math.max(1, data.track_count),
         spotify_url: data.spotify_url?.trim(),
         apple_music_url: data.apple_music_url?.trim(),
-        release_date: releaseDate.toISOString(),
+        release_date: utcDate.toISOString(),
         created_by: data.created_by
       })
       .select('id')

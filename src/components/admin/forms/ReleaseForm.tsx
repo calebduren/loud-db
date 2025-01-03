@@ -65,21 +65,15 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   const handleSpotifyImport = useCallback((importedData: SpotifyReleaseData) => {
     const formData = {
       name: importedData.name,
+      artists: importedData.artists.map(a => ({ name: a.name })),
       release_type: importedData.releaseType,
-      cover_url: importedData.coverUrl || '',
-      genres: importedData.genres || [],
-      record_label: importedData.recordLabel || '',
+      cover_url: importedData.coverUrl,
+      genres: importedData.genres,
+      record_label: importedData.recordLabel,
       track_count: importedData.trackCount,
-      spotify_url: importedData.spotify_url || '',
-      apple_music_url: '',
-      description: '',
-      release_date: new Date(importedData.releaseDate).toISOString().split('T')[0],
-      tracks: importedData.tracks.map(track => ({
-        name: track.name,
-        track_number: track.track_number,
-        duration_ms: track.duration_ms || 0,
-        preview_url: track.preview_url || null
-      }))
+      spotify_url: importedData.spotify_url,
+      release_date: new Date(new Date(importedData.releaseDate).getTime() + new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
+      tracks: importedData.tracks
     };
 
     form.reset(formData);

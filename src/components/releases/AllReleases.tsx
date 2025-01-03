@@ -41,6 +41,7 @@ export function AllReleases() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-white">Latest Releases</h1>
+        <CreateReleaseButton onClick={() => setIsCreateModalOpen(true)} />
       </div>
 
       <ReleaseFilters
