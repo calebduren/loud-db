@@ -1,8 +1,7 @@
-import React from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { AdminNav } from './AdminNav';
-import { usePermissions } from '../../hooks/usePermissions';
-import { LoadingSpinner } from '../LoadingSpinner';
+import React from "react";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
+import { usePermissions } from "../../hooks/usePermissions";
+import { LoadingSpinner } from "../LoadingSpinner";
 
 export function AdminLayout() {
   const { isAdmin, loading } = usePermissions();
@@ -24,7 +23,6 @@ export function AdminLayout() {
 
   return (
     <div className="space-y-8">
-      <AdminNav />
       <Outlet />
     </div>
   );

@@ -1,108 +1,160 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Logo } from '../ui/Logo';
-import { cn } from '../../lib/utils';
-import { useAuth } from '../../hooks/useAuth';
-import { usePermissions } from '../../hooks/usePermissions';
+import React, { useState, useRef, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import { Logo } from "../ui/Logo";
+import { cn } from "../../lib/utils";
+import { useAuth } from "../../hooks/useAuth";
+import { usePermissions } from "../../hooks/usePermissions";
+import { useProfile } from "../../hooks/useProfile";
+
+const activeBarStyles = `
+  @keyframes activateBar {
+    from { width: 0; }
+    to { width: 20px; }
+  }
+  
+  @keyframes deactivateBar {
+    from { width: 20px; }
+    to { width: 0; }
+  }
+
+  .nav-bar {
+    width: 0;
+    height: 1px;
+    background: rgb(255 255 255 / 0.6);
+  }
+
+  .nav-bar-active {
+    animation: activateBar 300ms ease-out forwards;
+  }
+
+  .nav-bar-deactivate {
+    animation: deactivateBar 300ms ease-out forwards;
+  }
+`;
 
 export function Sidebar() {
   const { user } = useAuth();
-  const { isAdmin } = usePermissions();
+  const { isAdmin, isCreator } = usePermissions();
+  const { profile } = useProfile(user?.id);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'block px-4 py-2 rounded-lg transition-colors',
-      isActive ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
+      "flex items-center gap-3 px-4 py-2 text-[15px] transition-colors",
+      isActive ? "text-white" : "text-white/60 hover:text-white"
     );
 
-  return (
-    <aside className="w-64 h-screen bg-black text-white flex flex-col fixed left-0 top-0">
-      {/* Logo section */}
-      <div className="p-4">
-        <Logo className="text-white" />
-      </div>
+  const NavItem = ({
+    to,
+    children,
+  }: {
+    to: string;
+    children: React.ReactNode;
+  }) => {
+    const [wasActive, setWasActive] = useState(false);
+    const barRef = useRef<HTMLDivElement>(null);
 
-      {/* Main navigation */}
-      <nav className="flex-1 px-2">
-        <ul className="flex flex-col gap-1">
-          <li>
-            <NavLink to="/" className={linkClass}>
-              New music
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/likes" className={linkClass}>
-              Your likes
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/created" className={linkClass}>
-              Created by you
-            </NavLink>
-          </li>
+    return (
+      <NavLink to={to} className={linkClass}>
+        {({ isActive }) => {
+          useEffect(() => {
+            if (!isActive && wasActive) {
+              // Only apply deactivate animation if this item was previously active
+              barRef.current?.classList.add("nav-bar-deactivate");
+            }
+            setWasActive(isActive);
+          }, [isActive]);
 
-          {/* Admin-only navigation */}
-          {isAdmin && (
+          return (
             <>
-              <li className="mt-4 mb-2">
-                <div className="px-4 text-sm font-medium text-white/40">Admin</div>
-              </li>
-              <li>
-                <NavLink to="/admin/users" className={linkClass}>
-                  Users
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/admin/genres" className={linkClass}>
-                  Genres
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/admin/invites" className={linkClass}>
-                  Invites
-                </NavLink>
-              </li>
+              <div
+                ref={barRef}
+                className={cn("nav-bar", isActive && "nav-bar-active")}
+                onAnimationEnd={() => {
+                  if (!isActive) {
+                    barRef.current?.classList.remove("nav-bar-deactivate");
+                  }
+                }}
+              />
+              <span>{children}</span>
             </>
-          )}
-        </ul>
-      </nav>
+          );
+        }}
+      </NavLink>
+    );
+  };
 
-      {/* Bottom section */}
-      <div className="mt-auto px-2 pb-4">
-        <ul className="flex flex-col gap-1">
-          <li>
-            <NavLink to="/profile" className={linkClass}>
-              Profile
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/preferences" className={linkClass}>
-              Preferences
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/account" className={linkClass}>
-              Account
-            </NavLink>
-          </li>
-        </ul>
+  if (!profile) return null;
 
-        {/* Footer links */}
-        <div className="mt-4 px-4 text-sm">
-          <ul className="flex flex-col gap-2 text-white/40">
+  return (
+    <>
+      <style>{activeBarStyles}</style>
+      <aside className="w-64 h-screen bg-[#121212] text-white flex flex-col fixed left-0 top-0">
+        {/* Logo section */}
+        <div className="p-4">
+          <Logo className="text-white h-6" />
+        </div>
+
+        {/* Main navigation */}
+        <nav className="flex-1">
+          <ul className="flex flex-col">
             <li>
-              <a href="/privacy" className="hover:text-white/60">
-                Privacy policy
-              </a>
+              <NavItem to="/">New music</NavItem>
             </li>
             <li>
-              <a href="/terms" className="hover:text-white/60">
-                Terms of service
-              </a>
+              <NavItem to="/likes">Your likes</NavItem>
+            </li>
+            {(isAdmin || isCreator) && (
+              <li>
+                <NavItem to="/created">Created by you</NavItem>
+              </li>
+            )}
+            {isAdmin && (
+              <>
+                <li>
+                  <NavItem to="/admin/users">Users</NavItem>
+                </li>
+                <li>
+                  <NavItem to="/admin/genres">Genres</NavItem>
+                </li>
+                <li>
+                  <NavItem to="/admin/invites">Invites</NavItem>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+
+        {/* Bottom section */}
+        <div className="mt-auto">
+          <ul className="flex flex-col">
+            <li>
+              <NavItem to={`/${profile.username}`}>Profile</NavItem>
+            </li>
+            <li>
+              <NavItem to="/preferences">Preferences</NavItem>
+            </li>
+            <li>
+              <NavItem to="/account">Account</NavItem>
             </li>
           </ul>
+
+          {/* Footer links */}
+          <div className="px-4 py-4 mt-4 text-[13px] border-t border-white/10">
+            <ul className="flex flex-col gap-2 text-white/40">
+              <li>
+                <a href="/privacy" className="hover:text-white/60">
+                  Privacy policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="hover:text-white/60">
+                  Terms of service
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
