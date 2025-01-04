@@ -15,6 +15,13 @@ interface ReleaseListProps {
   onDelete?: () => void;
 }
 
+const ExternalLinkIcon = () => (
+  <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5.08301 4.5835H9.91634V9.41683" stroke="currentColor" strokeWidth="1.25" strokeLinecap="square" strokeLinejoin="round"/>
+    <path d="M4.08301 10.4168L8.91634 5.5835" stroke="currentColor" strokeWidth="1.25" strokeLinecap="square" strokeLinejoin="round"/>
+  </svg>
+);
+
 export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
   const { isAdmin, canManageReleases } = usePermissions();
@@ -50,24 +57,26 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
           data-release-id={release.id}
         >
           {/* Cover Image Container */}
-          <div className="relative p-5 flex flex-col justify-end min-h-[354px] font-[var(--font-innovator)] text-white">
+          <div className="relative w-full aspect-square">
             {/* Background Image */}
-            <div className="absolute inset-0 z-0 w-[354px] h-[354px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute inset-0">
               {release.cover_url ? (
                 <img 
                   src={release.cover_url} 
                   alt={`${release.name} cover`}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-900 flex items-center justify-center">
                   <Music className="w-12 h-12 text-gray-700" />
                 </div>
               )}
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/60 to-black/90" />
             </div>
 
             {/* Content */}
-            <div className="relative z-10 flex flex-col justify-between flex-1">
+            <div className="relative z-10 flex flex-col justify-between h-full p-5">
               {/* Release Type Pill */}
               <div className="flex items-center gap-2 text-[12px] font-medium">
                 <div className="bg-[rgba(32,32,32,0.6)] border border-black/5 rounded-[6px] px-2 py-1">
@@ -75,7 +84,7 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                 </div>
               </div>
 
-              <div className="mt-[194px] flex flex-col">
+              <div className="flex flex-col">
                 {/* Title and Artist */}
                 <div className="text-[24px] font-semibold leading-[1.1]">
                   <p>
@@ -143,9 +152,9 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="flex items-end gap-0.5 whitespace-nowrap hover:opacity-80 transition-opacity"
+                      className="flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity"
                     >
-                      Spotify <ExternalLink className="w-3.5 h-3.5" />
+                      Spotify <ExternalLinkIcon />
                     </a>
                   )}
                   {release.apple_music_url && (
@@ -154,9 +163,9 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="flex items-end gap-0.5 whitespace-nowrap hover:opacity-80 transition-opacity"
+                      className="flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity"
                     >
-                      Apple Music <ExternalLink className="w-3.5 h-3.5" />
+                      Apple Music <ExternalLinkIcon />
                     </a>
                   )}
                 </div>

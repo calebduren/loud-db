@@ -1,21 +1,15 @@
 @layer components {
   .pill {
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-    display: inline-flex;
-    align-items: center;
-
-    &--genre {
-      background: rgba(255, 255, 255, 0.30);
-      backdrop-filter: blur(4px);
+    @apply inline-flex items-center justify-center px-2 py-1 text-sm rounded-md;
+    font-family: var(--font-innovator);
+    font-weight: var(--font-weight-medium);
+    
+    &--release-type {
+      @apply bg-white/10 text-white;
     }
 
-    &--release-type {
-      background: rgba(32, 32, 32, 0.50);
-      backdrop-filter: blur(4px);
+    &--genre {
+      @apply bg-white/30 text-white;
     }
   }
 }

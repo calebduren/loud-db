@@ -137,13 +137,80 @@
 :root {
   --font-innovator: "Innovator Grotesk";
   --font-geist-mono: "Geist Mono";
+  
+  // Font weight variables
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 }
 
 // Base styles
 body {
   background-color: $color-primary;
   font-family: var(--font-innovator);
+  font-weight: var(--font-weight-regular);
   color: $color-white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography styles
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-innovator);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  font-family: var(--font-innovator);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+}
+
+.text-mono {
+  font-family: var(--font-geist-mono);
+}
+
+.font-light {
+  font-weight: var(--font-weight-light);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
 }
