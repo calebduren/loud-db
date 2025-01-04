@@ -1,0 +1,120 @@
+.release-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.release-card {
+  @apply relative cursor-pointer overflow-hidden bg-[#262626] border border-white/[0.02] rounded-[12px] shadow-[0px_12px_20px_0px_rgba(0,0,0,0.40)] min-w-[288px] flex flex-col;
+
+  // Cover section
+  &__cover {
+    @apply relative w-full aspect-square;
+  }
+
+  &__image-container {
+    @apply absolute inset-0;
+  }
+
+  &__image {
+    @apply w-full h-full object-cover;
+  }
+
+  &__placeholder {
+    @apply w-full h-full bg-gray-900 flex items-center justify-center;
+  }
+
+  &__gradient {
+    @apply absolute inset-0;
+    background: linear-gradient(
+      180deg,
+      rgba(38, 38, 38, 0) 0%,
+      rgba(38, 38, 38, 0.8) 80%,
+      #262626 100%
+    );
+  }
+
+  &__content {
+    @apply relative z-10 flex flex-col justify-between h-full p-5;
+  }
+
+  // Type pill
+  &__type {
+    @apply flex items-center gap-2 text-[12px] font-medium;
+
+    &-pill {
+      @apply bg-[rgba(32,32,32,0.6)] border border-black/5 rounded-[6px] px-2 py-1 backdrop-blur;
+    }
+  }
+
+  // Title section
+  &__title {
+    @apply text-[24px] font-semibold leading-[1.1];
+
+    h3 {
+      @apply mt-2;
+    }
+  }
+
+  // Genre pills
+  &__genres {
+    @apply flex flex-wrap gap-2 mt-4;
+
+    &-pill {
+      @apply bg-white/30 border border-white/10 rounded-[6px] px-2 py-1 text-[12px] font-medium backdrop-blur;
+    }
+  }
+
+  // Details section
+  &__details {
+    @apply bg-[#262626] w-full px-[6px] pb-[6px];
+
+    &-container {
+      @apply bg-[#363636] rounded-[3px_3px_8px_8px] w-full;
+    }
+  }
+
+  // Info section
+  &__info {
+    @apply p-[14px] text-[12px] leading-[1.25];
+
+    &-row {
+      @apply flex items-start gap-2 min-w-[143px] whitespace-nowrap;
+
+      &:not(:first-child) {
+        @apply mt-3;
+      }
+    }
+
+    &-label {
+      @apply text-[#B3B3B3] font-[var(--font-geist-mono)] w-16;
+    }
+
+    &-value {
+      @apply text-white font-[var(--font-innovator)] font-medium flex-1 truncate;
+    }
+  }
+
+  // Actions section
+  &__actions {
+    @apply flex items-center font-[var(--font-innovator)] font-semibold;
+  }
+
+  &__links {
+    @apply flex-1 flex-shrink-0 basis-0 flex items-center gap-6 text-[#F1977E] px-[14px] py-[14px];
+  }
+
+  &__link {
+    @apply flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity;
+  }
+
+  &__divider {
+    @apply w-[1px] h-[42px] bg-white/[0.06];
+  }
+
+  &__like {
+    @apply px-[14px] py-[14px] text-white whitespace-nowrap;
+  }
+}
+
+.release-divider {
+  @apply w-full h-[1px] bg-white/[0.06];
+}

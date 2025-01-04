@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Release } from '../../types/database';
-import { Music, ExternalLink } from 'lucide-react';
-import { LikeButton } from '../common/LikeButton';
-import { ReleaseModal } from './ReleaseModal';
-import { ReleaseSkeleton } from './ReleaseSkeleton';
-import { usePermissions } from '../../hooks/usePermissions';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState } from "react";
+import { Release } from "../../types/database";
+import { Music } from "lucide-react";
+import { LikeButton } from "../common/LikeButton";
+import { ReleaseModal } from "./ReleaseModal";
+import { ReleaseSkeleton } from "./ReleaseSkeleton";
+import { usePermissions } from "../../hooks/usePermissions";
+import { useAuth } from "../../hooks/useAuth";
 
 interface ReleaseListProps {
   releases: Release[];
@@ -16,93 +16,112 @@ interface ReleaseListProps {
 }
 
 const ExternalLinkIcon = () => (
-  <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M5.08301 4.5835H9.91634V9.41683" stroke="currentColor" strokeWidth="1.25" strokeLinecap="square" strokeLinejoin="round"/>
-    <path d="M4.08301 10.4168L8.91634 5.5835" stroke="currentColor" strokeWidth="1.25" strokeLinecap="square" strokeLinejoin="round"/>
+  <svg
+    width="14"
+    height="15"
+    viewBox="0 0 14 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M5.08301 4.5835H9.91634V9.41683"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4.08301 10.4168L8.91634 5.5835"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
-export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }: ReleaseListProps) {
+export function ReleaseList({
+  releases,
+  loading,
+  showActions,
+  onEdit,
+  onDelete,
+}: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
   const { isAdmin, canManageReleases } = usePermissions();
   const { user } = useAuth();
 
-  // Check if user can edit a specific release
   const canEditRelease = (release: Release) => {
-    if (!user || !canManageReleases) return false;
-    return isAdmin || user.id === release.created_by;
+    if (!user) return false;
+    if (isAdmin) return true;
+    return release.created_by === user.id;
   };
 
-  // Check if user can delete a specific release
   const canDeleteRelease = (release: Release) => {
     if (!user) return false;
-    return isAdmin; // Only admins can delete releases
+    if (isAdmin) return true;
+    return release.created_by === user.id;
   };
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => <ReleaseSkeleton key={i} />)}
+      <div className="release-grid">
+        {[...Array(6)].map((_, i) => (
+          <ReleaseSkeleton key={i} />
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="release-grid">
       {releases.map((release) => (
-        <div 
-          key={release.id} 
-          className="relative group cursor-pointer overflow-hidden bg-[#262626] border border-white/[0.02] rounded-[12px] shadow-[0px_12px_20px_0px_rgba(0,0,0,0.40)] min-w-[288px] max-w-[354px] flex flex-col"
+        <div
+          key={release.id}
+          className="release-card group"
           onClick={() => setSelectedRelease(release)}
           data-release-id={release.id}
         >
-          {/* Cover Image Container */}
-          <div className="relative w-full aspect-square">
-            {/* Background Image */}
-            <div className="absolute inset-0">
+          <div className="release-card__cover">
+            <div className="release-card__image-container">
               {release.cover_url ? (
-                <img 
-                  src={release.cover_url} 
+                <img
+                  src={release.cover_url}
                   alt={`${release.name} cover`}
-                  className="w-full h-full object-cover"
+                  className="release-card__image"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                <div className="release-card__placeholder">
                   <Music className="w-12 h-12 text-gray-700" />
                 </div>
               )}
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/60 to-black/90" />
+              <div className="release-card__gradient" />
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col justify-between h-full p-5">
-              {/* Release Type Pill */}
-              <div className="flex items-center gap-2 text-[12px] font-medium">
-                <div className="bg-[rgba(32,32,32,0.6)] border border-black/5 rounded-[6px] px-2 py-1">
-                  {release.type || 'Album'}
+            <div className="release-card__content">
+              <div className="release-card__type">
+                <div className="release-card__type-pill">
+                  {release.type || "Album"}
                 </div>
               </div>
 
-              <div className="flex flex-col">
-                {/* Title and Artist */}
-                <div className="text-[24px] font-semibold leading-[1.1]">
+              <div>
+                <div className="release-card__title">
                   <p>
                     {release.artists
                       .sort((a, b) => a.position - b.position)
-                      .map(ra => ra.artist.name)
-                      .join(', ')}
+                      .map((ra) => ra.artist.name)
+                      .join(", ")}
                   </p>
-                  <h3 className="mt-2">{release.name}</h3>
+                  <h3>{release.name}</h3>
                 </div>
 
-                {/* Genre Pills */}
                 {release.genres?.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {release.genres.slice(0, 3).map(genre => (
-                      <div 
-                        key={genre} 
-                        className="bg-white/30 border border-white/10 rounded-[6px] px-2 py-1 text-[12px] font-medium"
+                  <div className="release-card__genres">
+                    {release.genres.slice(0, 3).map((genre) => (
+                      <div
+                        key={genre}
+                        className="release-card__genres-pill"
                       >
                         {genre}
                       </div>
@@ -113,46 +132,52 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
             </div>
           </div>
 
-          {/* Details Section */}
-          <div className="bg-[#262626] w-full px-[6px] pb-[6px]">
-            <div className="bg-[#363636] rounded-[3px_3px_8px_8px] w-full">
-              {/* Release Info */}
-              <div className="p-[14px] text-[12px] leading-[1.25]">
-                <div className="flex items-start gap-2 min-w-[143px] whitespace-nowrap">
-                  <span className="text-[#B3B3B3] font-[var(--font-geist-mono)] w-16">Tracks</span>
-                  <span className="text-white font-[var(--font-innovator)] font-medium">{release.track_count}</span>
-                </div>
-                <div className="flex items-start gap-2 min-w-[143px] mt-3">
-                  <span className="text-[#B3B3B3] font-[var(--font-geist-mono)] w-16">Released</span>
-                  <span className="text-white font-[var(--font-innovator)] font-medium">
-                    {new Date(release.release_date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+          <div className="release-card__details">
+            <div className="release-card__details-container">
+              <div className="release-card__info">
+                <div className="release-card__info-row">
+                  <span className="release-card__info-label">
+                    Tracks
+                  </span>
+                  <span className="release-card__info-value">
+                    {release.track_count}
                   </span>
                 </div>
-                <div className="flex items-start gap-2 min-w-[143px] mt-3">
-                  <span className="text-[#B3B3B3] font-[var(--font-geist-mono)] w-16">Label</span>
-                  <span className="text-white font-[var(--font-innovator)] font-medium">
-                    {release.record_label || '—'}
+                <div className="release-card__info-row">
+                  <span className="release-card__info-label">
+                    Released
+                  </span>
+                  <span className="release-card__info-value">
+                    {new Date(release.release_date).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )}
+                  </span>
+                </div>
+                <div className="release-card__info-row">
+                  <span className="release-card__info-label">
+                    Label
+                  </span>
+                  <span className="release-card__info-value">
+                    {release.record_label || "—"}
                   </span>
                 </div>
               </div>
 
-              {/* Divider */}
-              <div className="w-full h-[1px] bg-white/[0.06]" />
+              <div className="release-divider" />
 
-              {/* Actions */}
-              <div className="flex items-center font-[var(--font-innovator)] font-semibold">
-                {/* Links */}
-                <div className="flex-1 flex-shrink-0 basis-0 flex items-center gap-6 text-[#F1977E] px-[14px] py-[14px]">
+              <div className="release-card__actions">
+                <div className="release-card__links">
                   {release.spotify_url && (
                     <a
                       href={release.spotify_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
                     >
                       Spotify <ExternalLinkIcon />
                     </a>
@@ -162,19 +187,17 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
                       href={release.apple_music_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
                     >
                       Apple Music <ExternalLinkIcon />
                     </a>
                   )}
                 </div>
 
-                {/* Divider */}
-                <div className="w-[1px] h-[42px] bg-white/[0.06]" />
+                <div className="release-card__divider" />
 
-                {/* Like Button */}
-                <div className="px-[14px] py-[14px] text-white whitespace-nowrap">
+                <div className="release-card__like">
                   <LikeButton release={release} />
                 </div>
               </div>
@@ -188,16 +211,22 @@ export function ReleaseList({ releases, loading, showActions, onEdit, onDelete }
           release={selectedRelease}
           isOpen={true}
           onClose={() => setSelectedRelease(null)}
-          onEdit={showActions && onEdit && canEditRelease(selectedRelease) ? 
-            () => {
-              onEdit(selectedRelease);
-              setSelectedRelease(null);
-            } : undefined}
-          onDelete={showActions && onDelete && canDeleteRelease(selectedRelease) ?
-            () => {
-              onDelete();
-              setSelectedRelease(null);
-            } : undefined}
+          onEdit={
+            showActions && onEdit && canEditRelease(selectedRelease)
+              ? () => {
+                  onEdit(selectedRelease);
+                  setSelectedRelease(null);
+                }
+              : undefined
+          }
+          onDelete={
+            showActions && onDelete && canDeleteRelease(selectedRelease)
+              ? () => {
+                  onDelete();
+                  setSelectedRelease(null);
+                }
+              : undefined
+          }
         />
       )}
     </div>
