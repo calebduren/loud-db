@@ -67,3 +67,11 @@ export interface TrackCredit {
   role: string;
   created_at: string;
 }
+
+export interface Profile {
+  id: string;
+  username: string;
+  role: 'admin' | 'creator' | 'user';
+  created_at: string;
+  updated_at: string;
+}

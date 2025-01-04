@@ -1,20 +1,148 @@
-@use 'tailwindcss/base';
-@use 'tailwindcss/components';
-@use 'tailwindcss/utilities';
+@use "tailwindcss/base";
+@use "tailwindcss/components";
+@use "tailwindcss/utilities";
 
 // Abstracts
-@use 'abstracts/colors' as *;
-@use 'abstracts/mixins';
+@use "abstracts/colors" as *;
+@use "abstracts/mixins";
 
 // Components
-@use 'components/buttons';
-@use 'components/inputs';
-@use 'components/cards';
-@use 'components/pills';
+@use "components/buttons";
+@use "components/inputs";
+@use "components/cards";
+@use "components/pills";
+
+// Font faces
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGroteskVF-VF.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-RegularItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-LightItalic.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-MediumItalic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-SemiBoldItalic.woff2") format("woff2");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Innovator Grotesk";
+  src: url("../public/fonts/InnovatorGrotesk-BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../public/fonts/GeistMono[wght].woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../public/fonts/GeistMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../public/fonts/GeistMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../public/fonts/GeistMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+// CSS Variables for font features
+:root {
+  --font-innovator: "Innovator Grotesk";
+  --font-geist-mono: "Geist Mono";
+}
 
 // Base styles
 body {
   background-color: $color-primary;
+  font-family: var(--font-innovator);
   color: $color-white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

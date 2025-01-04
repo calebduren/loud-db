@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Music, User, Shield, Plus } from 'lucide-react';
+import { Music, User, Shield, Plus, ListMusic } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { Button } from './ui/button';
 import { ReleaseFormModal } from './admin/ReleaseFormModal';
+import { PlaylistImportModal } from './admin/PlaylistImportModal';
 
 export function Navigation() {
   const { isAdmin, canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
 
   const linkClass = ({ isActive }: { isActive: boolean }) => `
     flex items-center gap-2 px-4 py-2 text-sm
@@ -39,18 +41,40 @@ export function Navigation() {
 
       {canManageReleases && (
         <>
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Release
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setIsPlaylistModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <ListMusic className="w-4 h-4" />
+              Import Playlist
+            </Button>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Release
+            </Button>
+          </div>
 
           <ReleaseFormModal
             isOpen={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
-            onSuccess={() => setIsCreateModalOpen(false)}
+            onSuccess={() => {
+              setIsCreateModalOpen(false);
+              window.location.reload();
+            }}
+          />
+
+          <PlaylistImportModal
+            isOpen={isPlaylistModalOpen}
+            onClose={() => setIsPlaylistModalOpen(false)}
+            onSuccess={() => {
+              setIsPlaylistModalOpen(false);
+              window.location.reload();
+            }}
           />
         </>
       )}

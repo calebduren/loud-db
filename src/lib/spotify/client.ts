@@ -18,18 +18,30 @@ function getAlbumIdFromUrl(url: string): string | null {
   }
 }
 
-async function getClientCredentialsToken(): Promise<string> {
+export async function getClientCredentialsToken(): Promise<string> {
+  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+  const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new AppError('Missing Spotify credentials. Please check your .env file.');
+  }
+
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${btoa(`${import.meta.env.VITE_SPOTIFY_CLIENT_ID}:${import.meta.env.VITE_SPOTIFY_CLIENT_SECRET}`)}`
+      'Authorization': `Basic ${btoa(`${clientId}:${clientSecret}`)}`
     },
-    body: 'grant_type=client_credentials'
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      scope: 'playlist-read-private playlist-read-collaborative'
+    })
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get Spotify access token');
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    console.error('Failed to get Spotify token:', error);
+    throw new AppError('SPOTIFY_API_ERROR');
   }
 
   const data = await response.json();

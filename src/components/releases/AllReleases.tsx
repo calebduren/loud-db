@@ -7,11 +7,9 @@ import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
-import { CreateReleaseButton } from "./CreateReleaseButton";
 
 export function AllReleases() {
   const { releases, loading, refetch } = useReleases();
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const { canManageReleases } = usePermissions();
 
@@ -27,11 +25,6 @@ export function AllReleases() {
   // Subscribe to release changes
   useReleaseSubscription(refetch);
 
-  const handleCreateSuccess = useCallback(() => {
-    setIsCreateModalOpen(false);
-    refetch();
-  }, [refetch]);
-
   const handleEditSuccess = useCallback(() => {
     setEditingRelease(null);
     refetch();
@@ -41,7 +34,6 @@ export function AllReleases() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-white">Latest Releases</h1>
-        <CreateReleaseButton onClick={() => setIsCreateModalOpen(true)} />
       </div>
 
       <ReleaseFilters
@@ -65,13 +57,6 @@ export function AllReleases() {
           onDelete={refetch}
         />
       )}
-
-      {/* Create Modal */}
-      <ReleaseFormModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={handleCreateSuccess}
-      />
 
       {/* Edit Modal */}
       {editingRelease && (

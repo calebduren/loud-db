@@ -1,6 +1,14 @@
 import { supabase } from '../supabase';
 import { ReleaseType } from '../../types/database';
 import { findOrCreateArtist } from '../artists/artistService';
+import { AppError } from '../errors/messages';
+
+interface Track {
+  name: string;
+  duration_ms: number | null;
+  track_number: number;
+  preview_url: string | null;
+}
 
 interface CreateReleaseData {
   name: string;
@@ -14,24 +22,25 @@ interface CreateReleaseData {
   release_date: string;
   created_by: string;
   artists: { id?: string; name: string; }[];
+  tracks?: Track[];
 }
 
 export async function createRelease(data: CreateReleaseData): Promise<string> {
   // Input validation
   if (!data.name?.trim()) {
-    throw new Error('Release name is required');
+    throw new AppError('Release name is required');
   }
   if (!data.artists?.length) {
-    throw new Error('At least one artist is required');
+    throw new AppError('At least one artist is required');
   }
   if (!data.created_by) {
-    throw new Error('User ID is required');
+    throw new AppError('User ID is required');
   }
 
   // Validate release date
   const releaseDate = new Date(data.release_date);
   if (isNaN(releaseDate.getTime())) {
-    throw new Error('Invalid release date');
+    throw new AppError('Invalid release date');
   }
 
   // Ensure the date is in UTC and set to noon to avoid timezone issues
@@ -48,47 +57,29 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
   try {
     // Process artists first to ensure they exist
     const artistIds = await Promise.all(
-      data.artists
-        .filter(artist => artist.name.trim())
-        .map(async artist => {
-          try {
-            return artist.id || await findOrCreateArtist(artist.name);
-          } catch (error) {
-            console.error('Error processing artist:', artist.name, error);
-            throw new Error(`Failed to process artist: ${artist.name}`);
-          }
-        })
+      data.artists.map(artist => findOrCreateArtist(artist.name))
     );
 
-    if (artistIds.length === 0) {
-      throw new Error('At least one valid artist is required');
-    }
-
-    // Create release
+    // Start a transaction
     const { data: release, error: releaseError } = await supabase
       .from('releases')
       .insert({
-        name: data.name.trim(),
+        name: data.name,
         release_type: data.release_type,
         cover_url: data.cover_url,
-        genres: Array.isArray(data.genres) ? data.genres : [],
-        record_label: data.record_label?.trim(),
-        track_count: Math.max(1, data.track_count),
-        spotify_url: data.spotify_url?.trim(),
-        apple_music_url: data.apple_music_url?.trim(),
+        genres: data.genres,
+        record_label: data.record_label,
+        track_count: data.track_count,
+        spotify_url: data.spotify_url,
+        apple_music_url: data.apple_music_url,
         release_date: utcDate.toISOString(),
         created_by: data.created_by
       })
-      .select('id')
+      .select()
       .single();
 
-    if (releaseError) {
-      console.error('Release creation error:', releaseError);
-      throw new Error(releaseError.message);
-    }
-
-    if (!release?.id) {
-      throw new Error('No release ID returned');
+    if (releaseError || !release) {
+      throw releaseError || new AppError('Failed to create release');
     }
 
     // Create artist relationships
@@ -98,23 +89,36 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
         artistIds.map((artistId, index) => ({
           release_id: release.id,
           artist_id: artistId,
-          position: index
+          position: index + 1
         }))
       );
 
     if (artistError) {
-      // Rollback release creation
-      await supabase
-        .from('releases')
-        .delete()
-        .eq('id', release.id);
-      throw new Error('Failed to create artist relationships');
+      throw artistError;
+    }
+
+    // Create tracks if provided
+    if (data.tracks?.length) {
+      const { error: tracksError } = await supabase
+        .from('tracks')
+        .insert(
+          data.tracks.map(track => ({
+            release_id: release.id,
+            name: track.name,
+            duration_ms: track.duration_ms,
+            track_number: track.track_number,
+            preview_url: track.preview_url
+          }))
+        );
+
+      if (tracksError) {
+        throw tracksError;
+      }
     }
 
     return release.id;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create release';
-    console.error('Create release error:', error);
-    throw new Error(message);
+    console.error('Error creating release:', error);
+    throw error instanceof AppError ? error : new AppError('RELEASE_CREATION_FAILED');
   }
 }

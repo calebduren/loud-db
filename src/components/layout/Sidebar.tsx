@@ -5,6 +5,10 @@ import { cn } from "../../lib/utils";
 import { useAuth } from "../../hooks/useAuth";
 import { usePermissions } from "../../hooks/usePermissions";
 import { useProfile } from "../../hooks/useProfile";
+import { Button } from "../ui/button";
+import { Plus, ListMusic } from "lucide-react";
+import { ReleaseFormModal } from "../admin/ReleaseFormModal";
+import { PlaylistImportModal } from "../admin/PlaylistImportModal";
 
 const activeBarStyles = `
   @keyframes activateBar {
@@ -34,8 +38,10 @@ const activeBarStyles = `
 
 export function Sidebar() {
   const { user } = useAuth();
-  const { isAdmin, isCreator } = usePermissions();
+  const { isAdmin, canManageReleases, loading } = usePermissions();
   const { profile } = useProfile(user?.id);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -83,15 +89,38 @@ export function Sidebar() {
     );
   };
 
-  if (!profile) return null;
+  if (!profile || loading) return null;
 
   return (
     <>
       <style>{activeBarStyles}</style>
-      <aside className="w-64 h-screen bg-[#121212] text-white flex flex-col fixed left-0 top-0">
+      <aside className="w-64 h-screen bg-[#121212] text-white flex flex-col fixed left-0 top-0 z-10">
         {/* Logo section */}
         <div className="p-4">
           <Logo className="text-white h-6" />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="px-4 pb-4 flex flex-col gap-2">
+          {canManageReleases && (
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 w-full"
+            >
+              <Plus className="w-4 h-4" />
+              Add Release
+            </Button>
+          )}
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => setIsPlaylistModalOpen(true)}
+              className="flex items-center gap-2 w-full"
+            >
+              <ListMusic className="w-4 h-4" />
+              Import Playlist
+            </Button>
+          )}
         </div>
 
         {/* Main navigation */}
@@ -103,7 +132,7 @@ export function Sidebar() {
             <li>
               <NavItem to="/likes">Your likes</NavItem>
             </li>
-            {(isAdmin || isCreator) && (
+            {(isAdmin || profile.role === 'creator') && (
               <li>
                 <NavItem to="/created">Created by you</NavItem>
               </li>
@@ -154,6 +183,25 @@ export function Sidebar() {
             </ul>
           </div>
         </div>
+
+        {/* Modals */}
+        <ReleaseFormModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => {
+            setIsCreateModalOpen(false);
+            window.location.reload();
+          }}
+        />
+
+        <PlaylistImportModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          onSuccess={() => {
+            setIsPlaylistModalOpen(false);
+            window.location.reload();
+          }}
+        />
       </aside>
     </>
   );
