@@ -12,6 +12,7 @@
 @use "components/cards";
 @use "components/pills";
 @use "components/releases";
+@use "components/sidebar";
 
 // Font faces
 @font-face {
@@ -134,8 +135,50 @@
   font-display: swap;
 }
 
-// CSS Variables for font features
+// CSS Variables
 :root {
+  // Base Colors
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  
+  // Gray Scale
+  --color-gray-100: #F5F5F5;
+  --color-gray-200: #E5E5E5;
+  --color-gray-300: #D4D4D4;
+  --color-gray-400: #B3B3B3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #363636;
+  --color-gray-800: #262626;
+  --color-gray-900: #202020;
+  
+  // Brand Colors
+  --color-coral: #F1977E;
+  --color-coral-light: #F5B3A1;
+  --color-coral-dark: #E57B5C;
+  
+  // Semantic Colors
+  --color-background: var(--color-gray-900);
+  --color-surface: var(--color-gray-800);
+  --color-surface-dark: var(--color-gray-700);
+  --color-border: rgba(255, 255, 255, 0.02);
+  --color-text: var(--color-white);
+  --color-text-secondary: var(--color-gray-400);
+  --color-text-tertiary: var(--color-gray-500);
+  --color-accent: var(--color-coral);
+  
+  // Component Specific
+  --color-card-background: var(--color-gray-800);
+  --color-card-gradient-start: rgba(38, 38, 38, 0);
+  --color-card-gradient-middle: rgba(38, 38, 38, 0.8);
+  --color-card-gradient-end: var(--color-gray-800);
+  --color-pill-background: rgba(32, 32, 32, 0.6);
+  --color-pill-border: rgba(0, 0, 0, 0.05);
+  --color-genre-pill-background: rgba(255, 255, 255, 0.3);
+  --color-genre-pill-border: rgba(255, 255, 255, 0.1);
+  --color-divider: rgba(255, 255, 255, 0.06);
+  
+  // Font variables
   --font-innovator: "Innovator Grotesk";
   --font-geist-mono: "Geist Mono";
   
@@ -149,10 +192,10 @@
 
 // Base styles
 body {
-  background-color: $color-primary;
+  background-color: var(--color-background);
   font-family: var(--font-innovator);
   font-weight: var(--font-weight-regular);
-  color: $color-white;
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

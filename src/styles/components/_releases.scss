@@ -3,7 +3,10 @@
 }
 
 .release-card {
-  @apply relative cursor-pointer overflow-hidden bg-[#262626] border border-white/[0.02] rounded-[12px] shadow-[0px_12px_20px_0px_rgba(0,0,0,0.40)] min-w-[288px] flex flex-col;
+  @apply relative cursor-pointer overflow-hidden rounded-[12px] min-w-[288px] flex flex-col;
+  background-color: var(--color-card-background);
+  border: 1px solid var(--color-border);
+  box-shadow: 0px 12px 20px 0px rgba(0, 0, 0, 0.40);
 
   // Cover section
   &__cover {
@@ -19,16 +22,17 @@
   }
 
   &__placeholder {
-    @apply w-full h-full bg-gray-900 flex items-center justify-center;
+    @apply w-full h-full flex items-center justify-center;
+    background-color: var(--color-surface-dark);
   }
 
   &__gradient {
     @apply absolute inset-0;
     background: linear-gradient(
       180deg,
-      rgba(38, 38, 38, 0) 0%,
-      rgba(38, 38, 38, 0.8) 80%,
-      #262626 100%
+      var(--color-card-gradient-start) 0%,
+      var(--color-card-gradient-middle) 80%,
+      var(--color-card-gradient-end) 100%
     );
   }
 
@@ -41,13 +45,16 @@
     @apply flex items-center gap-2 text-[12px] font-medium;
 
     &-pill {
-      @apply bg-[rgba(32,32,32,0.6)] border border-black/5 rounded-[6px] px-2 py-1 backdrop-blur;
+      @apply rounded-[6px] px-2 py-1 backdrop-blur;
+      background-color: var(--color-pill-background);
+      border: 1px solid var(--color-pill-border);
     }
   }
 
   // Title section
   &__title {
     @apply text-[24px] font-semibold leading-[1.1];
+    color: var(--color-text);
 
     h3 {
       @apply mt-2;
@@ -59,16 +66,20 @@
     @apply flex flex-wrap gap-2 mt-4;
 
     &-pill {
-      @apply bg-white/30 border border-white/10 rounded-[6px] px-2 py-1 text-[12px] font-medium backdrop-blur;
+      @apply rounded-[6px] px-2 py-1 text-[12px] font-medium backdrop-blur;
+      background-color: var(--color-genre-pill-background);
+      border: 1px solid var(--color-genre-pill-border);
     }
   }
 
   // Details section
   &__details {
-    @apply bg-[#262626] w-full px-[6px] pb-[6px];
+    @apply w-full px-[6px] pb-[6px];
+    background-color: var(--color-card-background);
 
     &-container {
-      @apply bg-[#363636] rounded-[3px_3px_8px_8px] w-full;
+      @apply w-full rounded-[3px_3px_8px_8px];
+      background-color: var(--color-surface-dark);
     }
   }
 
@@ -85,36 +96,48 @@
     }
 
     &-label {
-      @apply text-[#B3B3B3] font-[var(--font-geist-mono)] w-16;
+      @apply w-16;
+      font-family: var(--font-geist-mono);
+      color: var(--color-text-secondary);
     }
 
     &-value {
-      @apply text-white font-[var(--font-innovator)] font-medium flex-1 truncate;
+      @apply flex-1 truncate font-medium;
+      font-family: var(--font-innovator);
+      color: var(--color-text);
     }
   }
 
   // Actions section
   &__actions {
-    @apply flex items-center font-[var(--font-innovator)] font-semibold;
+    @apply flex items-center font-semibold;
+    font-family: var(--font-innovator);
   }
 
   &__links {
-    @apply flex-1 flex-shrink-0 basis-0 flex items-center gap-6 text-[#F1977E] px-[14px] py-[14px];
+    @apply flex-1 flex-shrink-0 basis-0 flex items-center gap-6 px-[14px] py-[14px];
+    color: var(--color-accent);
   }
 
   &__link {
-    @apply flex items-center gap-1 text-[12px] whitespace-nowrap hover:opacity-80 transition-opacity;
+    @apply flex items-center gap-1 text-[12px] whitespace-nowrap transition-opacity;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   &__divider {
-    @apply w-[1px] h-[42px] bg-white/[0.06];
+    @apply w-[1px] h-[42px];
+    background-color: var(--color-divider);
   }
 
   &__like {
-    @apply px-[14px] py-[14px] text-white whitespace-nowrap;
+    @apply px-[14px] py-[14px] whitespace-nowrap;
+    color: var(--color-text);
   }
 }
 
 .release-divider {
-  @apply w-full h-[1px] bg-white/[0.06];
+  @apply w-full h-[1px];
+  background-color: var(--color-divider);
 }

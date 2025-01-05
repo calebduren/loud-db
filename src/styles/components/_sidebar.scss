@@ -1,0 +1,128 @@
+.sidebar {
+  @apply w-64 h-screen text-white flex flex-col fixed left-0 top-0 z-10;
+  background-color: var(--color-surface-dark);
+
+  &__logo {
+    @apply p-4;
+  }
+
+  &__nav {
+    @apply flex-1 overflow-y-auto py-4;
+  }
+
+  &__section {
+    @apply px-2 mb-8;
+
+    &-title {
+      @apply px-4 text-[11px] font-medium uppercase tracking-wider text-white/40 mb-2;
+    }
+  }
+
+  &__list {
+    @apply space-y-1;
+  }
+
+  &__user {
+    @apply p-4 border-t border-white/[0.06];
+  }
+}
+
+// Navigation Item
+.nav-item {
+  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-[14px] font-medium relative;
+  color: var(--color-text-secondary);
+  transition: color 200ms ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &--active {
+    color: var(--color-text);
+    background-color: var(--color-surface);
+
+    &::before {
+      content: "";
+      @apply absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full;
+      background-color: var(--color-accent);
+    }
+  }
+
+  svg {
+    @apply w-[18px] h-[18px] opacity-60;
+  }
+
+  &:hover svg,
+  &--active svg {
+    @apply opacity-100;
+  }
+}
+
+// Profile Button
+.profile-button {
+  @apply flex items-center gap-3 px-2 py-1.5 rounded-lg w-full text-left;
+  color: var(--color-text-secondary);
+  transition: color 200ms ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &__avatar {
+    @apply w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[12px] font-medium;
+  }
+
+  &__info {
+    @apply flex-1 min-w-0;
+  }
+
+  &__name {
+    @apply text-[13px] font-medium truncate;
+    color: var(--color-text);
+  }
+
+  &__role {
+    @apply text-[12px] truncate;
+    color: var(--color-text-secondary);
+  }
+
+  &__menu {
+    @apply w-4 h-4 opacity-60;
+  }
+
+  &:hover &__menu {
+    @apply opacity-100;
+  }
+}
+
+@keyframes activateBar {
+  from {
+    width: 0;
+  }
+  to {
+    width: 20px;
+  }
+}
+
+@keyframes deactivateBar {
+  from {
+    width: 20px;
+  }
+  to {
+    width: 0;
+  }
+}
+
+.nav-bar {
+  width: 0;
+  height: 1.5px;
+  background: rgb(255 255 255 / 0.6);
+}
+
+.nav-bar-active {
+  animation: activateBar 300ms ease-out forwards;
+}
+
+.nav-bar-deactivate {
+  animation: deactivateBar 300ms ease-out forwards;
+}

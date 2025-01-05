@@ -11,6 +11,7 @@ export function usePermissions() {
   return {
     canManageReleases,
     isAdmin,
-    loading
+    loading,
+    profile
   };
 }
