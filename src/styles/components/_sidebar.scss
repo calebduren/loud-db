@@ -47,46 +47,37 @@
 
     .nav-bar {
       @apply bg-white/60;
-      width: 0;
       height: 1.5px;
-    }
-
-    &:hover .nav-bar:not(.nav-bar-active) {
-      animation: hoverBar 300ms ease-out forwards;
-    }
-
-    &:not(:hover) .nav-bar:not(.nav-bar-active):not(.nav-bar-deactivate) {
-      animation: unhoverBar 300ms ease-out forwards;
     }
   }
 }
 
 @keyframes activateBar {
-  from {
+  0% {
     width: 10px;
     margin-right: 10px;
   }
-  to {
+  100% {
     width: 20px;
     margin-right: 10px;
   }
 }
 
 @keyframes deactivateBar {
-  from {
+  0% {
     width: 20px;
     margin-right: 10px;
   }
-  to {
+  100% {
     width: 0;
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
 
 @keyframes hoverBar {
   from {
     width: 0;
-    margin-right: 0px;
+    margin-right: 0;
   }
   to {
     width: 10px;
@@ -101,15 +92,27 @@
   }
   to {
     width: 0;
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
 
 .nav-bar-active {
-  @apply w-[20px];
+  width: 20px;
+  margin-right: 10px;
+}
+
+.nav-bar-activate {
   animation: activateBar 300ms ease-out forwards;
 }
 
 .nav-bar-deactivate {
   animation: deactivateBar 300ms ease-out forwards;
+}
+
+.nav-bar-hover {
+  animation: hoverBar 300ms ease-out forwards;
+}
+
+.nav-bar-unhover {
+  animation: unhoverBar 300ms ease-out forwards;
 }

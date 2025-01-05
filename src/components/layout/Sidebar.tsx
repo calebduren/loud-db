@@ -38,18 +38,25 @@ export function Sidebar() {
     children: React.ReactNode;
   }) => {
     const [wasActive, setWasActive] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [wasHovered, setWasHovered] = useState(false);
     const barRef = useRef<HTMLDivElement>(null);
 
     return (
-      <NavLink to={to} className={linkClass}>
+      <NavLink 
+        to={to} 
+        className={linkClass}
+        onMouseEnter={() => {
+          setIsHovered(true);
+          setWasHovered(true);
+        }}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {({ isActive }) => {
           useEffect(() => {
             if (!isActive && wasActive) {
-              // Only apply deactivate animation if this item was previously active
+              // Start deactivation animation
               barRef.current?.classList.add("nav-bar-deactivate");
-            } else if (isActive) {
-              // If activating, make sure we remove any deactivate class
-              barRef.current?.classList.remove("nav-bar-deactivate");
             }
             setWasActive(isActive);
           }, [isActive]);
@@ -58,10 +65,19 @@ export function Sidebar() {
             <>
               <div
                 ref={barRef}
-                className={cn("nav-bar", isActive && "nav-bar-active")}
+                className={cn(
+                  "nav-bar",
+                  isActive && (!wasActive ? "nav-bar-activate" : "nav-bar-active"),
+                  isHovered && !isActive && !wasActive && "nav-bar-hover",
+                  !isHovered && wasHovered && !isActive && !wasActive && "nav-bar-unhover"
+                )}
                 onAnimationEnd={() => {
-                  if (!isActive) {
+                  if (!isActive && wasActive) {
                     barRef.current?.classList.remove("nav-bar-deactivate");
+                    setWasActive(false);
+                  }
+                  if (!isHovered) {
+                    setWasHovered(false);
                   }
                 }}
               />
