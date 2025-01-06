@@ -3,8 +3,6 @@ import { Release } from "../../types/database";
 import { Music, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ReleaseModal } from "./ReleaseModal";
-import { usePermissions } from "../../hooks/usePermissions";
-import { useAuth } from "../../hooks/useAuth";
 
 interface WeekGroup {
   weekRange: {
@@ -40,8 +38,6 @@ export function ReleaseList({
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set()
   );
-  const { isAdmin, canManageReleases } = usePermissions();
-  const { user } = useAuth();
 
   if (!releases) return null;
 
@@ -61,18 +57,22 @@ export function ReleaseList({
   };
 
   const getWeekKey = (date: Date) => {
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 5 = Friday
+    const daysUntilFriday = ((dayOfWeek + 2) % 7); // Days until next Friday, or 0 if Friday
     const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay()); // Start of week (Sunday)
+    start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
     start.setHours(0, 0, 0, 0);
     return start.toISOString();
   };
 
   const getWeekRange = (date: Date) => {
+    const dayOfWeek = date.getDay();
+    const daysUntilFriday = ((dayOfWeek + 2) % 7);
     const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay()); // Start of week (Sunday)
+    start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
     start.setHours(0, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(end.getDate() + 6); // End of week (Saturday)
+    end.setDate(end.getDate() + 6); // End of week (Thursday)
     return {
       start,
       end,

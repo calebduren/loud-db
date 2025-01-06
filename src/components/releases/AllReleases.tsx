@@ -12,6 +12,8 @@ import { Plus } from "lucide-react";
 import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
+import { useDeleteRelease } from "../../hooks/useDeleteRelease";
+import { useToast } from "../../hooks/useToast";
 
 interface AdminToolbarProps {
   onCreateClick: () => void;
@@ -28,9 +30,12 @@ export function AllReleases() {
   const { releases, loading, hasMore, loadMoreRef, refetch } = useReleases();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
+  const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
   const { isAdmin, canManageReleases } = usePermissions();
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
+  const { deleteRelease } = useDeleteRelease();
+  const { showToast } = useToast();
 
   const isCreator = profile?.role === "creator";
 
@@ -55,6 +60,25 @@ export function AllReleases() {
     setEditingRelease(null);
     refetch();
   }, [refetch]);
+
+  const handleDelete = useCallback(
+    async (release: Release) => {
+      const success = await deleteRelease(release.id);
+      if (success) {
+        showToast({
+          type: "success",
+          message: "Release deleted successfully",
+        });
+        refetch();
+      } else {
+        showToast({
+          type: "error",
+          message: "Failed to delete release",
+        });
+      }
+    },
+    [deleteRelease, refetch, showToast]
+  );
 
   return (
     <div>
@@ -88,6 +112,11 @@ export function AllReleases() {
             showActions={canManageReleases}
             showWeeklyGroups={true}
             onEdit={canManageReleases ? setEditingRelease : undefined}
+            onDelete={isAdmin ? () => {
+              if (selectedRelease) {
+                handleDelete(selectedRelease);
+              }
+            } : undefined}
           />
         )}
       </div>
@@ -101,13 +130,12 @@ export function AllReleases() {
             onClose={() => setIsCreateModalOpen(false)}
             onSuccess={handleCreateSuccess}
           />
-
           {editingRelease && (
             <ReleaseFormModal
               isOpen={true}
-              release={editingRelease}
               onClose={() => setEditingRelease(null)}
               onSuccess={handleEditSuccess}
+              release={editingRelease}
             />
           )}
         </>
