@@ -2,7 +2,7 @@ import React from 'react';
 import { useUsers } from '../../../hooks/admin/useUsers';
 import { UserTable } from './UserTable';
 import { ReservedUsernames } from './ReservedUsernames';
-import { PageHeader } from '../../layout/PageHeader';
+import { PageTitle } from '../../layout/PageTitle';
 import { LoadingSpinner } from '../../LoadingSpinner';
 
 export function UserManagement() {
@@ -14,7 +14,7 @@ export function UserManagement() {
 
   return (
     <div>
-      <PageHeader 
+      <PageTitle 
         title="Users" 
         subtitle="Manage user accounts and permissions"
       />

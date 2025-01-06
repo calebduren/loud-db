@@ -3,7 +3,7 @@ import { Ticket, Plus, Loader2 } from 'lucide-react';
 import { useInviteCodes } from '../../../hooks/admin/useInviteCodes';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
-import { PageHeader } from '../../layout/PageHeader';
+import { PageTitle } from '../../layout/PageTitle';
 
 export function InviteCodeManager() {
   const { codes, loading, createCode, error } = useInviteCodes();
@@ -17,7 +17,7 @@ export function InviteCodeManager() {
 
   return (
     <div>
-      <PageHeader 
+      <PageTitle 
         title="Invite Codes" 
         subtitle="Generate and manage invite codes"
       />

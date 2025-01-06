@@ -5,7 +5,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useLikedReleases } from "../../hooks/useLikedReleases";
 import { useLikedReleasesByUser } from "../../hooks/useLikedReleasesByUser";
-import { PageHeader } from "../layout/PageHeader";
+import { PageTitle } from "../layout/PageTitle";
 
 export function LikedReleases() {
   const { username } = useParams();
@@ -28,7 +28,7 @@ export function LikedReleases() {
 
   return (
     <div>
-      <PageHeader 
+      <PageTitle 
         title={isOwnProfile ? "Your Liked Releases" : `${profile?.username}'s Liked Releases`}
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}

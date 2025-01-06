@@ -4,7 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useUserReleases } from "../../hooks/useUserReleases";
-import { PageHeader } from "../layout/PageHeader";
+import { PageTitle } from "../layout/PageTitle";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -56,7 +56,7 @@ export function CreatedReleases() {
 
   return (
     <div>
-      <PageHeader 
+      <PageTitle 
         title={isOwnProfile ? "Releases you created" : `Releases by ${profile?.username}`} 
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}

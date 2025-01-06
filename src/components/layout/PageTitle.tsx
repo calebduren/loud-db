@@ -1,14 +1,14 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { useAuth } from "../../hooks/useAuth";
+import { usePermissions } from "../../hooks/usePermissions";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { PlaylistImportModal } from "../admin/PlaylistImportModal";
 
 interface PageTitleProps {
   title: string;
   subtitle?: string;
-  showAddRelease?: boolean;
-  showImportPlaylist?: boolean;
+  showAddRelease?: boolean;  // Will only show for admins and creators
+  showImportPlaylist?: boolean;  // Will only show for admins
   actions?: React.ReactNode;
 }
 
@@ -19,11 +19,11 @@ export const PageTitle = ({
   showImportPlaylist,
   actions,
 }: PageTitleProps) => {
-  const { isAdmin, isCreator } = useAuth();
+  const { isAdmin, canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = React.useState(false);
 
-  const canShowAddRelease = showAddRelease && (isAdmin || isCreator);
+  const canShowAddRelease = showAddRelease && (isAdmin || canManageReleases);
   const canShowImportPlaylist = showImportPlaylist && isAdmin;
 
   return (

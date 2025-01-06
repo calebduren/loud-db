@@ -1,18 +1,15 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '../supabase';
 
-const TABLES = ['releases', 'release_artists', 'artists', 'tracks'] as const;
+// Only subscribe to the main releases view since it contains all the data we need
+const TABLES = ['releases_view'] as const;
 
 export function subscribeToReleaseChanges(onUpdate: () => void): RealtimeChannel {
   console.log('Setting up realtime subscription...');
   
-  const channel = supabase.channel('release-changes', {
-    config: {
-      broadcast: { self: true }
-    }
-  });
+  const channel = supabase.channel('release-changes');
   
-  // Subscribe to all relevant tables
+  // Subscribe to the releases view
   TABLES.forEach(table => {
     channel.on(
       'postgres_changes',

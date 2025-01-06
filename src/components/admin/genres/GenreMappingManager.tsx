@@ -6,7 +6,7 @@ import { LoadingSpinner } from '../../LoadingSpinner';
 import { Tags, AlertCircle } from 'lucide-react';
 import { OrphanedGenres } from './OrphanedGenres';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PageHeader } from '../../layout/PageHeader';
+import { PageTitle } from '../../layout/PageTitle';
 
 export function GenreMappingManager() {
   const {
@@ -26,7 +26,7 @@ export function GenreMappingManager() {
 
   return (
     <div>
-      <PageHeader 
+      <PageTitle 
         title="Genres" 
         subtitle="Manage genre groups and mappings"
       />

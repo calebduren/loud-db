@@ -7,9 +7,9 @@ import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
-import { PageHeader } from "../layout/PageHeader";
+import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 
@@ -58,7 +58,7 @@ export function AllReleases() {
 
   return (
     <div>
-      <PageHeader
+      <PageTitle
         title="New music"
         subtitle="Releases are sorted based on your preferences and likes"
         showAddRelease={isAdmin || isCreator}
