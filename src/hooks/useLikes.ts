@@ -6,78 +6,109 @@ import { useToast } from './useToast';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
+// Global store for likes data
+type LikesStore = {
+  counts: Map<string, number>;
+  userLikes: Map<string, boolean>;
+  loading: boolean;
+  initialized: boolean;
+};
+
+const store: LikesStore = {
+  counts: new Map(),
+  userLikes: new Map(),
+  loading: false,
+  initialized: false,
+};
+
+// Function to fetch all likes data
+async function fetchAllLikes(userId: string | undefined) {
+  if (store.loading) return;
+  store.loading = true;
+
+  try {
+    // Get all like counts in a single query
+    const { data: likeCounts } = await supabase
+      .rpc('get_release_like_counts');
+
+    if (likeCounts) {
+      store.counts.clear();
+      likeCounts.forEach((item: { release_id: string; count: number }) => {
+        store.counts.set(item.release_id, item.count);
+      });
+    }
+
+    // If user is logged in, get their likes in a single query
+    if (userId) {
+      const { data: userLikes } = await supabase
+        .from('release_likes')
+        .select('release_id')
+        .eq('user_id', userId);
+
+      store.userLikes.clear();
+      if (userLikes) {
+        userLikes.forEach((like: any) => {
+          store.userLikes.set(like.release_id, true);
+        });
+      }
+    }
+
+    store.initialized = true;
+  } catch (error) {
+    console.error('[fetchAllLikes] Error:', error);
+  } finally {
+    store.loading = false;
+  }
+}
+
 export function useLikes(releaseId: string) {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!store.initialized);
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  const fetchWithRetry = async (fn: () => Promise<any>, retries = MAX_RETRIES): Promise<any> => {
-    try {
-      return await fn();
-    } catch (error) {
-      if (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        return fetchWithRetry(fn, retries - 1);
-      }
-      throw error;
+  useEffect(() => {
+    if (!store.initialized && !store.loading) {
+      fetchAllLikes(user?.id);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    fetchLikes();
-  }, [releaseId, user]);
-
-  const fetchLikes = async () => {
-    if (!releaseId) return;
-    
-    try {
-      // Get both total count and user's like status in a single query
-      const { data, count } = await fetchWithRetry(() =>
-        supabase
-          .from('release_likes')
-          .select('*', { count: 'exact' })
-          .eq('release_id', releaseId)
-          .eq(user ? 'user_id' : 'id', user ? user.id : '')
-      );
-
-      setLikesCount(count || 0);
-      setIsLiked(!!data?.length);
-    } catch (error) {
-      console.error('[useLikes] Error fetching likes:', error);
-      showToast({
-        type: 'error',
-        message: 'Unable to load like status'
-      });
-    } finally {
+    if (store.initialized) {
+      setLikesCount(store.counts.get(releaseId) || 0);
+      setIsLiked(store.userLikes.get(releaseId) || false);
       setLoading(false);
     }
-  };
+  }, [releaseId, store.initialized]);
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user || !releaseId) return;
 
     try {
       setLoading(true);
       if (isLiked) {
-        await fetchWithRetry(() =>
-          supabase
-            .from('release_likes')
-            .delete()
-            .eq('release_id', releaseId)
-            .eq('user_id', user.id)
-        );
+        await supabase
+          .from('release_likes')
+          .delete()
+          .eq('release_id', releaseId)
+          .eq('user_id', user.id);
         
-        setLikesCount(prev => prev - 1);
+        // Update local store
+        const newCount = (store.counts.get(releaseId) || 0) - 1;
+        store.counts.set(releaseId, newCount);
+        store.userLikes.delete(releaseId);
+        setLikesCount(newCount);
       } else {
-        await fetchWithRetry(() =>
-          supabase
-            .from('release_likes')
-            .insert({ release_id: releaseId, user_id: user.id })
-        );
+        await supabase
+          .from('release_likes')
+          .insert({ release_id: releaseId, user_id: user.id });
         
-        setLikesCount(prev => prev + 1);
+        // Update local store
+        const newCount = (store.counts.get(releaseId) || 0) + 1;
+        store.counts.set(releaseId, newCount);
+        store.userLikes.set(releaseId, true);
+        setLikesCount(newCount);
       }
       setIsLiked(!isLiked);
     } catch (error) {
@@ -91,10 +122,5 @@ export function useLikes(releaseId: string) {
     }
   };
 
-  return {
-    isLiked,
-    likesCount,
-    loading,
-    toggleLike
-  };
-};
+  return { isLiked, likesCount, loading, toggleLike };
+}
