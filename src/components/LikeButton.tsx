@@ -1,5 +1,5 @@
-import React from 'react';
-import { Heart } from 'lucide-react';
+import React from "react";
+import { HeartIcon } from "./icons/HeartIcon";
 import { useLikes } from '../hooks/useLikes';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,24 +8,42 @@ interface LikeButtonProps {
 }
 
 export function LikeButton({ releaseId }: LikeButtonProps) {
-  const { isLiked, likesCount, toggleLike } = useLikes(releaseId);
+  const { isLiked, toggleLike } = useLikes(releaseId);
   const { user } = useAuth();
 
   if (!user) return null;
 
   return (
+    <LikeButtonNew
+      liked={isLiked}
+      onLike={toggleLike}
+    />
+  );
+}
+
+interface LikeButtonNewProps {
+  liked: boolean;
+  onLike: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+export function LikeButtonNew({ liked, onLike, disabled, className = "" }: LikeButtonNewProps) {
+  return (
     <button
-      onClick={toggleLike}
-      className="flex items-center gap-1 text-sm"
+      onClick={(e) => {
+        e.stopPropagation();
+        onLike();
+      }}
+      disabled={disabled}
+      className={`group flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed w-8 h-8 transition-all ${className}`}
     >
-      <Heart
-        className={`w-4 h-4 ${
-          isLiked 
-            ? 'fill-red-500 text-red-500' 
-            : 'text-gray-500 hover:text-red-500'
+      <HeartIcon
+        liked={liked}
+        className={`text-white transition-opacity ${
+          liked ? "opacity-100" : "opacity-30 group-hover:opacity-100"
         }`}
       />
-      <span className="text-gray-600">{likesCount}</span>
     </button>
   );
 }

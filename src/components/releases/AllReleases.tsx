@@ -40,7 +40,7 @@ export function AllReleases() {
   const isCreator = profile?.role === "creator";
 
   const {
-    selectedType,
+    selectedTypes,
     selectedGenres,
     availableGenres,
     filteredReleases,
@@ -91,7 +91,7 @@ export function AllReleases() {
 
       <ReleaseFilters
         loading={loading}
-        selectedType={selectedType}
+        selectedTypes={selectedTypes}
         selectedGenres={selectedGenres}
         availableGenres={availableGenres}
         onTypeChange={handleTypeChange}

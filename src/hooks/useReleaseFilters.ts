@@ -3,7 +3,7 @@ import { Release, ReleaseType } from '../types/database';
 import { useGenreGroups } from './useGenreGroups';
 
 export function useReleaseFilters(releases: Release[]) {
-  const [selectedType, setSelectedType] = useState<ReleaseType | 'all'>('all');
+  const [selectedTypes, setSelectedTypes] = useState<(ReleaseType | 'all')[]>(['all']);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const { genreGroups } = useGenreGroups();
 
@@ -14,14 +14,17 @@ export function useReleaseFilters(releases: Release[]) {
 
   // Memoize filtered releases
   const filteredReleases = useMemo(() => {
-    if (selectedType === 'all' && selectedGenres.length === 0) {
+    if (selectedTypes.includes('all') && selectedGenres.length === 0) {
       return releases;
     }
 
     return releases.filter(release => {
       // Filter by type
-      if (selectedType !== 'all' && release.release_type !== selectedType) {
-        return false;
+      if (!selectedTypes.includes('all')) {
+        const matchesType = selectedTypes.some(
+          selectedType => release.release_type.toLowerCase() === selectedType.toLowerCase()
+        );
+        if (!matchesType) return false;
       }
 
       // Filter by genre groups
@@ -34,10 +37,20 @@ export function useReleaseFilters(releases: Release[]) {
 
       return true;
     });
-  }, [releases, selectedType, selectedGenres, genreGroups]);
+  }, [releases, selectedTypes, selectedGenres, genreGroups]);
 
   const handleTypeChange = useCallback((type: ReleaseType | 'all') => {
-    setSelectedType(type);
+    setSelectedTypes(prev => {
+      if (type === 'all') {
+        return ['all'];
+      }
+      
+      const newTypes = prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev.filter(t => t !== 'all'), type];
+        
+      return newTypes.length === 0 ? ['all'] : newTypes;
+    });
   }, []);
 
   const handleGenreChange = useCallback((genre: string) => {
@@ -49,11 +62,11 @@ export function useReleaseFilters(releases: Release[]) {
   }, []);
 
   return {
-    selectedType,
+    selectedTypes,
     selectedGenres,
     availableGenres,
     filteredReleases,
     handleTypeChange,
-    handleGenreChange
+    handleGenreChange,
   };
 }

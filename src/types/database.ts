@@ -7,6 +7,8 @@ export interface GenrePreference {
   created_at: string;
 }
 
+export type ReleaseType = 'Single' | 'EP' | 'LP' | 'Compilation';
+
 export interface Release {
   id: string;
   name: string;
@@ -23,7 +25,6 @@ export interface Release {
   release_date: string;
   description: string | null;
   description_author_id: string | null;
-  description?: string | null;
   description_author?: {
     id: string;
     username: string;

@@ -1,26 +1,32 @@
-import React from 'react';
-import { ReleaseType } from '../../types/database';
-import { FilterSection } from './FilterSection';
-import { FilterButton } from './FilterButton';
+import React from "react";
+import { ReleaseType } from "../../types/database";
+import { FilterSection } from "./FilterSection";
+import { FilterButton } from "./FilterButton";
 
-const RELEASE_TYPES: (ReleaseType | 'all')[] = ['all', 'single', 'EP', 'LP', 'compilation'];
+const RELEASE_TYPES: (ReleaseType | "all")[] = [
+  "all",
+  "Single",
+  "EP",
+  "LP",
+  "Compilation",
+];
 
 interface ReleaseFiltersProps {
   loading?: boolean;
-  selectedType: ReleaseType | 'all';
+  selectedTypes: (ReleaseType | "all")[];
   selectedGenres: string[];
   availableGenres: string[];
-  onTypeChange: (type: ReleaseType | 'all') => void;
+  onTypeChange: (type: ReleaseType | "all") => void;
   onGenreChange: (genre: string) => void;
 }
 
 export function ReleaseFilters({
   loading,
-  selectedType,
+  selectedTypes,
   selectedGenres,
   availableGenres,
   onTypeChange,
-  onGenreChange
+  onGenreChange,
 }: ReleaseFiltersProps) {
   if (!availableGenres.length && !loading) {
     return null;
@@ -28,15 +34,15 @@ export function ReleaseFilters({
 
   return (
     <div className="flex flex-wrap gap-6 mb-6">
-      <FilterSection label="Release Type">
+      <FilterSection label="Length">
         {RELEASE_TYPES.map((type) => (
           <FilterButton
             key={type}
-            active={selectedType === type}
+            active={type === "all" ? selectedTypes.includes("all") : selectedTypes.includes(type)}
             onClick={() => !loading && onTypeChange(type)}
             disabled={loading}
           >
-            {type === 'all' ? 'All' : type}
+            {type === "all" ? "All" : type}
           </FilterButton>
         ))}
       </FilterSection>

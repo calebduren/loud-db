@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Release } from "../../types/database";
-import { Music, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Music, ChevronDown, ChevronUp } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ReleaseModal } from "./ReleaseModal";
+import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 
 interface WeekGroup {
   weekRange: {
@@ -28,6 +29,7 @@ interface ReleaseListProps {
 export function ReleaseList({
   releases,
   loading,
+  showActions = true,
   onEdit,
   onDelete,
   hasMore,
@@ -58,7 +60,7 @@ export function ReleaseList({
 
   const getWeekKey = (date: Date) => {
     const dayOfWeek = date.getDay(); // 0 = Sunday, 5 = Friday
-    const daysUntilFriday = ((dayOfWeek + 2) % 7); // Days until next Friday, or 0 if Friday
+    const daysUntilFriday = (dayOfWeek + 2) % 7; // Days until next Friday, or 0 if Friday
     const start = new Date(date);
     start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
     start.setHours(0, 0, 0, 0);
@@ -67,7 +69,7 @@ export function ReleaseList({
 
   const getWeekRange = (date: Date) => {
     const dayOfWeek = date.getDay();
-    const daysUntilFriday = ((dayOfWeek + 2) % 7);
+    const daysUntilFriday = (dayOfWeek + 2) % 7;
     const start = new Date(date);
     start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
     start.setHours(0, 0, 0, 0);
@@ -93,10 +95,9 @@ export function ReleaseList({
 
     sortedReleases.forEach((release) => {
       const weekKey = getWeekKey(new Date(release.release_date));
-      if (!groups.has(weekKey)) {
-        groups.set(weekKey, []);
-      }
-      groups.get(weekKey)!.push(release);
+      const group = groups.get(weekKey) || [];
+      group.push(release);
+      groups.set(weekKey, group);
     });
 
     return Array.from(groups.entries())
@@ -117,6 +118,17 @@ export function ReleaseList({
       }
       return next;
     });
+  };
+
+  const formatReleaseType = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'single':
+        return 'Single';
+      case 'compilation':
+        return 'Compilation';
+      default:
+        return type;
+    }
   };
 
   if (loading && releases.length === 0) {
@@ -161,7 +173,7 @@ export function ReleaseList({
           <div>
             <div className="release-card__type">
               <div className="release-card__type-pill">
-                {release.type || "Album"}
+                {formatReleaseType(release.release_type) || "Album"}
               </div>
             </div>
 
@@ -209,31 +221,32 @@ export function ReleaseList({
           <div className="release-card__divider" />
 
           <div className="release-card__actions">
-            <div className="release-card__links">
-              {release.spotify_url && (
-                <a
-                  href={release.spotify_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="release-card__link"
-                >
-                  Spotify <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-              {release.apple_music_url && (
-                <a
-                  href={release.apple_music_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="release-card__link"
-                >
-                  Apple Music <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-
+            {showActions && (
+              <div className="release-card__links">
+                {release.spotify_url && (
+                  <a
+                    href={release.spotify_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="release-card__link"
+                  >
+                    Spotify <ExternalLinkArrow className="text-coral" />
+                  </a>
+                )}
+                {release.apple_music_url && (
+                  <a
+                    href={release.apple_music_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="release-card__link"
+                  >
+                    Apple Music <ExternalLinkArrow className="text-coral" />
+                  </a>
+                )}
+              </div>
+            )}
             <div onClick={(e) => e.stopPropagation()}>
               <LikeButton releaseId={release.id} />
             </div>
