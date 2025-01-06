@@ -62,18 +62,53 @@ async function fetchAllLikes(userId: string | undefined) {
 }
 
 export function useLikes(releaseId: string) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(() => store.userLikes.get(releaseId) || false);
+  const [likesCount, setLikesCount] = useState(() => store.counts.get(releaseId) || 0);
   const [loading, setLoading] = useState(!store.initialized);
   const { user } = useAuth();
   const { showToast } = useToast();
 
+  // Initial fetch of likes data
   useEffect(() => {
-    if (!store.initialized && !store.loading) {
-      fetchAllLikes(user?.id);
-    }
-  }, [user]);
+    const initializeLikes = async () => {
+      if (!store.initialized && !store.loading) {
+        await fetchAllLikes(user?.id);
+        // Update state after initial fetch
+        setIsLiked(store.userLikes.get(releaseId) || false);
+        setLikesCount(store.counts.get(releaseId) || 0);
+      }
+    };
+    
+    initializeLikes();
+  }, [user, releaseId]);
 
+  // Set up realtime subscription for likes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase.channel('likes-changes');
+    
+    // Subscribe to release_likes changes
+    channel
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'release_likes' },
+        async () => {
+          // Refetch all likes data when any changes occur
+          await fetchAllLikes(user?.id);
+          // Update component state
+          setLikesCount(store.counts.get(releaseId) || 0);
+          setIsLiked(store.userLikes.get(releaseId) || false);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [user, releaseId]);
+
+  // Update local state when store changes
   useEffect(() => {
     if (store.initialized) {
       setLikesCount(store.counts.get(releaseId) || 0);
@@ -93,30 +128,28 @@ export function useLikes(releaseId: string) {
           .delete()
           .eq('release_id', releaseId)
           .eq('user_id', user.id);
-        
-        // Update local store
-        const newCount = (store.counts.get(releaseId) || 0) - 1;
-        store.counts.set(releaseId, newCount);
-        store.userLikes.delete(releaseId);
-        setLikesCount(newCount);
       } else {
         await supabase
           .from('release_likes')
           .insert({ release_id: releaseId, user_id: user.id });
-        
-        // Update local store
-        const newCount = (store.counts.get(releaseId) || 0) + 1;
-        store.counts.set(releaseId, newCount);
-        store.userLikes.set(releaseId, true);
-        setLikesCount(newCount);
       }
+      
+      // Optimistically update the UI
+      const newLikesCount = isLiked ? likesCount - 1 : likesCount + 1;
+      setLikesCount(newLikesCount);
       setIsLiked(!isLiked);
+      
+      // The realtime subscription will handle updating the store
     } catch (error) {
       console.error('[useLikes] Error toggling like:', error);
       showToast({
         type: 'error',
         message: 'Unable to update like status'
       });
+      
+      // Revert optimistic updates on error
+      setLikesCount(store.counts.get(releaseId) || 0);
+      setIsLiked(store.userLikes.get(releaseId) || false);
     } finally {
       setLoading(false);
     }
