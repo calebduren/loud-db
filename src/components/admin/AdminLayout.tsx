@@ -23,11 +23,6 @@ export function AdminLayout() {
 
   return (
     <div className="space-y-8">
-      <div className="flex-1">
-        <div className="px-8 py-6">
-          <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
-        </div>
-      </div>
       <Outlet />
     </div>
   );

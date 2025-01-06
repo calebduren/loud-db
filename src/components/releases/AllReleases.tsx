@@ -25,7 +25,7 @@ const AdminToolbar = ({ onCreateClick }: AdminToolbarProps) => (
 );
 
 export function AllReleases() {
-  const { releases, loading, refetch } = useReleases();
+  const { releases, loading, hasMore, loadMoreRef, refetch } = useReleases();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const { isAdmin, canManageReleases } = usePermissions();
@@ -74,18 +74,23 @@ export function AllReleases() {
         onGenreChange={handleGenreChange}
       />
 
-      {loading ? (
-        <ReleaseList releases={[]} loading={true} />
-      ) : filteredReleases.length === 0 ? (
-        <p className="text-white/60">No releases found.</p>
-      ) : (
-        <ReleaseList
-          releases={filteredReleases || []}
-          loading={loading}
-          showActions={canManageReleases}
-          onEdit={canManageReleases ? setEditingRelease : undefined}
-        />
-      )}
+      <div className="px-6">
+        {loading && filteredReleases.length === 0 ? (
+          <ReleaseList releases={[]} loading={true} />
+        ) : filteredReleases.length === 0 ? (
+          <p className="text-white/60">No releases found.</p>
+        ) : (
+          <ReleaseList
+            releases={filteredReleases || []}
+            loading={loading}
+            hasMore={hasMore}
+            loadMoreRef={loadMoreRef}
+            showActions={canManageReleases}
+            showWeeklyGroups={true}
+            onEdit={canManageReleases ? setEditingRelease : undefined}
+          />
+        )}
+      </div>
 
       {/* Admin Modals */}
       {(isAdmin || isCreator) && (

@@ -33,29 +33,17 @@ export function useLikes(releaseId: string) {
     if (!releaseId) return;
     
     try {
-      // Get total likes count
-      const { count } = await fetchWithRetry(() =>
+      // Get both total count and user's like status in a single query
+      const { data, count } = await fetchWithRetry(() =>
         supabase
           .from('release_likes')
-          .select('*', { count: 'exact', head: true })
+          .select('*', { count: 'exact' })
           .eq('release_id', releaseId)
+          .eq(user ? 'user_id' : 'id', user ? user.id : '')
       );
 
       setLikesCount(count || 0);
-
-      // Check if current user liked the release
-      if (user) {
-        const { data } = await fetchWithRetry(() =>
-          supabase
-            .from('release_likes')
-            .select('*')
-            .eq('release_id', releaseId)
-            .eq('user_id', user.id)
-            .maybeSingle()
-        );
-
-        setIsLiked(!!data);
-      }
+      setIsLiked(!!data?.length);
     } catch (error) {
       console.error('[useLikes] Error fetching likes:', error);
       showToast({
@@ -103,5 +91,10 @@ export function useLikes(releaseId: string) {
     }
   };
 
-  return { isLiked, likesCount, loading, toggleLike };
-}
+  return {
+    isLiked,
+    likesCount,
+    loading,
+    toggleLike
+  };
+};
