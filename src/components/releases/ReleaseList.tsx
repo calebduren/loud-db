@@ -122,10 +122,10 @@ export function ReleaseList({
 
   const formatReleaseType = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'single':
-        return 'Single';
-      case 'compilation':
-        return 'Compilation';
+      case "single":
+        return "Single";
+      case "compilation":
+        return "Compilation";
       default:
         return type;
     }
@@ -218,8 +218,6 @@ export function ReleaseList({
             </div>
           </div>
 
-          <div className="release-card__divider" />
-
           <div className="release-card__actions">
             {showActions && (
               <div className="release-card__links">
@@ -231,7 +229,7 @@ export function ReleaseList({
                     onClick={(e) => e.stopPropagation()}
                     className="release-card__link"
                   >
-                    Spotify <ExternalLinkArrow className="text-coral" />
+                    Spotify <ExternalLinkArrow className="text-[#F1977E]" />
                   </a>
                 )}
                 {release.apple_music_url && (
@@ -242,12 +240,15 @@ export function ReleaseList({
                     onClick={(e) => e.stopPropagation()}
                     className="release-card__link"
                   >
-                    Apple Music <ExternalLinkArrow className="text-coral" />
+                    Apple Music <ExternalLinkArrow className="text-[#F1977E]" />
                   </a>
                 )}
               </div>
             )}
-            <div onClick={(e) => e.stopPropagation()}>
+            <div
+              className="release-card__like"
+              onClick={(e) => e.stopPropagation()}
+            >
               <LikeButton releaseId={release.id} />
             </div>
           </div>

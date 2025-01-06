@@ -6,7 +6,7 @@
   @apply relative cursor-pointer overflow-hidden rounded-[12px] min-w-[288px] flex flex-col;
   background-color: var(--color-card-background);
   border: 1px solid var(--color-border);
-  box-shadow: 0px 12px 20px 0px rgba(0, 0, 0, 0.40);
+  box-shadow: 0px 12px 20px 0px rgba(0, 0, 0, 0.4);
 
   // Cover section
   &__cover {
@@ -110,7 +110,8 @@
 
   // Actions section
   &__actions {
-    @apply flex items-center font-semibold;
+    @apply flex items-center relative font-semibold border-t-[0.5px] border-white/5;
+    color: var(--color-text);
     font-family: var(--font-innovator);
   }
 
@@ -132,8 +133,12 @@
   }
 
   &__like {
-    @apply px-[14px] py-[14px] whitespace-nowrap;
+    @apply absolute right-0 top-0 bottom-0 flex items-stretch h-full whitespace-nowrap border-l-[0.5px] border-white/5 hover:bg-white/10 transition-colors rounded-br-[8px];
     color: var(--color-text);
+  }
+
+  &__like-button {
+    @apply h-full w-full p-[14px] flex items-center justify-center gap-3 text-xs transition-colors;
   }
 }
 

@@ -3,9 +3,10 @@ import React from 'react';
 interface HeartIconProps {
   className?: string;
   liked?: boolean;
+  onAnimationEnd?: () => void;
 }
 
-export function HeartIcon({ className, liked }: HeartIconProps) {
+export function HeartIcon({ className, liked, onAnimationEnd }: HeartIconProps) {
   return (
     <svg
       width="14"

@@ -38,7 +38,11 @@ export function ReleaseFilters({
         {RELEASE_TYPES.map((type) => (
           <FilterButton
             key={type}
-            active={type === "all" ? selectedTypes.includes("all") : selectedTypes.includes(type)}
+            active={
+              type === "all"
+                ? selectedTypes.includes("all")
+                : selectedTypes.includes(type)
+            }
             onClick={() => !loading && onTypeChange(type)}
             disabled={loading}
           >

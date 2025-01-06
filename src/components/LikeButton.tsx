@@ -1,49 +1,51 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { HeartIcon } from "./icons/HeartIcon";
-import { useLikes } from '../hooks/useLikes';
-import { useAuth } from '../hooks/useAuth';
+import { useLikes } from "../hooks/useLikes";
+import { useAuth } from "../hooks/useAuth";
 
 interface LikeButtonProps {
   releaseId: string;
 }
 
 export function LikeButton({ releaseId }: LikeButtonProps) {
-  const { isLiked, toggleLike } = useLikes(releaseId);
+  const { isLiked, likesCount, toggleLike } = useLikes(releaseId);
   const { user } = useAuth();
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
 
   if (!user) return null;
 
-  return (
-    <LikeButtonNew
-      liked={isLiked}
-      onLike={toggleLike}
-    />
-  );
-}
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSliding) return;
+    setIsAnimating(true);
+    setIsSliding(true);
+    toggleLike();
+    // Reset sliding state after animation completes
+    setTimeout(() => setIsSliding(false), 300);
+  };
 
-interface LikeButtonNewProps {
-  liked: boolean;
-  onLike: () => void;
-  disabled?: boolean;
-  className?: string;
-}
-
-export function LikeButtonNew({ liked, onLike, disabled, className = "" }: LikeButtonNewProps) {
   return (
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onLike();
-      }}
-      disabled={disabled}
-      className={`group flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed w-8 h-8 transition-all ${className}`}
+      onClick={handleClick}
+      className={`release-card__like-button group ${
+        isLiked
+          ? "text-[#F1977E] hover:text-[#E88468]"
+          : "text-white hover:text-white/80"
+      }`}
     >
       <HeartIcon
-        liked={liked}
-        className={`text-white transition-opacity ${
-          liked ? "opacity-100" : "opacity-30 group-hover:opacity-100"
-        }`}
+        liked={isLiked}
+        className={`transition-all duration-200 ${
+          isLiked
+            ? "text-[#F1977E] group-hover:text-[#E88468]"
+            : "text-white opacity-30 group-hover:opacity-100 group-hover:text-white group-hover:scale-110"
+        } ${isAnimating ? "animate-heart-like" : ""}`}
+        onAnimationEnd={() => setIsAnimating(false)}
       />
+      <div className="flex justify-end">
+        {likesCount}
+      </div>
     </button>
   );
 }
