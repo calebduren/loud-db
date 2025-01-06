@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Release } from "../../types/database";
-import { Music } from "lucide-react";
-import { LikeButton } from "../common/LikeButton";
+import { Music, ExternalLink } from "lucide-react";
+import { LikeButton } from "../LikeButton";
 import { ReleaseModal } from "./ReleaseModal";
-import { ReleaseSkeleton } from "./ReleaseSkeleton";
 import { usePermissions } from "../../hooks/usePermissions";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -14,31 +13,6 @@ interface ReleaseListProps {
   onEdit?: (release: Release) => void;
   onDelete?: () => void;
 }
-
-const ExternalLinkIcon = () => (
-  <svg
-    width="14"
-    height="15"
-    viewBox="0 0 14 15"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M5.08301 4.5835H9.91634V9.41683"
-      stroke="currentColor"
-      strokeWidth="1.25"
-      strokeLinecap="square"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4.08301 10.4168L8.91634 5.5835"
-      stroke="currentColor"
-      strokeWidth="1.25"
-      strokeLinecap="square"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 export function ReleaseList({
   releases,
@@ -51,36 +25,48 @@ export function ReleaseList({
   const { isAdmin, canManageReleases } = usePermissions();
   const { user } = useAuth();
 
-  const canEditRelease = (release: Release) => {
-    if (!user) return false;
-    if (isAdmin) return true;
-    return release.created_by === user.id;
+  if (!releases) return null;
+
+  const formatArtists = (release: Release) => {
+    const sortedArtists = [...release.artists].sort((a, b) => a.position - b.position);
+    return sortedArtists.map((ra) => ra.artist.name).join(", ");
   };
 
-  const canDeleteRelease = (release: Release) => {
-    if (!user) return false;
-    if (isAdmin) return true;
-    return release.created_by === user.id;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
   };
 
   if (loading) {
     return (
       <div className="release-grid">
         {[...Array(6)].map((_, i) => (
-          <ReleaseSkeleton key={i} />
+          <div key={i} className="release-card">
+            <div className="release-card__cover">
+              <div className="release-card__placeholder animate-pulse" />
+            </div>
+          </div>
         ))}
       </div>
     );
   }
 
+  // Sort releases by date (newest first)
+  const sortedReleases = [...releases].sort((a, b) => {
+    const dateA = new Date(a.release_date).getTime();
+    const dateB = new Date(b.release_date).getTime();
+    return dateB - dateA;
+  });
+
   return (
     <div className="release-grid">
-      {releases.map((release) => (
+      {sortedReleases.map((release) => (
         <div
           key={release.id}
-          className="release-card group"
+          className="release-card"
           onClick={() => setSelectedRelease(release)}
-          data-release-id={release.id}
         >
           <div className="release-card__cover">
             <div className="release-card__image-container">
@@ -99,20 +85,15 @@ export function ReleaseList({
             </div>
 
             <div className="release-card__content">
-              <div className="release-card__type">
-                <div className="release-card__type-pill">
-                  {release.type || "Album"}
-                </div>
-              </div>
-
               <div>
+                <div className="release-card__type">
+                  <div className="release-card__type-pill">
+                    {release.type || "Album"}
+                  </div>
+                </div>
+
                 <div className="release-card__title">
-                  <p>
-                    {release.artists
-                      .sort((a, b) => a.position - b.position)
-                      .map((ra) => ra.artist.name)
-                      .join(", ")}
-                  </p>
+                  <p>{formatArtists(release)}</p>
                   <h3>{release.name}</h3>
                 </div>
 
@@ -136,38 +117,20 @@ export function ReleaseList({
             <div className="release-card__details-container">
               <div className="release-card__info">
                 <div className="release-card__info-row">
-                  <span className="release-card__info-label">
-                    Tracks
-                  </span>
-                  <span className="release-card__info-value">
-                    {release.track_count}
-                  </span>
+                  <span className="release-card__info-label">Tracks</span>
+                  <span className="release-card__info-value">{release.track_count}</span>
                 </div>
                 <div className="release-card__info-row">
-                  <span className="release-card__info-label">
-                    Released
-                  </span>
-                  <span className="release-card__info-value">
-                    {new Date(release.release_date).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )}
-                  </span>
+                  <span className="release-card__info-label">Released</span>
+                  <span className="release-card__info-value">{formatDate(release.release_date)}</span>
                 </div>
                 <div className="release-card__info-row">
-                  <span className="release-card__info-label">
-                    Label
-                  </span>
-                  <span className="release-card__info-value">
-                    {release.record_label || "—"}
-                  </span>
+                  <span className="release-card__info-label">Label</span>
+                  <span className="release-card__info-value">{release.record_label || "—"}</span>
                 </div>
               </div>
 
-              <div className="release-divider" />
+              <div className="release-card__divider" />
 
               <div className="release-card__actions">
                 <div className="release-card__links">
@@ -179,7 +142,7 @@ export function ReleaseList({
                       onClick={(e) => e.stopPropagation()}
                       className="release-card__link"
                     >
-                      Spotify <ExternalLinkIcon />
+                      Spotify <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                   {release.apple_music_url && (
@@ -190,15 +153,13 @@ export function ReleaseList({
                       onClick={(e) => e.stopPropagation()}
                       className="release-card__link"
                     >
-                      Apple Music <ExternalLinkIcon />
+                      Apple Music <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>
 
-                <div className="release-card__divider" />
-
-                <div className="release-card__like">
-                  <LikeButton release={release} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <LikeButton releaseId={release.id} />
                 </div>
               </div>
             </div>
@@ -211,22 +172,14 @@ export function ReleaseList({
           release={selectedRelease}
           isOpen={true}
           onClose={() => setSelectedRelease(null)}
-          onEdit={
-            showActions && onEdit && canEditRelease(selectedRelease)
-              ? () => {
-                  onEdit(selectedRelease);
-                  setSelectedRelease(null);
-                }
-              : undefined
-          }
-          onDelete={
-            showActions && onDelete && canDeleteRelease(selectedRelease)
-              ? () => {
-                  onDelete();
-                  setSelectedRelease(null);
-                }
-              : undefined
-          }
+          onEdit={onEdit && (() => {
+            onEdit(selectedRelease);
+            setSelectedRelease(null);
+          })}
+          onDelete={onDelete && (() => {
+            onDelete();
+            setSelectedRelease(null);
+          })}
         />
       )}
     </div>

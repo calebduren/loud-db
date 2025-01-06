@@ -1,6 +1,8 @@
 import React from 'react';
 import { useUsers } from '../../../hooks/admin/useUsers';
 import { UserTable } from './UserTable';
+import { ReservedUsernames } from './ReservedUsernames';
+import { PageHeader } from '../../layout/PageHeader';
 import { LoadingSpinner } from '../../LoadingSpinner';
 
 export function UserManagement() {
@@ -11,13 +13,19 @@ export function UserManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">User Management</h1>
-      <UserTable 
-        users={users}
-        onUpdateRole={updateUserRole}
-        onToggleSuspension={toggleSuspension}
+    <div>
+      <PageHeader 
+        title="Users" 
+        subtitle="Manage user accounts and permissions"
       />
+      <div className="space-y-8">
+        <UserTable 
+          users={users}
+          onUpdateRole={updateUserRole}
+          onToggleSuspension={toggleSuspension}
+        />
+        <ReservedUsernames />
+      </div>
     </div>
   );
 }

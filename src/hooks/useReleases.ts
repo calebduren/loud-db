@@ -38,4 +38,4 @@ export function useReleases() {
     loading,
     refetch: fetchReleases
   };
-}
+};

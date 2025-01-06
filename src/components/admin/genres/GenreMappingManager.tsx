@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../../LoadingSpinner';
 import { Tags, AlertCircle } from 'lucide-react';
 import { OrphanedGenres } from './OrphanedGenres';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from '../../layout/PageHeader';
 
 export function GenreMappingManager() {
   const {
@@ -24,51 +25,47 @@ export function GenreMappingManager() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-          <Tags className="w-6 h-6" />
-          Genre Management
-        </h2>
-        <p className="text-white/60 mb-6">
-          Create and manage genre groups to improve filtering and organization.
-        </p>
-      </div>
+    <div>
+      <PageHeader 
+        title="Genres" 
+        subtitle="Manage genre groups and mappings"
+      />
+      <div className="space-y-8">
+        <Tabs defaultValue="groups" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="groups" className="flex items-center gap-2">
+              <Tags className="w-4 h-4" />
+              Genre Groups
+            </TabsTrigger>
+            <TabsTrigger value="orphaned" className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              Orphaned Genres
+            </TabsTrigger>
+          </TabsList>
 
-      <Tabs defaultValue="groups" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="groups" className="flex items-center gap-2">
-            <Tags className="w-4 h-4" />
-            Genre Groups
-          </TabsTrigger>
-          <TabsTrigger value="orphaned" className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            Orphaned Genres
-          </TabsTrigger>
-        </TabsList>
+          <TabsContent value="groups" className="space-y-8">
+            <NewGroupForm onSubmit={createGroup} error={error} />
+            
+            <div className="border-t border-white/10 pt-8">
+              <GenreGroupList
+                groups={groups}
+                mappings={mappings}
+                onUpdateGroup={updateGroup}
+                onCreateMapping={createMapping}
+                onDeleteMapping={deleteMapping}
+              />
+            </div>
+          </TabsContent>
 
-        <TabsContent value="groups" className="space-y-8">
-          <NewGroupForm onSubmit={createGroup} error={error} />
-          
-          <div className="border-t border-white/10 pt-8">
-            <GenreGroupList
+          <TabsContent value="orphaned">
+            <OrphanedGenres
               groups={groups}
               mappings={mappings}
-              onUpdateGroup={updateGroup}
-              onCreateMapping={createMapping}
-              onDeleteMapping={deleteMapping}
+              onAssignGenre={createMapping}
             />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="orphaned">
-          <OrphanedGenres
-            groups={groups}
-            mappings={mappings}
-            onAssignGenre={createMapping}
-          />
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

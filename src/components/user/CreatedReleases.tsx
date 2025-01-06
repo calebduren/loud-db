@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useUserReleases } from "../../hooks/useUserReleases";
-import { ReleaseList } from "../releases/ReleaseList";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
+import { ReleaseList } from "../releases/ReleaseList";
+import { useUserReleases } from "../../hooks/useUserReleases";
+import { PageHeader } from "../layout/PageHeader";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -13,14 +14,16 @@ import { AlertCircle, Plus } from "lucide-react";
 export function CreatedReleases() {
   const { username } = useParams();
   const { user } = useAuth();
-  const { profile } = useProfile(username);
+  const { profile: currentProfile } = useProfile(user?.id);
+  const { profile, loading: profileLoading } = useProfile(username);
   const { canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   
   const isOwnProfile = !username || user?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
-  const { releases, loading, error, refetch } = useUserReleases(userId);
+  const { releases, loading: releasesLoading, error, refetch } = useUserReleases(userId);
+  const loading = profileLoading || releasesLoading;
 
   if (!canManageReleases && isOwnProfile) {
     return (
@@ -44,34 +47,21 @@ export function CreatedReleases() {
           <AlertCircle className="w-5 h-5" />
           <p>{error.message}</p>
         </div>
-      </div>
+    </div>
     );
   }
 
+  const isAdmin = currentProfile?.role === "admin";
+  const isCreator = currentProfile?.role === "creator";
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          {isOwnProfile ? "Releases you created" : `Releases by ${profile?.username}`}
-        </h1>
-        {isOwnProfile && canManageReleases && (
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            Create Release
-          </button>
-        )}
-      </div>
-
-      {releases.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-white/60">No releases found.</p>
-        </div>
-      ) : (
-        <ReleaseList releases={releases} onEdit={isOwnProfile ? setEditingRelease : undefined} />
-      )}
+      <PageHeader 
+        title={isOwnProfile ? "Releases you created" : `Releases by ${profile?.username}`} 
+        showAddRelease={isAdmin || isCreator}
+        showImportPlaylist={isAdmin}
+      />
+      <ReleaseList releases={releases || []} loading={loading} onEdit={isOwnProfile ? setEditingRelease : undefined} />
 
       {isCreateModalOpen && (
         <ReleaseFormModal

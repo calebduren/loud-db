@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useReleases } from "../../hooks/useReleases";
-import { WeeklyReleaseList } from "./WeeklyReleaseList";
+import { ReleaseList } from "./ReleaseList";
 import { ReleaseFilters } from "../filters/ReleaseFilters";
 import { useReleaseFilters } from "../../hooks/useReleaseFilters";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
@@ -9,27 +9,30 @@ import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
 import { Button } from "../ui/Button";
 import { Plus } from "lucide-react";
+import { PageHeader } from "../layout/PageHeader";
+import { useAuth } from "../../hooks/useAuth";
+import { useProfile } from "../../hooks/useProfile";
 
 interface AdminToolbarProps {
   onCreateClick: () => void;
 }
 
-function AdminToolbar({ onCreateClick }: AdminToolbarProps) {
-  return (
-    <div className="flex items-center gap-4">
-      <Button onClick={onCreateClick} variant="primary">
-        <Plus className="w-4 h-4 mr-2" />
-        New Release
-      </Button>
-    </div>
-  );
-}
+const AdminToolbar = ({ onCreateClick }: AdminToolbarProps) => (
+  <Button onClick={onCreateClick} className="flex items-center gap-2">
+    <Plus className="w-4 h-4" />
+    Add release
+  </Button>
+);
 
 export function AllReleases() {
   const { releases, loading, refetch } = useReleases();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const { isAdmin, canManageReleases } = usePermissions();
+  const { user } = useAuth();
+  const { profile } = useProfile(user?.id);
+
+  const isCreator = profile?.role === "creator";
 
   const {
     selectedType,
@@ -55,20 +58,12 @@ export function AllReleases() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          {isAdmin ? "Admin Dashboard" : "Latest Releases"}
-        </h1>
-        {canManageReleases && (
-          <AdminToolbar onCreateClick={() => setIsCreateModalOpen(true)} />
-        )}
-      </div>
-
-      {isAdmin && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-white mb-6">All Releases</h2>
-        </div>
-      )}
+      <PageHeader
+        title="New music"
+        subtitle="Releases are sorted based on your preferences and likes"
+        showAddRelease={isAdmin || isCreator}
+        showImportPlaylist={isAdmin}
+      />
 
       <ReleaseFilters
         loading={loading}
@@ -80,20 +75,22 @@ export function AllReleases() {
       />
 
       {loading ? (
-        <WeeklyReleaseList releases={[]} loading={true} />
+        <ReleaseList releases={[]} loading={true} />
       ) : filteredReleases.length === 0 ? (
         <p className="text-white/60">No releases found.</p>
       ) : (
-        <WeeklyReleaseList
-          releases={filteredReleases}
+        <ReleaseList
+          releases={filteredReleases || []}
+          loading={loading}
           showActions={canManageReleases}
           onEdit={canManageReleases ? setEditingRelease : undefined}
         />
       )}
 
       {/* Admin Modals */}
-      {canManageReleases && (
+      {(isAdmin || isCreator) && (
         <>
+          <AdminToolbar onCreateClick={() => setIsCreateModalOpen(true)} />
           <ReleaseFormModal
             isOpen={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}

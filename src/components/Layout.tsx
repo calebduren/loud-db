@@ -12,9 +12,7 @@ export function Layout({ children }: LayoutProps) {
   if (!user) {
     return (
       <div className="min-h-screen text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </div>
+        <div className="mx-auto p-10">{children}</div>
       </div>
     );
   }
@@ -22,10 +20,8 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen text-white relative">
       <Sidebar />
-      <main className="ml-64 relative z-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </div>
+      <main className="ml-60 relative z-0">
+        <div className="mx-auto p-10">{children}</div>
       </main>
     </div>
   );

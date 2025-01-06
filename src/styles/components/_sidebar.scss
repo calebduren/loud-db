@@ -1,16 +1,12 @@
 .sidebar {
-  @apply w-64 h-screen fixed left-0 top-0 z-10 p-6 text-white flex flex-col;
-
-  &__logo {
-    @apply pb-4;
-  }
+  @apply w-60 h-screen fixed left-0 top-0 z-10 p-10 text-white flex flex-col;
 
   &__nav {
     @apply flex-1;
   }
 
   &__list {
-    @apply flex flex-col gap-1;
+    @apply flex flex-col gap-6 mt-10;
   }
 
   &__actions {
@@ -26,10 +22,10 @@
   }
 
   &__footer {
-    @apply mt-4 text-sm border-t border-white/10;
+    @apply mt-4 text-xs font-semibold;
 
     &-links {
-      @apply flex flex-col gap-2 text-white/40;
+      @apply flex flex-col text-white/40 gap-6 mt-7;
     }
 
     &-link {
@@ -39,80 +35,18 @@
 
   // Navigation Item
   &__nav-item {
-    @apply flex items-center py-2 text-[15px] font-medium transition-colors text-white/60 hover:text-white relative;
+    @apply flex items-center text-sm font-semibold text-white/60 hover:text-white/80 transition-colors;
 
     &--active {
       @apply text-white;
     }
 
-    .nav-bar {
-      @apply bg-white/60;
-      height: 1.5px;
+    .nav-indicator {
+      @apply w-0 h-[8.5px] rounded-full bg-white/0 transition-colors;
+
+      &--active {
+        @apply bg-white w-[8.5px] mr-2;
+      }
     }
   }
-}
-
-@keyframes activateBar {
-  0% {
-    width: 10px;
-    margin-right: 10px;
-  }
-  100% {
-    width: 20px;
-    margin-right: 10px;
-  }
-}
-
-@keyframes deactivateBar {
-  0% {
-    width: 20px;
-    margin-right: 10px;
-  }
-  100% {
-    width: 0;
-    margin-right: 0;
-  }
-}
-
-@keyframes hoverBar {
-  from {
-    width: 0;
-    margin-right: 0;
-  }
-  to {
-    width: 10px;
-    margin-right: 10px;
-  }
-}
-
-@keyframes unhoverBar {
-  from {
-    width: 10px;
-    margin-right: 10px;
-  }
-  to {
-    width: 0;
-    margin-right: 0;
-  }
-}
-
-.nav-bar-active {
-  width: 20px;
-  margin-right: 10px;
-}
-
-.nav-bar-activate {
-  animation: activateBar 300ms ease-out forwards;
-}
-
-.nav-bar-deactivate {
-  animation: deactivateBar 300ms ease-out forwards;
-}
-
-.nav-bar-hover {
-  animation: hoverBar 300ms ease-out forwards;
-}
-
-.nav-bar-unhover {
-  animation: unhoverBar 300ms ease-out forwards;
 }
