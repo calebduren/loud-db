@@ -14,6 +14,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import { useDeleteRelease } from "../../hooks/useDeleteRelease";
 import { useToast } from "../../hooks/useToast";
+import { useRecommendedReleases } from "../../hooks/useRecommendedReleases";
 
 interface AdminToolbarProps {
   onCreateClick: () => void;
@@ -28,6 +29,7 @@ const AdminToolbar = ({ onCreateClick }: AdminToolbarProps) => (
 
 export function AllReleases() {
   const { releases, loading, hasMore, loadMoreRef, refetch } = useReleases();
+  const recommendedReleases = useRecommendedReleases(releases);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
@@ -46,7 +48,7 @@ export function AllReleases() {
     filteredReleases,
     handleTypeChange,
     handleGenreChange,
-  } = useReleaseFilters(releases);
+  } = useReleaseFilters(recommendedReleases);
 
   // Subscribe to release changes
   useReleaseSubscription(refetch);
