@@ -48,8 +48,9 @@ export function useLikedReleases() {
       const { data: likedIds } = await fetchWithRetry(() =>
         supabase
           .from('release_likes')
-          .select('release_id')
+          .select('release_id, created_at')
           .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
           .range(isLoadMore ? releases.length : 0, (isLoadMore ? releases.length : 0) + PAGE_SIZE - 1)
       );
 
@@ -63,18 +64,24 @@ export function useLikedReleases() {
       }
 
       // Then fetch the full release data
-      const { data: releases } = await fetchWithRetry(() =>
+      const { data: releasesData } = await fetchWithRetry(() =>
         supabase
           .from('releases_view')
           .select('*')
           .in('id', likedIds.map(row => row.release_id))
       );
 
-      if (releases) {
+      if (releasesData) {
+        // Sort releases to match the order of likes
+        const releasesMap = new Map(releasesData.map(r => [r.id, r]));
+        const sortedReleases = likedIds
+          .map(like => releasesMap.get(like.release_id))
+          .filter((r): r is Release => r !== undefined);
+
         if (isLoadMore) {
-          setReleases(prev => [...prev, ...releases]);
+          setReleases(prev => [...prev, ...sortedReleases]);
         } else {
-          setReleases(releases);
+          setReleases(sortedReleases);
         }
       }
 

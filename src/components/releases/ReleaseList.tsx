@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Release } from "../../types/database";
 import { Music, ChevronDown, ChevronUp } from "lucide-react";
 import { LikeButton } from "../LikeButton";
@@ -80,11 +80,20 @@ export function ReleaseList({
   showWeeklyGroups = false,
 }: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set()
-  );
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
-  if (!releases) return null;
+  // Deduplicate releases by ID
+  const uniqueReleases = useMemo(() => {
+    const seen = new Set<string>();
+    return releases.filter(release => {
+      const key = `${release.id}-${release.created_by}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [releases]);
+
+  if (!uniqueReleases) return null;
 
   const formatArtists = (release: Release) => {
     if (!release.artists?.length) return "";
@@ -174,9 +183,9 @@ export function ReleaseList({
     }
   };
 
-  const renderRelease = (release: Release) => (
+  const renderRelease = useCallback((release: Release) => (
     <div
-      key={release.id}
+      key={`${release.id}-${release.created_by}`}
       className="release-card"
       onClick={() => setSelectedRelease(release)}
     >
@@ -282,7 +291,7 @@ export function ReleaseList({
         </div>
       </div>
     </div>
-  );
+  ), [selectedRelease]);
 
   return (
     <div className="space-y-8">
@@ -293,7 +302,7 @@ export function ReleaseList({
           ))}
         </div>
       ) : showWeeklyGroups ? (
-        groupReleasesByWeek(releases).map(({ weekRange, releases }) => (
+        groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
             <div className="sticky top-0 -mx-6 px-6 py-2 z-50">
               <button
@@ -320,7 +329,7 @@ export function ReleaseList({
           </div>
         ))
       ) : (
-        <div className="release-grid">{releases.map(renderRelease)}</div>
+        <div className="release-grid">{uniqueReleases.map(renderRelease)}</div>
       )}
 
       {/* Load more trigger */}

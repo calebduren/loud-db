@@ -33,6 +33,9 @@ export function useUserReleases(userId?: string) {
         setLoading(true);
       }
 
+      // Get the current length inside the callback to avoid stale closure
+      const currentLength = isLoadMore ? releases.length : 0;
+
       // Get releases with retry logic
       const { data, error: fetchError } = await fetchWithRetry(() =>
         supabase
@@ -40,17 +43,13 @@ export function useUserReleases(userId?: string) {
           .select('*', { count: 'exact' })
           .eq('created_by', userId)
           .order('created_at', { ascending: false })
-          .range(isLoadMore ? releases.length : 0, (isLoadMore ? releases.length : 0) + PAGE_SIZE - 1)
+          .range(currentLength, currentLength + PAGE_SIZE - 1)
       );
 
       if (fetchError) throw fetchError;
 
       // Update releases and hasMore
-      if (isLoadMore) {
-        setReleases(prev => [...prev, ...(data || [])]);
-      } else {
-        setReleases(data || []);
-      }
+      setReleases(prev => isLoadMore ? [...prev, ...(data || [])] : (data || []));
       setHasMore((data?.length || 0) === PAGE_SIZE);
       setError(null);
     } catch (err) {
@@ -68,7 +67,7 @@ export function useUserReleases(userId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId, canManageReleases, releases.length, showToast]);
+  }, [userId, canManageReleases, showToast]); // Removed releases.length from deps
 
   // Initial fetch
   useEffect(() => {
