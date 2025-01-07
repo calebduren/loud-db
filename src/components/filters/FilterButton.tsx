@@ -6,9 +6,10 @@ interface FilterButtonProps {
   disabled?: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  className?: string;
 }
 
-export function FilterButton({ active, disabled, onClick, children }: FilterButtonProps) {
+export function FilterButton({ active, disabled, onClick, children, className }: FilterButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -18,7 +19,8 @@ export function FilterButton({ active, disabled, onClick, children }: FilterButt
         active
           ? 'bg-white text-black'
           : 'bg-white/10 text-white hover:bg-white/20',
-        disabled && 'opacity-50 cursor-not-allowed'
+        disabled && 'opacity-50 cursor-not-allowed',
+        className
       )}
     >
       {children}

@@ -16,17 +16,6 @@ import { useDeleteRelease } from "../../hooks/useDeleteRelease";
 import { useToast } from "../../hooks/useToast";
 import { useRecommendedReleases } from "../../hooks/useRecommendedReleases";
 
-interface AdminToolbarProps {
-  onCreateClick: () => void;
-}
-
-const AdminToolbar = ({ onCreateClick }: AdminToolbarProps) => (
-  <Button onClick={onCreateClick} className="flex items-center gap-2">
-    <Plus className="w-4 h-4" />
-    Add release
-  </Button>
-);
-
 export function AllReleases() {
   const { releases, loading, hasMore, loadMoreRef, refetch } = useReleases();
   const recommendedReleases = useRecommendedReleases(releases);
@@ -104,7 +93,9 @@ export function AllReleases() {
         {loading && filteredReleases.length === 0 ? (
           <ReleaseList releases={[]} loading={true} />
         ) : filteredReleases.length === 0 ? (
-          <p className="text-white/60">No releases found.</p>
+          <p className="text-white/60 text-sm">
+            No releases match your criteria.
+          </p>
         ) : (
           <ReleaseList
             releases={filteredReleases || []}
@@ -122,7 +113,6 @@ export function AllReleases() {
       {/* Admin Modals */}
       {(isAdmin || isCreator) && (
         <>
-          <AdminToolbar onCreateClick={() => setIsCreateModalOpen(true)} />
           <ReleaseFormModal
             isOpen={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
