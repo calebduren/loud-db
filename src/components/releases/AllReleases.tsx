@@ -114,11 +114,7 @@ export function AllReleases() {
             showActions={canManageReleases}
             showWeeklyGroups={true}
             onEdit={canManageReleases ? setEditingRelease : undefined}
-            onDelete={isAdmin ? () => {
-              if (selectedRelease) {
-                handleDelete(selectedRelease);
-              }
-            } : undefined}
+            onDelete={isAdmin ? handleDelete : undefined}
           />
         )}
       </div>

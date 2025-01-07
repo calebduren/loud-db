@@ -14,7 +14,7 @@ interface ReleaseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete?: (release: Release) => void;
 }
 
 export function ReleaseModal({
@@ -42,6 +42,13 @@ export function ReleaseModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="grid grid-cols-[640px_1fr] h-full">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-0 -right-10 z-50 text-white/60 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
         {/* Left Column - Cover Art */}
         <div className="relative h-[640px]">
           {release.cover_url ? (
@@ -59,24 +66,16 @@ export function ReleaseModal({
 
         {/* Right Column - Details */}
         <div className="relative flex flex-col h-full overflow-hidden">
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-6 right-6 z-50 text-white/60 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-8">
             <div className="space-y-6">
               {/* Artist Section */}
               <div>
-                <div className="text-sm uppercase tracking-wider text-white/60 mb-1">
+                <div className="text-sm tracking-wider text-white/60 mb-1">
                   Artist(s)
                 </div>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold">
+                  <h2 className="font-semibold">
                     {release.artists?.map((ra) => ra.artist.name).join(", ")}
                   </h2>
 
@@ -97,7 +96,7 @@ export function ReleaseModal({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={onDelete}
+                          onClick={() => onDelete(release)}
                           className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                         >
                           Delete
@@ -113,7 +112,7 @@ export function ReleaseModal({
                 <div className="text-sm uppercase tracking-wider text-white/60 mb-1">
                   Title
                 </div>
-                <h1 className="text-4xl font-bold">{release.name}</h1>
+                <h2 className="font-semibold italic">{release.name}</h2>
               </div>
 
               {/* Genres Section */}

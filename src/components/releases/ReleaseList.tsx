@@ -20,7 +20,7 @@ interface ReleaseListProps {
   loading?: boolean;
   showActions?: boolean;
   onEdit?: (release: Release) => void;
-  onDelete?: () => void;
+  onDelete?: (release: Release) => void;
   hasMore?: boolean;
   loadMoreRef?: (node?: Element | null) => void;
   showWeeklyGroups?: boolean;
@@ -317,7 +317,7 @@ export function ReleaseList({
           onDelete={
             onDelete &&
             (() => {
-              onDelete();
+              onDelete(selectedRelease);
               setSelectedRelease(null);
             })
           }
