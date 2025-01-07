@@ -54,10 +54,13 @@
 
   // Title section
   &__title {
-    @apply text-[24px] font-semibold leading-[1.1];
+    @apply text-[24px] font-semibold leading-[0.9];
     color: var(--color-text);
 
-    h3 {
+    h2 {
+      @apply font-semibold text-[24px];
+    }
+    h2 + h2 {
       @apply mt-2;
     }
   }

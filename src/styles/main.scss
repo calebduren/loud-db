@@ -17,7 +17,8 @@
 // Font faces
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGroteskVF-VF.woff2") format("woff2-variations");
+  src: url("../public/fonts/InnovatorGroteskVF-VF.woff2")
+    format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -33,7 +34,8 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-RegularItalic.woff2") format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-RegularItalic.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -65,7 +67,8 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-MediumItalic.woff2") format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-MediumItalic.woff2")
+    format("woff2");
   font-weight: 500;
   font-style: italic;
   font-display: swap;
@@ -81,7 +84,8 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-SemiBoldItalic.woff2") format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-SemiBoldItalic.woff2")
+    format("woff2");
   font-weight: 600;
   font-style: italic;
   font-display: swap;
@@ -138,25 +142,25 @@
 // CSS Variables
 :root {
   // Base Colors
-  --color-black: #000000;
-  --color-white: #FFFFFF;
-  
+  --color-black: #202020;
+  --color-white: #ffffff;
+
   // Gray Scale
-  --color-gray-100: #F5F5F5;
-  --color-gray-200: #E5E5E5;
-  --color-gray-300: #D4D4D4;
-  --color-gray-400: #B3B3B3;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #b3b3b3;
   --color-gray-500: #737373;
   --color-gray-600: #525252;
   --color-gray-700: #363636;
   --color-gray-800: #262626;
   --color-gray-900: #202020;
-  
+
   // Brand Colors
-  --color-coral: #F1977E;
-  --color-coral-light: #F5B3A1;
-  --color-coral-dark: #E57B5C;
-  
+  --color-coral: #f1977e;
+  --color-coral-light: #f5b3a1;
+  --color-coral-dark: #e57b5c;
+
   // Semantic Colors
   --color-background: var(--color-gray-900);
   --color-surface: var(--color-gray-800);
@@ -166,7 +170,7 @@
   --color-text-secondary: var(--color-gray-400);
   --color-text-tertiary: var(--color-gray-500);
   --color-accent: var(--color-coral);
-  
+
   // Component Specific
   --color-card-background: var(--color-gray-800);
   --color-card-gradient-start: rgba(38, 38, 38, 0);
@@ -177,11 +181,11 @@
   --color-genre-pill-background: rgba(255, 255, 255, 0.3);
   --color-genre-pill-border: rgba(255, 255, 255, 0.1);
   --color-divider: rgba(255, 255, 255, 0.06);
-  
+
   // Font variables
   --font-innovator: "Innovator Grotesk";
   --font-geist-mono: "Geist Mono";
-  
+
   // Font weight variables
   --font-weight-light: 300;
   --font-weight-regular: 400;
@@ -201,7 +205,12 @@ body {
 }
 
 // Typography styles
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-innovator);
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;

@@ -209,16 +209,15 @@ export function ReleaseList({
           </div>
 
           <div className="release-card__content">
-            <div>
-              <div className="release-card__type">
-                <div className="release-card__type-pill">
-                  {formatReleaseType(release.release_type) || "Album"}
-                </div>
+            <div className="release-card__type">
+              <div className="release-card__type-pill">
+                {formatReleaseType(release.release_type) || "Album"}
               </div>
-
+            </div>
+            <div>
               <div className="release-card__title">
-                <p>{formatArtists(release)}</p>
-                <h3>{release.name}</h3>
+                <h2>{formatArtists(release)}</h2>
+                <h2 className="italic">{release.name}</h2>
               </div>
 
               {release.genres?.length > 0 && (
