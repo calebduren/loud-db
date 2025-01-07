@@ -16,7 +16,8 @@ export function LikedReleases() {
 
   // Get releases based on whether viewing own or other's profile
   const { releases: ownReleases, loading: ownLoading } = useLikedReleases();
-  const { releases: userReleases, loading: userLoading } = useLikedReleasesByUser(profile?.id);
+  const { releases: userReleases, loading: userLoading } =
+    useLikedReleasesByUser(profile?.id);
 
   const releases = isOwnProfile ? ownReleases : userReleases;
   const loading = isOwnProfile ? ownLoading : userLoading || profileLoading;
@@ -26,14 +27,18 @@ export function LikedReleases() {
 
   return (
     <div>
-      <PageTitle 
-        title={isOwnProfile ? "Your Liked Releases" : `${profile?.username}'s Liked Releases`}
+      <PageTitle
+        title={
+          isOwnProfile
+            ? "Your Liked Releases"
+            : `${profile?.username}'s Liked Releases`
+        }
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}
       />
-      <div className="px-6">
+      <div>
         <ReleaseList releases={releases || []} loading={loading} />
       </div>
     </div>
   );
-};
+}

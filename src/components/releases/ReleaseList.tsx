@@ -80,12 +80,14 @@ export function ReleaseList({
   showWeeklyGroups = false,
 }: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set()
+  );
 
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
     const seen = new Set<string>();
-    return releases.filter(release => {
+    return releases.filter((release) => {
       const key = `${release.id}-${release.created_by}`;
       if (seen.has(key)) return false;
       seen.add(key);
@@ -131,7 +133,7 @@ export function ReleaseList({
       start,
       end,
       key: start.toISOString(),
-      label: `${formatDate(start.toISOString())} - ${formatDate(
+      label: `${formatDate(start.toISOString())} – ${formatDate(
         end.toISOString()
       )}`,
     };
@@ -183,115 +185,119 @@ export function ReleaseList({
     }
   };
 
-  const renderRelease = useCallback((release: Release) => (
-    <div
-      key={`${release.id}-${release.created_by}`}
-      className="release-card"
-      onClick={() => setSelectedRelease(release)}
-    >
-      <div className="release-card__cover">
-        <div className="release-card__image-container">
-          {release.cover_url ? (
-            <img
-              src={release.cover_url}
-              alt={`${release.name} cover`}
-              className="release-card__image"
-            />
-          ) : (
-            <div className="release-card__placeholder">
-              <Music className="w-12 h-12 text-gray-700" />
-            </div>
-          )}
-          <div className="release-card__gradient" />
-        </div>
-
-        <div className="release-card__content">
-          <div>
-            <div className="release-card__type">
-              <div className="release-card__type-pill">
-                {formatReleaseType(release.release_type) || "Album"}
-              </div>
-            </div>
-
-            <div className="release-card__title">
-              <p>{formatArtists(release)}</p>
-              <h3>{release.name}</h3>
-            </div>
-
-            {release.genres?.length > 0 && (
-              <div className="release-card__genres">
-                {release.genres.slice(0, 3).map((genre) => (
-                  <div key={genre} className="release-card__genres-pill">
-                    {genre}
-                  </div>
-                ))}
+  const renderRelease = useCallback(
+    (release: Release) => (
+      <div
+        key={`${release.id}-${release.created_by}`}
+        className="release-card"
+        onClick={() => setSelectedRelease(release)}
+      >
+        <div className="release-card__cover">
+          <div className="release-card__image-container">
+            {release.cover_url ? (
+              <img
+                src={release.cover_url}
+                alt={`${release.name} cover`}
+                className="release-card__image"
+              />
+            ) : (
+              <div className="release-card__placeholder">
+                <Music className="w-12 h-12 text-gray-700" />
               </div>
             )}
+            <div className="release-card__gradient" />
+          </div>
+
+          <div className="release-card__content">
+            <div>
+              <div className="release-card__type">
+                <div className="release-card__type-pill">
+                  {formatReleaseType(release.release_type) || "Album"}
+                </div>
+              </div>
+
+              <div className="release-card__title">
+                <p>{formatArtists(release)}</p>
+                <h3>{release.name}</h3>
+              </div>
+
+              {release.genres?.length > 0 && (
+                <div className="release-card__genres">
+                  {release.genres.slice(0, 3).map((genre) => (
+                    <div key={genre} className="release-card__genres-pill">
+                      {genre}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="release-card__details">
+          <div className="release-card__details-container">
+            <div className="release-card__info">
+              <div className="release-card__info-row">
+                <span className="release-card__info-label">Tracks</span>
+                <span className="release-card__info-value">
+                  {release.track_count}
+                </span>
+              </div>
+              <div className="release-card__info-row">
+                <span className="release-card__info-label">Released</span>
+                <span className="release-card__info-value">
+                  {formatDate(release.release_date)}
+                </span>
+              </div>
+              <div className="release-card__info-row">
+                <span className="release-card__info-label">Label</span>
+                <span className="release-card__info-value">
+                  {release.record_label || "—"}
+                </span>
+              </div>
+            </div>
+
+            <div className="release-card__actions">
+              {showActions && (
+                <div className="release-card__links">
+                  {release.spotify_url && (
+                    <a
+                      href={release.spotify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Spotify <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                  {release.apple_music_url && (
+                    <a
+                      href={release.apple_music_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Apple Music{" "}
+                      <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                </div>
+              )}
+              <div
+                className="release-card__like"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <LikeButton releaseId={release.id} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="release-card__details">
-        <div className="release-card__details-container">
-          <div className="release-card__info">
-            <div className="release-card__info-row">
-              <span className="release-card__info-label">Tracks</span>
-              <span className="release-card__info-value">
-                {release.track_count}
-              </span>
-            </div>
-            <div className="release-card__info-row">
-              <span className="release-card__info-label">Released</span>
-              <span className="release-card__info-value">
-                {formatDate(release.release_date)}
-              </span>
-            </div>
-            <div className="release-card__info-row">
-              <span className="release-card__info-label">Label</span>
-              <span className="release-card__info-value">
-                {release.record_label || "—"}
-              </span>
-            </div>
-          </div>
-
-          <div className="release-card__actions">
-            {showActions && (
-              <div className="release-card__links">
-                {release.spotify_url && (
-                  <a
-                    href={release.spotify_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="release-card__link"
-                  >
-                    Spotify <ExternalLinkArrow className="text-[#F1977E]" />
-                  </a>
-                )}
-                {release.apple_music_url && (
-                  <a
-                    href={release.apple_music_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="release-card__link"
-                  >
-                    Apple Music <ExternalLinkArrow className="text-[#F1977E]" />
-                  </a>
-                )}
-              </div>
-            )}
-            <div
-              className="release-card__like"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <LikeButton releaseId={release.id} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ), [selectedRelease]);
+    ),
+    [selectedRelease]
+  );
 
   return (
     <div className="space-y-8">
@@ -304,7 +310,7 @@ export function ReleaseList({
       ) : showWeeklyGroups ? (
         groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
-            <div className="sticky top-0 -mx-6 px-6 py-2 z-50">
+            <div className="sticky bg-[--color-gray-900] top-0 -mx-6 px-6 py-4 z-50">
               <button
                 onClick={() => toggleGroup(weekRange.key)}
                 className="flex items-center gap-2 text-xl font-semibold hover:text-white/80 transition-colors"
@@ -322,9 +328,7 @@ export function ReleaseList({
               </button>
             </div>
             {!collapsedGroups.has(weekRange.key) && (
-              <div className="release-grid mt-4">
-                {releases.map(renderRelease)}
-              </div>
+              <div className="release-grid">{releases.map(renderRelease)}</div>
             )}
           </div>
         ))

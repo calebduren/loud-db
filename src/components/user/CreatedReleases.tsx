@@ -44,7 +44,7 @@ export function CreatedReleases() {
           showAddRelease={false}
           showImportPlaylist={false}
         />
-        <div className="px-6">
+        <div>
           <ReleaseList releases={[]} loading={true} />
         </div>
       </div>
@@ -86,7 +86,7 @@ export function CreatedReleases() {
         showImportPlaylist={isAdmin}
       />
 
-      <div className="px-6">
+      <div>
         <ReleaseList
           releases={releases || []}
           loading={loading}

@@ -100,7 +100,7 @@ export function AllReleases() {
         onGenreChange={handleGenreChange}
       />
 
-      <div className="px-6">
+      <div>
         {loading && filteredReleases.length === 0 ? (
           <ReleaseList releases={[]} loading={true} />
         ) : filteredReleases.length === 0 ? (
