@@ -1,7 +1,7 @@
 import React from 'react';
 import { Release } from '../../../types/database';
 import { Modal } from '../../ui/Modal';
-import { Music, ExternalLink, Trash2, Pencil } from 'lucide-react';
+import { Music, ExternalLinkArrow, Trash2, Pencil } from 'lucide-react';
 import { LikeButton } from '../../common/LikeButton';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { useAuth } from '../../../hooks/useAuth';
@@ -66,54 +66,67 @@ export function ReleaseModal({
           <TrackList tracks={release.tracks || []} />
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-white/10">
-            <div className="flex gap-4">
-              {release.spotify_url && (
-                <a
-                  href={release.spotify_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#1DB954] hover:text-[#1ed760] transition-colors flex items-center gap-1"
+          <div className="release-card__details">
+            <div className="release-card__details-container">
+              <div className="release-card__actions">
+                <div className="release-card__links">
+                  {release.spotify_url && (
+                    <a
+                      href={release.spotify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Spotify <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                  {release.apple_music_url && (
+                    <a
+                      href={release.apple_music_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Apple Music <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                </div>
+                <div
+                  className="release-card__like"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Spotify <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-              {release.apple_music_url && (
-                <a
-                  href={release.apple_music_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#FA57C1] hover:text-[#ff57c1] transition-colors flex items-center gap-1"
-                >
-                  Apple Music <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <LikeButton releaseId={release.id} />
-              {canEdit && onEdit && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onEdit}
-                  className="flex items-center gap-1"
-                >
-                  <Pencil className="w-4 h-4" />
-                  Edit
-                </Button>
-              )}
-              {canDelete && onDelete && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onDelete}
-                  className="flex items-center gap-1 text-red-500 hover:text-red-600"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </Button>
-              )}
+                  <LikeButton releaseId={release.id} />
+                </div>
+                {(canEdit || canDelete) && (
+                  <>
+                    <div className="release-card__divider" />
+                    <div className="flex items-stretch">
+                      {canEdit && onEdit && (
+                        <Button
+                          variant="ghost"
+                          className="h-full px-4 flex items-center gap-1 hover:bg-white/10 rounded-none"
+                          onClick={onEdit}
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Edit
+                        </Button>
+                      )}
+                      {canDelete && onDelete && (
+                        <Button
+                          variant="ghost"
+                          className="h-full px-4 flex items-center gap-1 text-red-500 hover:text-red-600 hover:bg-white/10 rounded-none"
+                          onClick={onDelete}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
