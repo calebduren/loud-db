@@ -7,8 +7,8 @@ import { PlaylistImportModal } from "../admin/PlaylistImportModal";
 interface PageTitleProps {
   title: string;
   subtitle?: string;
-  showAddRelease?: boolean;  // Will only show for admins and creators
-  showImportPlaylist?: boolean;  // Will only show for admins
+  showAddRelease?: boolean; // Will only show for admins and creators
+  showImportPlaylist?: boolean; // Will only show for admins
   actions?: React.ReactNode;
 }
 
@@ -31,7 +31,7 @@ export const PageTitle = ({
       <div>
         <h1 className="text-2xl font-bold text-white">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-white/60 mt-1">{subtitle}</p>
+          <p className="text-sm text-white/60 mt-1 font-medium">{subtitle}</p>
         )}
       </div>
       <div className="flex gap-3">
@@ -53,7 +53,10 @@ export const PageTitle = ({
         )}
         {canShowImportPlaylist && (
           <>
-            <Button variant="outline" onClick={() => setIsPlaylistModalOpen(true)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsPlaylistModalOpen(true)}
+            >
               Import playlist
             </Button>
             <PlaylistImportModal

@@ -26,6 +26,49 @@ interface ReleaseListProps {
   showWeeklyGroups?: boolean;
 }
 
+const SkeletonCard = () => (
+  <div className="release-card animate-pulse">
+    <div className="release-card__cover">
+      <div className="release-card__image-container bg-white/5">
+        <div className="release-card__gradient" />
+      </div>
+      <div className="release-card__content">
+        <div>
+          <div className="release-card__type">
+            <div className="h-5 w-16 bg-white/5 rounded-full" />
+          </div>
+          <div className="release-card__title mt-2">
+            <div className="h-4 w-32 bg-white/5 rounded mb-1" />
+            <div className="h-5 w-48 bg-white/5 rounded" />
+          </div>
+          <div className="release-card__genres mt-2">
+            <div className="h-5 w-20 bg-white/5 rounded-full" />
+            <div className="h-5 w-24 bg-white/5 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="release-card__details">
+      <div className="release-card__details-container">
+        <div className="release-card__info">
+          <div className="release-card__info-row">
+            <span className="release-card__info-label">Tracks</span>
+            <div className="h-4 w-8 bg-white/5 rounded" />
+          </div>
+          <div className="release-card__info-row">
+            <span className="release-card__info-label">Released</span>
+            <div className="h-4 w-24 bg-white/5 rounded" />
+          </div>
+          <div className="release-card__info-row">
+            <span className="release-card__info-label">Label</span>
+            <div className="h-4 w-32 bg-white/5 rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export function ReleaseList({
   releases,
   loading,
@@ -130,22 +173,6 @@ export function ReleaseList({
         return type;
     }
   };
-
-  if (loading && releases.length === 0) {
-    return (
-      <div className="space-y-8">
-        <div className="release-grid">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="release-card">
-              <div className="release-card__cover">
-                <div className="release-card__placeholder animate-pulse" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   const renderRelease = (release: Release) => (
     <div
@@ -259,7 +286,13 @@ export function ReleaseList({
 
   return (
     <div className="space-y-8">
-      {showWeeklyGroups ? (
+      {loading ? (
+        <div className="release-grid">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : showWeeklyGroups ? (
         groupReleasesByWeek(releases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
             <div className="sticky top-0 -mx-6 px-6 py-2 z-50">

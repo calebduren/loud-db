@@ -5,11 +5,11 @@ import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useUserReleases } from "../../hooks/useUserReleases";
 import { PageTitle } from "../layout/PageTitle";
-import { LoadingSpinner } from "../LoadingSpinner";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { usePermissions } from "../../hooks/usePermissions";
 import { Release } from "../../types/database";
 import { AlertCircle, Plus } from "lucide-react";
+import { Button } from "../ui/button";
 
 export function CreatedReleases() {
   const { username } = useParams();
@@ -19,12 +19,39 @@ export function CreatedReleases() {
   const { canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
-  
+
   const isOwnProfile = !username || user?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
-  const { releases, loading: releasesLoading, error, refetch } = useUserReleases(userId);
+  const {
+    releases,
+    loading: releasesLoading,
+    error,
+    refetch,
+    hasMore,
+    loadMoreRef,
+  } = useUserReleases(userId);
   const loading = profileLoading || releasesLoading;
 
+  const isAdmin = currentProfile?.role === "admin";
+  const isCreator = currentProfile?.role === "creator";
+
+  // Show skeleton loading while loading
+  if (!releases.length && loading) {
+    return (
+      <div>
+        <PageTitle
+          title={isOwnProfile ? "Your Created Releases" : "Created Releases"}
+          showAddRelease={false}
+          showImportPlaylist={false}
+        />
+        <div className="px-6">
+          <ReleaseList releases={[]} loading={true} />
+        </div>
+      </div>
+    );
+  }
+
+  // Check permissions after loading
   if (!canManageReleases && isOwnProfile) {
     return (
       <div className="text-center py-12">
@@ -36,10 +63,6 @@ export function CreatedReleases() {
     );
   }
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   if (error) {
     return (
       <div className="text-center py-12">
@@ -47,39 +70,53 @@ export function CreatedReleases() {
           <AlertCircle className="w-5 h-5" />
           <p>{error.message}</p>
         </div>
-    </div>
+      </div>
     );
   }
 
-  const isAdmin = currentProfile?.role === "admin";
-  const isCreator = currentProfile?.role === "creator";
-
   return (
     <div>
-      <PageTitle 
-        title={isOwnProfile ? "Releases you created" : `Releases by ${profile?.username}`} 
+      <PageTitle
+        title={
+          isOwnProfile
+            ? "Your Created Releases"
+            : `${profile?.username}'s Created Releases`
+        }
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}
       />
-      <ReleaseList releases={releases || []} loading={loading} onEdit={isOwnProfile ? setEditingRelease : undefined} />
 
-      {isCreateModalOpen && (
-        <ReleaseFormModal
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            refetch();
-          }}
+      <div className="px-6">
+        <ReleaseList
+          releases={releases || []}
+          loading={loading}
+          showActions={isAdmin || isCreator}
+          onEdit={isOwnProfile ? setEditingRelease : undefined}
+          hasMore={hasMore}
+          loadMoreRef={loadMoreRef}
         />
-      )}
+      </div>
 
-      {editingRelease && (
-        <ReleaseFormModal
-          release={editingRelease}
-          onClose={() => {
-            setEditingRelease(null);
-            refetch();
-          }}
-        />
+      {(isAdmin || isCreator) && (
+        <>
+          {isCreateModalOpen && (
+            <ReleaseFormModal
+              onClose={() => {
+                setIsCreateModalOpen(false);
+                refetch();
+              }}
+            />
+          )}
+          {editingRelease && (
+            <ReleaseFormModal
+              release={editingRelease}
+              onClose={() => {
+                setEditingRelease(null);
+                refetch();
+              }}
+            />
+          )}
+        </>
       )}
     </div>
   );

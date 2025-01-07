@@ -24,8 +24,6 @@ export function LikedReleases() {
   const isAdmin = currentProfile?.role === "admin";
   const isCreator = currentProfile?.role === "creator";
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div>
       <PageTitle 
@@ -33,7 +31,9 @@ export function LikedReleases() {
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}
       />
-      <ReleaseList releases={releases || []} loading={loading} />
+      <div className="px-6">
+        <ReleaseList releases={releases || []} loading={loading} />
+      </div>
     </div>
   );
 };

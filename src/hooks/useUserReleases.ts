@@ -1,41 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Release } from '../types/database';
 import { useToast } from './useToast';
 import { usePermissions } from './usePermissions';
 import { fetchWithRetry } from '../lib/utils/fetchUtils';
+import { useInView } from 'react-intersection-observer';
+
+const PAGE_SIZE = 50;
 
 export function useUserReleases(userId?: string) {
   const [releases, setReleases] = useState<Release[]>([]);
-  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { showToast } = useToast();
   const { canManageReleases } = usePermissions();
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '100px'
+  });
 
-  const fetchReleases = async () => {
+  const fetchReleases = useCallback(async (isLoadMore = false) => {
     if (!userId || !canManageReleases) {
       setReleases([]);
-      setCount(0);
+      setHasMore(false);
       setLoading(false);
       return;
     }
 
     try {
+      if (!isLoadMore) {
+        setLoading(true);
+      }
+
       // Get releases with retry logic
       const { data, error: fetchError } = await fetchWithRetry(() =>
         supabase
           .from('releases_view')
-          .select('*')
+          .select('*', { count: 'exact' })
           .eq('created_by', userId)
           .order('created_at', { ascending: false })
+          .range(isLoadMore ? releases.length : 0, (isLoadMore ? releases.length : 0) + PAGE_SIZE - 1)
       );
 
       if (fetchError) throw fetchError;
 
-      // Set the releases
-      setReleases(data || []);
-      setCount(data?.length || 0);
+      // Update releases and hasMore
+      if (isLoadMore) {
+        setReleases(prev => [...prev, ...(data || [])]);
+      } else {
+        setReleases(data || []);
+      }
+      setHasMore((data?.length || 0) === PAGE_SIZE);
       setError(null);
     } catch (err) {
       console.error('Error in useUserReleases:', err);
@@ -45,22 +61,33 @@ export function useUserReleases(userId?: string) {
         type: 'error',
         message
       });
-      setReleases([]);
-      setCount(0);
+      if (!isLoadMore) {
+        setReleases([]);
+        setHasMore(false);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, canManageReleases, releases.length, showToast]);
 
+  // Initial fetch
   useEffect(() => {
     fetchReleases();
-  }, [userId, canManageReleases]);
+  }, [fetchReleases]);
 
-  return { 
-    releases, 
-    count, 
-    loading, 
+  // Load more when scrolling to bottom
+  useEffect(() => {
+    if (inView && !loading && hasMore) {
+      fetchReleases(true);
+    }
+  }, [inView, loading, hasMore, fetchReleases]);
+
+  return {
+    releases,
+    loading,
     error,
-    refetch: fetchReleases 
+    hasMore,
+    loadMoreRef: ref,
+    refetch: () => fetchReleases()
   };
 }
