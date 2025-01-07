@@ -1,9 +1,10 @@
 .release-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid gap-6;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr));
 }
 
 .release-card {
-  @apply relative cursor-pointer overflow-hidden rounded-[12px] min-w-[288px] flex flex-col;
+  @apply relative cursor-pointer overflow-hidden rounded-[12px] w-full flex flex-col;
   background-color: var(--color-card-background);
   border: 1px solid var(--color-border);
   box-shadow: 0px 12px 20px 0px rgba(0, 0, 0, 0.4);
