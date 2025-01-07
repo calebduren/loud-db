@@ -16,7 +16,7 @@ export default {
     },
     extend: {
       colors: {
-        background: "hsl(var(--background))",
+        background: "var(--color-black)",
         foreground: "hsl(var(--foreground))",
         border: "rgb(255 255 255 / 0.1)",
         input: "rgb(255 255 255 / 0.05)",
