@@ -3,6 +3,7 @@ import { useGenrePreferences } from "../../../hooks/settings/useGenrePreferences
 import { GenrePreferenceRating } from "./GenrePreferenceRating";
 import { Button } from "../../ui/button";
 import { LoadingSpinner } from "../../LoadingSpinner";
+import { PageTitle } from "../../layout/PageTitle";
 
 interface GenrePreferencesProps {
   onComplete?: () => void;
@@ -13,11 +14,7 @@ export function GenrePreferences({ onComplete }: GenrePreferencesProps) {
     useGenrePreferences();
 
   if (loading) {
-    return (
-      <div className="card">
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   const handleComplete = () => {
@@ -25,17 +22,13 @@ export function GenrePreferences({ onComplete }: GenrePreferencesProps) {
   };
 
   return (
-    <div className="card">
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        Genre Preferences
-      </h2>
+    <>
+      <PageTitle
+        title="Genre Preferences"
+        subtitle="Rate each genre to help us personalize your music recommendations"
+      />
 
       <div className="space-y-6">
-        <p className="text-white/60">
-          Rate each genre to help us personalize your music recommendations.
-          More stars mean you like that genre more!
-        </p>
-
         <div className="space-y-8">
           {Object.entries(genreGroups).map(([groupName, genres]) => (
             <GenrePreferenceRating
@@ -56,6 +49,6 @@ export function GenrePreferences({ onComplete }: GenrePreferencesProps) {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

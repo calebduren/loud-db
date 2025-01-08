@@ -17,10 +17,10 @@ export function GenrePreferenceRating({
   return (
     <div className="space-y-2">
       <div>
-        <h4 className="font-medium">{name}</h4>
-        <p className="mt-1 text-sm text-white/60">
-          {genres.slice(0, 3).join(", ")}
-          {genres.length > 3 && ` and ${genres.length - 3} more`}
+        <p className="font-medium text-lg">{name}</p>
+        <p className="mb-2 text-sm text-white/60">
+          {genres.slice(0, 7).join(", ")}
+          {genres.length > 7 && ` and ${genres.length - 7} more`}
         </p>
       </div>
       <StarRating value={value} onChange={onChange} />
