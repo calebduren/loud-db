@@ -17,7 +17,7 @@ export function CreatedReleases() {
   const { profile, loading: profileLoading } = useProfile(username);
   const { canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | null>(null);
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
 
   const isOwnProfile = !username || user?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
@@ -98,23 +98,21 @@ export function CreatedReleases() {
 
       {(isAdmin || isCreator) && (
         <>
-          {isCreateModalOpen && (
-            <ReleaseFormModal
-              onClose={() => {
-                setIsCreateModalOpen(false);
-                refetch();
-              }}
-            />
-          )}
-          {editingRelease && (
-            <ReleaseFormModal
-              release={editingRelease}
-              onClose={() => {
-                setEditingRelease(null);
-                refetch();
-              }}
-            />
-          )}
+          <ReleaseFormModal
+            isOpen={isCreateModalOpen}
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              refetch();
+            }}
+          />
+          <ReleaseFormModal
+            isOpen={!!editingRelease}
+            release={editingRelease}
+            onClose={() => {
+              setEditingRelease(undefined);
+              refetch();
+            }}
+          />
         </>
       )}
     </div>

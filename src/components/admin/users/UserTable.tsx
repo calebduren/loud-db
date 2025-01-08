@@ -2,6 +2,7 @@ import React from "react";
 import { Profile, UserRole } from "../../../types/database";
 import { formatDate } from "../../../lib/utils/dateUtils";
 import { Link } from "react-router-dom";
+import { PixelAvatar } from "../../user/profile/PixelAvatar";
 
 interface UserTableProps {
   users: (Profile & { email: string })[];
@@ -41,14 +42,9 @@ export function UserTable({
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-white/10" />
+                    <PixelAvatar seed={user.username} size={32} />
                   )}
-                  <div>
-                    <span>@{user.username}</span>
-                    <span className="text-white/60 text-xs block">
-                      View profile
-                    </span>
-                  </div>
+                  <div>@{user.username}</div>
                 </Link>
               </td>
               <td className="px-4 py-3 text-white/60">{user.email}</td>
