@@ -101,10 +101,11 @@ export function AllReleases() {
           </div>
         ) : (
           <ReleaseList
-            releases={filteredReleases || []}
+            releases={filteredReleases}
             loading={loading}
             hasMore={hasMore}
             loadMoreRef={loadMoreRef}
+            showWeeklyGroups={true}
             onEditClick={setEditingRelease}
             onDeleteClick={setSelectedRelease}
           />
