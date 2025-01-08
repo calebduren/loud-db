@@ -9,15 +9,12 @@ import { usePermissions } from "../../hooks/usePermissions";
 import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
-import { useDeleteRelease } from "../../hooks/useDeleteRelease";
-import { useToast } from "../../hooks/useToast";
 import { Button } from "../ui/button";
 
 export function AllReleases() {
   const {
     selectedTypes,
     selectedGenres,
-    availableGenres,
     filteredReleases,
     loading,
     hasMore,
@@ -32,13 +29,10 @@ export function AllReleases() {
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | null>(null);
-  const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
-  const { isAdmin, canManageReleases } = usePermissions();
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
+  const { isAdmin } = usePermissions();
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
-  const { deleteRelease } = useDeleteRelease();
-  const { showToast } = useToast();
 
   const isCreator = profile?.role === "creator";
 
@@ -51,12 +45,7 @@ export function AllReleases() {
   }, [refetch]);
 
   const handleEditSuccess = useCallback(() => {
-    setEditingRelease(null);
-    refetch();
-  }, [refetch]);
-
-  const handleDeleteSuccess = useCallback(() => {
-    setSelectedRelease(null);
+    setEditingRelease(undefined);
     refetch();
   }, [refetch]);
 
@@ -69,14 +58,13 @@ export function AllReleases() {
         title="New music"
         subtitle="Releases are sorted based on your preferences and likes"
         showAddRelease={isAdmin || isCreator}
-        showImportPlaylist={isAdmin}
+        showImportPlaylist={false}
       />
 
       <ReleaseFilters
         loading={loading}
         selectedTypes={selectedTypes}
         selectedGenres={selectedGenres}
-        availableGenres={availableGenres}
         onTypeChange={handleTypeChange}
         onGenreChange={handleGenreChange}
         genreFilterMode={genreFilterMode}
@@ -110,8 +98,7 @@ export function AllReleases() {
             hasMore={hasMore}
             loadMoreRef={loadMoreRef}
             showWeeklyGroups={true}
-            onEditClick={setEditingRelease}
-            onDeleteClick={setSelectedRelease}
+            onEdit={setEditingRelease}
           />
         )}
       </div>
@@ -127,7 +114,7 @@ export function AllReleases() {
           <ReleaseFormModal
             release={editingRelease}
             isOpen={!!editingRelease}
-            onClose={() => setEditingRelease(null)}
+            onClose={() => setEditingRelease(undefined)}
             onSuccess={handleEditSuccess}
           />
         </>
