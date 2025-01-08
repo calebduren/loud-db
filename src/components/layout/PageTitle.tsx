@@ -38,8 +38,11 @@ export const PageTitle = ({
         {actions}
         {canShowAddRelease && (
           <>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              Add release
+            <Button
+              variant="primary"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Add Release
             </Button>
             <ReleaseFormModal
               isOpen={isCreateModalOpen}
@@ -54,10 +57,10 @@ export const PageTitle = ({
         {canShowImportPlaylist && (
           <>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => setIsPlaylistModalOpen(true)}
             >
-              Import playlist
+              Import Playlist
             </Button>
             <PlaylistImportModal
               isOpen={isPlaylistModalOpen}

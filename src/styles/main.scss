@@ -7,8 +7,8 @@
 @use "abstracts/mixins";
 
 // Components
-@use "components/pill";  // Load pill styles first
-@use "components/buttons";
+@use "components/pill"; // Load pill styles first
+@use "components/button"; // New button styles
 @use "components/inputs";
 @use "components/cards";
 @use "components/pills";
@@ -159,9 +159,9 @@
   --color-gray-900: #202020;
 
   // Brand Colors
-  --color-coral: #f1977e;
-  --color-coral-light: #f5b3a1;
-  --color-coral-dark: #e57b5c;
+  --color-loud: #f1977e;
+  --color-loud-light: #f5b3a1;
+  --color-loud-dark: #e57b5c;
 
   // Semantic Colors
   --color-background: var(--color-gray-900);
@@ -171,7 +171,7 @@
   --color-text: var(--color-white);
   --color-text-secondary: var(--color-gray-400);
   --color-text-tertiary: var(--color-gray-500);
-  --color-accent: var(--color-coral);
+  --color-accent: var(--color-loud);
 
   // Component Specific
   --color-card-background: var(--color-gray-800);

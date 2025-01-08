@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from '../../ui/form';
 import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
 
 const formSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -70,13 +71,13 @@ export function PasswordForm() {
           {error && <div className="text-red-500 text-sm">{error}</div>}
           {success && <div className="text-green-500 text-sm">Password updated successfully!</div>}
 
-          <button
+          <Button
             type="submit"
+            loading={saving}
             disabled={saving}
-            className="btn btn-primary w-full"
           >
             {saving ? 'Updating...' : 'Update Password'}
-          </button>
+          </Button>
         </form>
       </Form>
     </div>

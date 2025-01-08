@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from '../../ui/form';
 import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -61,13 +62,13 @@ export function EmailForm() {
           {error && <div className="text-red-500 text-sm">{error}</div>}
           {success && <div className="text-green-500 text-sm">Email updated successfully!</div>}
 
-          <button
+          <Button
             type="submit"
+            loading={saving}
             disabled={saving}
-            className="btn btn-primary w-full"
           >
             {saving ? 'Updating...' : 'Update Email'}
-          </button>
+          </Button>
         </form>
       </Form>
     </div>

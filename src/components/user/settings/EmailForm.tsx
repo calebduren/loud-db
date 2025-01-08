@@ -1,9 +1,9 @@
-import React from 'react';
-import { Mail } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useEmailForm } from '../../../hooks/settings/useEmailForm';
+import React from "react";
+import { Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useEmailForm } from "../../../hooks/settings/useEmailForm";
 import {
   Form,
   FormControl,
@@ -11,11 +11,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../ui/form';
-import { Input } from '../../ui/input';
+} from "../../ui/form";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 
 const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email("Please enter a valid email address"),
 });
 
 export function EmailForm() {
@@ -31,7 +32,7 @@ export function EmailForm() {
   // Update form when email changes
   React.useEffect(() => {
     if (email) {
-      form.setValue('email', email);
+      form.setValue("email", email);
     }
   }, [email, form]);
   return (
@@ -50,7 +51,11 @@ export function EmailForm() {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" placeholder="Enter your email" />
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="Enter your email"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -58,15 +63,19 @@ export function EmailForm() {
           />
 
           {error && <div className="text-red-500 text-sm">{error}</div>}
-          {success && <div className="text-green-500 text-sm">Email updated successfully!</div>}
+          {success && (
+            <div className="text-green-500 text-sm">
+              Email updated successfully!
+            </div>
+          )}
 
-          <button
+          <Button
             type="submit"
+            loading={saving}
             disabled={saving}
-            className="btn btn-primary w-full"
           >
-            {saving ? 'Updating...' : 'Update Email'}
-          </button>
+            Update Email
+          </Button>
         </form>
       </Form>
     </div>

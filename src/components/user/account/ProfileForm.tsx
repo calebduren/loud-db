@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '../../ui/form';
 import { Input } from '../../ui/input';
+import { Button } from '../../ui/button';
 
 const formSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -65,13 +66,13 @@ export function ProfileForm() {
             {error && <div className="text-red-500 text-sm">{error}</div>}
             {success && <div className="text-green-500 text-sm">Profile updated successfully!</div>}
 
-            <button
+            <Button
               type="submit"
+              loading={saving}
               disabled={saving}
-              className="btn btn-primary w-full"
             >
               {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+            </Button>
           </form>
         </Form>
       </div>
