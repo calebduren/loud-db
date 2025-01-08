@@ -38,19 +38,23 @@ export function ReleaseFilters({
     <div className="flex flex-col gap-6 mb-6">
       <FilterSection label="Length">
         {RELEASE_TYPES.map((type) => (
-          <FilterButton
-            key={type}
-            active={
-              type === "all"
-                ? selectedTypes.includes("all")
-                : selectedTypes.includes(type)
-            }
-            onClick={() => !loading && onTypeChange(type)}
-            disabled={loading}
-            className={loading ? "animate-pulse" : ""}
-          >
-            {type === "all" ? "All" : type}
-          </FilterButton>
+          <React.Fragment key={type}>
+            <FilterButton
+              active={
+                type === "all"
+                  ? selectedTypes.includes("all")
+                  : selectedTypes.includes(type)
+              }
+              onClick={() => !loading && onTypeChange(type)}
+              disabled={loading}
+              className={loading ? "animate-pulse" : ""}
+            >
+              {type === "all" ? "All" : type}
+            </FilterButton>
+            {type === "all" && (
+              <div className="h-6 w-px bg-white/10 mx-2" aria-hidden="true" />
+            )}
+          </React.Fragment>
         ))}
       </FilterSection>
 

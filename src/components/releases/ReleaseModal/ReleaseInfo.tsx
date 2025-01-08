@@ -11,17 +11,6 @@ interface ReleaseInfoProps {
 export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
   return (
     <div className="space-y-6">
-      {/* Artists */}
-      <div>
-        <h3 className="text-lg text-white/60">Artists</h3>
-        <p className="text-xl">
-          {release.artists
-            .sort((a, b) => a.position - b.position)
-            .map((ra) => ra.artist.name)
-            .join(", ")}
-        </p>
-      </div>
-
       {/* Release Info Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -50,12 +39,9 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
           <h3 className="monospace text-sm text-white/60 mb-2">Genres</h3>
           <div className="flex flex-wrap gap-2">
             {release.genres.map((genre) => (
-              <span
-                key={genre}
-                className="px-2 py-1 bg-white/10 rounded-full text-sm"
-              >
+              <div key={genre} className="release-card__genres-pill">
                 {genre}
-              </span>
+              </div>
             ))}
           </div>
         </div>

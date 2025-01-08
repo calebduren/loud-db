@@ -75,7 +75,7 @@ export function ReleaseModal({
                   Artist(s)
                 </div>
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold">
+                  <h2 className="release-card__artist">
                     {release.artists?.map((ra) => ra.artist.name).join(", ")}
                   </h2>
 
@@ -112,7 +112,7 @@ export function ReleaseModal({
                 <div className="text-sm uppercase tracking-wider text-white/60 mb-1">
                   Title
                 </div>
-                <h2 className="font-semibold italic">{release.name}</h2>
+                <h2 className="release-card__title">{release.name}</h2>
               </div>
 
               {/* Genres Section */}
