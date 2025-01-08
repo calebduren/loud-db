@@ -46,7 +46,8 @@ export function useReleases({
 
   const fetchReleases = useCallback(async (isLoadMore = false) => {
     try {
-      if (!isLoadMore) {
+      // Only set loading on initial fetch when no releases exist
+      if (!isLoadMore && releases.length === 0) {
         setLoading(true);
       }
 
@@ -102,16 +103,21 @@ export function useReleases({
         hasMore: (data?.length || 0) === pageSize && (startRange + pageSize) < (count || 0)
       });
 
-      if (isLoadMore) {
-        setReleases(prev => [...prev, ...(data || [])]);
-      } else {
-        setReleases(data || []);
-      }
-
-      if (count !== null) {
-        setTotalCount(count);
-        setHasMore((data?.length || 0) === pageSize && (startRange + pageSize) < count);
-      }
+      // Batch all state updates in a single animation frame
+      requestAnimationFrame(() => {
+        if (isLoadMore) {
+          setReleases(prev => [...prev, ...(data || [])]);
+        } else {
+          setReleases(data || []);
+        }
+        
+        if (count !== null) {
+          setTotalCount(count);
+          setHasMore((data?.length || 0) === pageSize && (startRange + pageSize) < count);
+        }
+        
+        setLoading(false);
+      });
     } catch (error) {
       console.error('Error fetching releases:', error);
       showToast({
@@ -119,10 +125,6 @@ export function useReleases({
         description: 'Please try again later',
         type: 'error',
       });
-    } finally {
-      if (!isLoadMore) {
-        setLoading(false);
-      }
     }
   }, [releases.length, selectedTypes, selectedGenres, genreFilterMode, genreGroups, showToast]);
 

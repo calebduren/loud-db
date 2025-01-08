@@ -34,8 +34,8 @@ export function CreatedReleases() {
   const isAdmin = currentProfile?.role === "admin";
   const isCreator = currentProfile?.role === "creator";
 
-  // Show skeleton loading while loading
-  if (!releases.length && loading) {
+  // Only show loading state on initial load
+  if (loading && !releases.length) {
     return (
       <div>
         <PageTitle

@@ -31,7 +31,8 @@ export function useUserReleases(userId?: string) {
     }
 
     try {
-      if (!isLoadMore) {
+      // Only set loading on initial fetch
+      if (!isLoadMore && releases.length === 0) {
         setLoading(true);
       }
 
@@ -50,16 +51,22 @@ export function useUserReleases(userId?: string) {
 
       if (fetchError) throw fetchError;
 
-      // Update releases and hasMore
-      if (data) {
+      // Batch state updates
+      const updates = () => {
         if (isLoadMore) {
-          setReleases(prev => [...prev, ...data]);
+          setReleases(prev => [...prev, ...(data || [])]);
         } else {
-          setReleases(data);
+          setReleases(data || []);
         }
-        setCount(totalCount || 0);
-        setHasMore(data.length === PAGE_SIZE);
-      }
+        if (totalCount !== null) {
+          setCount(totalCount);
+          setHasMore((data?.length || 0) === PAGE_SIZE && (currentLength + PAGE_SIZE) < totalCount);
+        }
+        setLoading(false);
+      };
+      
+      // Use requestAnimationFrame to batch updates
+      requestAnimationFrame(updates);
     } catch (err) {
       setError(err as Error);
       showToast({
@@ -67,8 +74,6 @@ export function useUserReleases(userId?: string) {
         description: 'Please try again later',
         type: 'error',
       });
-    } finally {
-      setLoading(false);
     }
   }, [userId, canManageReleases, releases.length, showToast]);
 
