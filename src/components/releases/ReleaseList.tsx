@@ -27,42 +27,66 @@ interface ReleaseListProps {
 }
 
 const SkeletonCard = () => (
-  <div className="release-card animate-pulse">
+  <div className="release-card">
     <div className="release-card__cover">
       <div className="release-card__image-container bg-white/5">
         <div className="release-card__gradient" />
       </div>
+
       <div className="release-card__content">
+        <div className="release-card__type">
+          <div className="release-card__type-pill bg-white/5 animate-pulse">
+            <div className="h-5 w-16" />
+          </div>
+        </div>
         <div>
-          <div className="release-card__type">
-            <div className="h-5 w-16 bg-white/5 rounded-full" />
+          <div className="release-card__title">
+            <div className="h-5 w-48 bg-white/5 rounded animate-pulse mb-1" />
+            <div className="h-5 w-32 bg-white/5 rounded animate-pulse italic" />
           </div>
-          <div className="release-card__title mt-2">
-            <div className="h-4 w-32 bg-white/5 rounded mb-1" />
-            <div className="h-5 w-48 bg-white/5 rounded" />
-          </div>
-          <div className="release-card__genres mt-2">
-            <div className="h-5 w-20 bg-white/5 rounded-full" />
-            <div className="h-5 w-24 bg-white/5 rounded-full" />
+
+          <div className="release-card__genres">
+            <div className="release-card__genres-pill bg-white/5 animate-pulse">
+              <div className="h-4 w-20" />
+            </div>
+            <div className="release-card__genres-pill bg-white/5 animate-pulse">
+              <div className="h-4 w-24" />
+            </div>
+            <div className="release-card__genres-pill bg-white/5 animate-pulse">
+              <div className="h-4 w-16" />
+            </div>
           </div>
         </div>
       </div>
     </div>
+
     <div className="release-card__details">
       <div className="release-card__details-container">
         <div className="release-card__info">
           <div className="release-card__info-row">
             <span className="release-card__info-label">Tracks</span>
-            <div className="h-4 w-8 bg-white/5 rounded" />
+            <div className="h-4 w-8 bg-white/5 rounded animate-pulse" />
           </div>
           <div className="release-card__info-row">
             <span className="release-card__info-label">Released</span>
-            <div className="h-4 w-24 bg-white/5 rounded" />
+            <div className="h-4 w-24 bg-white/5 rounded animate-pulse" />
           </div>
           <div className="release-card__info-row">
             <span className="release-card__info-label">Label</span>
-            <div className="h-4 w-32 bg-white/5 rounded" />
+            <div className="h-4 w-32 bg-white/5 rounded animate-pulse" />
           </div>
+        </div>
+
+        <div className="release-card__actions">
+          <div className="release-card__links">
+            <div className="release-card__link bg-white/5 animate-pulse rounded">
+              <div className="h-4 w-16" />
+            </div>
+            <div className="release-card__link bg-white/5 animate-pulse rounded">
+              <div className="h-4 w-24" />
+            </div>
+          </div>
+          <div className="release-card__like w-[62px] h-full"></div>
         </div>
       </div>
     </div>

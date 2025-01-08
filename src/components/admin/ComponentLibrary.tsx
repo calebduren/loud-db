@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PageTitle } from '../layout/PageTitle';
-import { ReleaseListSkeleton } from '../releases/ReleaseListSkeleton';
+import { ReleaseList } from '../releases/ReleaseList';
 
 type ComponentType = 'skeleton' | 'button' | 'input' | 'pill';
 
@@ -40,15 +40,15 @@ export function ComponentLibrary() {
     switch (selectedComponent) {
       case 'skeleton':
         return (
-          <div className="space-y-8">
+          <div className="space-y-12">
             <div>
-              <h3 className="text-lg font-medium text-white mb-4">Release Card Skeleton</h3>
+              <h3 className="text-lg font-medium text-white mb-4">Release Card Grid</h3>
               <p className="text-white/60 mb-6">
-                Used as a placeholder while release data is being loaded. Shows a grid of cards
+                Used to show a loading state for the release grid. Shows multiple cards
                 with animated loading states.
               </p>
               <div className="p-6 bg-white/5 rounded-lg">
-                <ReleaseListSkeleton />
+                <ReleaseList loading={true} releases={[]} />
               </div>
             </div>
           </div>
