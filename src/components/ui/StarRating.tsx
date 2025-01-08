@@ -1,6 +1,6 @@
-import React from 'react';
-import { Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Star } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface StarRatingProps {
   value: number;
@@ -10,7 +10,7 @@ interface StarRatingProps {
 
 export function StarRating({ value, onChange, max = 5 }: StarRatingProps) {
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
-  
+
   return (
     <div className="flex gap-1">
       {Array.from({ length: max }, (_, i) => i + 1).map((star) => (
@@ -24,10 +24,10 @@ export function StarRating({ value, onChange, max = 5 }: StarRatingProps) {
         >
           <Star
             className={cn(
-              'w-6 h-6 transition-all',
+              "w-4 h-4 transition-all",
               (hoverValue !== null ? star <= hoverValue : star <= value)
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'text-white/20'
+                ? `fill-[var(--color-loud)] text-[var(--color-loud)]`
+                : "text-white/20"
             )}
           />
         </button>

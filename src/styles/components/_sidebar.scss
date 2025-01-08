@@ -26,14 +26,16 @@
   }
 
   &__footer {
-    @apply mt-4 text-xs font-semibold;
-
     &-links {
       @apply flex flex-col text-white/40 gap-6 mt-7;
     }
 
-    &-link {
-      @apply transition-colors hover:text-white/60;
+    &-legal {
+      @apply mt-1.5 flex gap-5 flex-col items-start;
+
+      &-link {
+        @apply text-xs font-semibold transition-colors hover:text-white/60;
+      }
     }
   }
 

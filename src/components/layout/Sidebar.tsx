@@ -111,21 +111,21 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
             <div>
               <NavItem to="/account">Account</NavItem>
             </div>
-            <div>
+            <div className="sidebar__footer-legal">
               <button
                 onClick={() => setIsPrivacyOpen(true)}
-                className="sidebar__footer-link"
+                className="sidebar__footer-legal-link"
               >
                 Privacy policy
               </button>
-            </div>
-            <div>
-              <button
-                onClick={() => setIsTermsOpen(true)}
-                className="sidebar__footer-link"
-              >
-                Terms of service
-              </button>
+              <div>
+                <button
+                  onClick={() => setIsTermsOpen(true)}
+                  className="sidebar__footer-legal-link"
+                >
+                  Terms of service
+                </button>
+              </div>
             </div>
           </div>
         </nav>

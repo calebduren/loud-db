@@ -1,14 +1,14 @@
-import React from 'react';
-import { Music } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { GenrePreferences } from '../user/settings/GenrePreferences';
-import { Button } from '../ui/button';
+import React from "react";
+import { Music } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { GenrePreferences } from "../user/settings/GenrePreferences";
+import { Button } from "../ui/button";
 
 export function OnboardingFlow() {
   const navigate = useNavigate();
 
   const handleSkip = () => {
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -18,11 +18,11 @@ export function OnboardingFlow() {
           <Music className="w-16 h-16 mx-auto" />
           <h1 className="text-3xl font-bold">Welcome to loud db!</h1>
           <p className="text-white/60">
-            Let's personalize your experience by setting up your genre preferences.
-            This will help us show you releases you'll love.
+            Let's personalize your experience by setting up your genre
+            preferences. This will help us show you releases you'll love.
           </p>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="secondary"
             onClick={handleSkip}
             className="text-white/60 hover:text-white"
           >
@@ -30,7 +30,7 @@ export function OnboardingFlow() {
           </Button>
         </div>
 
-        <GenrePreferences onComplete={() => navigate('/')} />
+        <GenrePreferences onComplete={() => navigate("/")} />
       </div>
     </div>
   );
