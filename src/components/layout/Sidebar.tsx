@@ -7,7 +7,11 @@ import { useProfile } from "../../hooks/useProfile";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
 import { TermsModal } from "../legal/TermsModal";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export const Sidebar = ({ onClose }: SidebarProps) => {
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
@@ -21,6 +25,11 @@ export const Sidebar = () => {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("sidebar__nav-item", isActive && "sidebar__nav-item--active");
 
+  // Handle navigation click on mobile
+  const handleNavClick = () => {
+    if (onClose) onClose();
+  };
+
   const NavItem = ({
     to,
     children,
@@ -29,7 +38,7 @@ export const Sidebar = () => {
     children: React.ReactNode;
   }) => {
     return (
-      <NavLink to={to} className={linkClass}>
+      <NavLink to={to} className={linkClass} onClick={handleNavClick}>
         {({ isActive }) => (
           <div className="flex items-center">
             <div
@@ -48,7 +57,7 @@ export const Sidebar = () => {
   if (!profile) return null;
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar-inner">
       {/* Logo section */}
       <NavLink to="/" className="sidebar__logo-container">
         <div className="sidebar__logo">
@@ -123,10 +132,7 @@ export const Sidebar = () => {
         isOpen={isPrivacyOpen}
         onClose={() => setIsPrivacyOpen(false)}
       />
-      <TermsModal
-        isOpen={isTermsOpen}
-        onClose={() => setIsTermsOpen(false)}
-      />
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
     </aside>
   );
 };
