@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { Release } from "../../types/database";
-import { Music, ChevronDown, ChevronUp } from "lucide-react";
+import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ReleaseModal } from "./ReleaseModal";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
@@ -80,9 +80,6 @@ export function ReleaseList({
   showWeeklyGroups = false,
 }: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set()
-  );
 
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
@@ -113,10 +110,10 @@ export function ReleaseList({
   };
 
   const getWeekKey = (date: Date) => {
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 5 = Friday
-    const daysUntilFriday = (dayOfWeek + 2) % 7; // Days until next Friday, or 0 if Friday
+    const dayOfWeek = date.getDay();
+    const daysUntilFriday = (dayOfWeek + 2) % 7;
     const start = new Date(date);
-    start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
+    start.setDate(start.getDate() - daysUntilFriday);
     start.setHours(0, 0, 0, 0);
     return start.toISOString();
   };
@@ -125,10 +122,10 @@ export function ReleaseList({
     const dayOfWeek = date.getDay();
     const daysUntilFriday = (dayOfWeek + 2) % 7;
     const start = new Date(date);
-    start.setDate(start.getDate() - daysUntilFriday); // Start of week (Friday)
+    start.setDate(start.getDate() - daysUntilFriday);
     start.setHours(0, 0, 0, 0);
     const end = new Date(start);
-    end.setDate(end.getDate() + 6); // End of week (Thursday)
+    end.setDate(end.getDate() + 6);
     return {
       start,
       end,
@@ -160,18 +157,6 @@ export function ReleaseList({
         weekRange: getWeekRange(new Date(key)),
         releases,
       }));
-  };
-
-  const toggleGroup = (weekKey: string) => {
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(weekKey)) {
-        next.delete(weekKey);
-      } else {
-        next.add(weekKey);
-      }
-      return next;
-    });
   };
 
   const formatReleaseType = (type: string) => {
@@ -310,25 +295,17 @@ export function ReleaseList({
         groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
             <div className="weekly-group-header">
-              <button
-                onClick={() => toggleGroup(weekRange.key)}
-                className="flex items-baseline gap-2 text-xl font-semibold hover:text-white/80 transition-colors"
-              >
-                {collapsedGroups.has(weekRange.key) ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronUp className="w-4 h-4" />
-                )}
+              <div className="flex items-baseline gap-2 text-xl font-semibold">
                 {weekRange.label}
                 <span className="text-base font-normal text-white/60 ml-1">
                   {releases.length}{" "}
                   {releases.length === 1 ? "release" : "releases"}
                 </span>
-              </button>
+              </div>
             </div>
-            {!collapsedGroups.has(weekRange.key) && (
-              <div className="release-grid">{releases.map(renderRelease)}</div>
-            )}
+            <div className="release-grid mt-6">
+              {releases.map(renderRelease)}
+            </div>
           </div>
         ))
       ) : (
