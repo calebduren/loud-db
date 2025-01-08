@@ -57,6 +57,7 @@ export function useReleases({
 
       // Apply type filter if not "all"
       if (!selectedTypes.includes('all')) {
+        console.log('Applying type filter:', { selectedTypes });
         query = query.in('release_type', selectedTypes);
       }
 

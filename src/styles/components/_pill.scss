@@ -1,0 +1,62 @@
+.pill {
+  @apply flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors rounded-md;
+
+  // Default style (used in cards and modals)
+  &--default {
+    @apply bg-[--color-gray-800] text-white/60;
+
+    &:hover {
+      @apply bg-[--color-gray-700] text-white;
+    }
+  }
+
+  // Interactive style (used in filters)
+  &--interactive {
+    @apply bg-[--color-gray-800] text-white/60 cursor-pointer;
+
+    &:hover {
+      @apply bg-[--color-gray-700] text-white;
+    }
+
+    &.pill--selected {
+      @apply bg-white text-black;
+
+      &:hover {
+        @apply bg-white/90;
+      }
+    }
+  }
+
+  // Ghost style (used in selected genres)
+  &--ghost {
+    @apply text-white;
+  }
+
+  // Sizes
+  &--sm {
+    @apply px-2 py-1;
+  }
+
+  &--lg {
+    @apply px-4 py-2;
+  }
+
+  // Icon styles
+  &__icon {
+    @apply w-3.5 h-3.5 transition-opacity;
+    @apply opacity-60;
+
+    .pill:hover & {
+      @apply opacity-100;
+    }
+  }
+
+  // Remove button (for selected pills)
+  &__remove {
+    @apply p-0.5 bg-white/10 hover:bg-white hover:text-black rounded-md transition-colors;
+
+    svg {
+      @apply w-3 h-3;
+    }
+  }
+}

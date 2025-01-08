@@ -1,65 +1,63 @@
 import React from "react";
-import { ReleaseType } from "../../types/database";
+import { cn } from "../../lib/utils";
 import { FilterSection } from "./FilterSection";
-import { FilterButton } from "./FilterButton";
 import { GenreFilterDropdown } from "./GenreFilterDropdown";
+import { ReleaseType } from "../../types/database";
+import { useGenreGroups } from "../../hooks/useGenreGroups";
 
-const RELEASE_TYPES: (ReleaseType | "all")[] = [
-  "all",
-  "Single",
-  "EP",
-  "LP",
-  "Compilation",
+const releaseLengthOptions: { value: ReleaseType | 'all'; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "single", label: "Singles" },
+  { value: "EP", label: "EPs" },
+  { value: "LP", label: "Albums" },
+  { value: "compilation", label: "Compilations" },
 ];
 
 interface ReleaseFiltersProps {
   loading?: boolean;
-  selectedTypes: (ReleaseType | "all")[];
+  selectedTypes: (ReleaseType | 'all')[];
   selectedGenres: string[];
-  availableGenres: string[];
-  onTypeChange: (type: ReleaseType | "all") => void;
+  genreFilterMode: "include" | "exclude";
+  onTypeChange: (type: ReleaseType | 'all') => void;
   onGenreChange: (genre: string) => void;
-  genreFilterMode?: "include" | "exclude";
-  onGenreFilterModeChange?: (mode: "include" | "exclude") => void;
+  onGenreFilterModeChange: (mode: "include" | "exclude") => void;
 }
 
 export function ReleaseFilters({
   loading,
   selectedTypes,
   selectedGenres,
-  availableGenres,
+  genreFilterMode,
   onTypeChange,
   onGenreChange,
-  genreFilterMode = "include",
-  onGenreFilterModeChange = () => {},
+  onGenreFilterModeChange,
 }: ReleaseFiltersProps) {
-  if (!availableGenres.length && !loading) {
+  const { genreGroups } = useGenreGroups();
+  const availableGenres = Object.keys(genreGroups).sort();
+
+  if (!selectedTypes || !selectedGenres) {
     return null;
   }
 
   return (
-    <div className="flex flex-row gap-8 mb-6">
-      <FilterSection label="Filter by release length">
-        {RELEASE_TYPES.map((type) => (
-          <React.Fragment key={type}>
-            <FilterButton
-              active={
-                type === "all"
-                  ? selectedTypes.includes("all")
-                  : selectedTypes.includes(type)
-              }
-              onClick={() => !loading && onTypeChange(type)}
-              disabled={loading}
-              className={loading ? "animate-pulse" : ""}
-            >
-              {type === "all" ? "All" : type}
-            </FilterButton>
-            {type === "all" && (
-              <div className="h-6 w-px bg-white/10 mx-2" aria-hidden="true" />
+    <div className="flex gap-6">
+      <FilterSection label="Filter by length">
+        {releaseLengthOptions.map((option) => (
+          <button
+            key={option.value}
+            onClick={() => !loading && onTypeChange(option.value)}
+            className={cn(
+              "pill pill--interactive",
+              selectedTypes.includes(option.value) && "pill--selected",
+              loading && "animate-pulse"
             )}
-          </React.Fragment>
+            disabled={loading}
+          >
+            {option.label}
+          </button>
         ))}
       </FilterSection>
+
       <FilterSection label="Filter by genre" className="flex-1 min-w-0">
         <GenreFilterDropdown
           genres={availableGenres}
@@ -67,7 +65,6 @@ export function ReleaseFilters({
           onGenreChange={onGenreChange}
           filterMode={genreFilterMode}
           onFilterModeChange={onGenreFilterModeChange}
-          disabled={loading}
         />
       </FilterSection>
     </div>
