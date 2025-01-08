@@ -58,7 +58,7 @@ export function AllReleases() {
         title="New music"
         subtitle="Releases are sorted based on your preferences and likes"
         showAddRelease={isAdmin || isCreator}
-        showImportPlaylist={false}
+        showImportPlaylist={isAdmin}
       />
 
       <ReleaseFilters

@@ -44,6 +44,8 @@ export function useLikedReleases() {
         setLoading(true);
       }
 
+      console.log('Fetching liked releases for user:', user.id);
+
       // First get the liked release IDs
       const { data: likedIds } = await fetchWithRetry(() =>
         supabase
@@ -53,6 +55,8 @@ export function useLikedReleases() {
           .order('created_at', { ascending: false })
           .range(isLoadMore ? releases.length : 0, (isLoadMore ? releases.length : 0) + PAGE_SIZE - 1)
       );
+
+      console.log('Found liked IDs:', likedIds?.length);
 
       if (!likedIds?.length) {
         if (!isLoadMore) {
@@ -70,6 +74,8 @@ export function useLikedReleases() {
           .select('*')
           .in('id', likedIds.map(row => row.release_id))
       );
+
+      console.log('Fetched releases data:', releasesData?.length);
 
       if (releasesData) {
         // Sort releases to match the order of likes

@@ -42,9 +42,12 @@ export default function App() {
               <Route path="/likes" element={<LikedReleases />} />
               <Route path="/created" element={<CreatedReleases />} />
               
-              {/* Profile Routes */}
-              <Route path="/profile" element={<Navigate to="/profile/likes" replace />} />
-              <Route path="/profile/likes" element={<LikedReleases />} />
+              {/* Own Profile Routes */}
+              <Route path="/profile" element={<UserProfileLayout />}>
+                <Route index element={<Navigate to="likes" replace />} />
+                <Route path="likes" element={<LikedReleases />} />
+                <Route path="created" element={<CreatedReleases />} />
+              </Route>
               <Route path="/preferences" element={<PreferenceSettings />} />
               <Route path="/account" element={<AccountSettings />} />
 
@@ -53,7 +56,9 @@ export default function App() {
                 <RestrictedRoute reservedPaths={RESERVED_PATHS}>
                   <UserProfileLayout />
                 </RestrictedRoute>
-              } />
+              }>
+                <Route index element={<LikedReleases />} />
+              </Route>
 
               {/* Admin Routes */}
               {isAdmin && (

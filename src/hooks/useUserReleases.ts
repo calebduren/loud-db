@@ -10,6 +10,7 @@ const PAGE_SIZE = 50;
 
 export function useUserReleases(userId?: string) {
   const [releases, setReleases] = useState<Release[]>([]);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -23,6 +24,7 @@ export function useUserReleases(userId?: string) {
   const fetchReleases = useCallback(async (isLoadMore = false) => {
     if (!userId || !canManageReleases) {
       setReleases([]);
+      setCount(0);
       setHasMore(false);
       setLoading(false);
       return;
@@ -37,7 +39,7 @@ export function useUserReleases(userId?: string) {
       const currentLength = isLoadMore ? releases.length : 0;
 
       // Get releases with retry logic
-      const { data, error: fetchError } = await fetchWithRetry(() =>
+      const { data, error: fetchError, count: totalCount } = await fetchWithRetry(() =>
         supabase
           .from('releases_view')
           .select('*', { count: 'exact' })
@@ -49,32 +51,33 @@ export function useUserReleases(userId?: string) {
       if (fetchError) throw fetchError;
 
       // Update releases and hasMore
-      setReleases(prev => isLoadMore ? [...prev, ...(data || [])] : (data || []));
-      setHasMore((data?.length || 0) === PAGE_SIZE);
-      setError(null);
-    } catch (err) {
-      console.error('Error in useUserReleases:', err);
-      const message = err instanceof Error ? err.message : 'Failed to load releases';
-      setError(new Error(message));
-      showToast({
-        type: 'error',
-        message
-      });
-      if (!isLoadMore) {
-        setReleases([]);
-        setHasMore(false);
+      if (data) {
+        if (isLoadMore) {
+          setReleases(prev => [...prev, ...data]);
+        } else {
+          setReleases(data);
+        }
+        setCount(totalCount || 0);
+        setHasMore(data.length === PAGE_SIZE);
       }
+    } catch (err) {
+      setError(err as Error);
+      showToast({
+        title: 'Error loading releases',
+        description: 'Please try again later',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
-  }, [userId, canManageReleases, showToast]); // Removed releases.length from deps
+  }, [userId, canManageReleases, releases.length, showToast]);
 
   // Initial fetch
   useEffect(() => {
     fetchReleases();
   }, [fetchReleases]);
 
-  // Load more when scrolling to bottom
+  // Load more when scrolling
   useEffect(() => {
     if (inView && !loading && hasMore) {
       fetchReleases(true);
@@ -83,10 +86,10 @@ export function useUserReleases(userId?: string) {
 
   return {
     releases,
+    count,
     loading,
-    error,
     hasMore,
+    error,
     loadMoreRef: ref,
-    refetch: () => fetchReleases()
   };
 }

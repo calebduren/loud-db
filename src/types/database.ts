@@ -73,6 +73,8 @@ export interface Profile {
   id: string;
   username: string;
   role: 'admin' | 'creator' | 'user';
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
+  suspended?: boolean;
 }
