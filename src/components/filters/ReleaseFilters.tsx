@@ -2,6 +2,7 @@ import React from "react";
 import { ReleaseType } from "../../types/database";
 import { FilterSection } from "./FilterSection";
 import { FilterButton } from "./FilterButton";
+import { GenreFilterDropdown } from "./GenreFilterDropdown";
 
 const RELEASE_TYPES: (ReleaseType | "all")[] = [
   "all",
@@ -11,8 +12,6 @@ const RELEASE_TYPES: (ReleaseType | "all")[] = [
   "Compilation",
 ];
 
-const SKELETON_GENRES = Array(8).fill(null); // For loading state
-
 interface ReleaseFiltersProps {
   loading?: boolean;
   selectedTypes: (ReleaseType | "all")[];
@@ -20,6 +19,8 @@ interface ReleaseFiltersProps {
   availableGenres: string[];
   onTypeChange: (type: ReleaseType | "all") => void;
   onGenreChange: (genre: string) => void;
+  genreFilterMode?: "include" | "exclude";
+  onGenreFilterModeChange?: (mode: "include" | "exclude") => void;
 }
 
 export function ReleaseFilters({
@@ -29,14 +30,16 @@ export function ReleaseFilters({
   availableGenres,
   onTypeChange,
   onGenreChange,
+  genreFilterMode = "include",
+  onGenreFilterModeChange = () => {},
 }: ReleaseFiltersProps) {
   if (!availableGenres.length && !loading) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-6 mb-6">
-      <FilterSection label="Length">
+    <div className="flex flex-row gap-8 mb-6">
+      <FilterSection label="Filter by release length">
         {RELEASE_TYPES.map((type) => (
           <React.Fragment key={type}>
             <FilterButton
@@ -57,29 +60,15 @@ export function ReleaseFilters({
           </React.Fragment>
         ))}
       </FilterSection>
-
-      <FilterSection label="Genres">
-        {loading
-          ? // Skeleton loading state for genres
-            SKELETON_GENRES.map((_, index) => (
-              <div
-                key={`skeleton-${index}`}
-                className="h-8 rounded-[6px] bg-[--color-gray-800] animate-pulse"
-                style={{
-                  width: `${Math.floor(Math.random() * (120 - 80) + 80)}px`,
-                }}
-              />
-            ))
-          : availableGenres.map((genre) => (
-              <FilterButton
-                key={genre}
-                active={selectedGenres.includes(genre)}
-                onClick={() => onGenreChange(genre)}
-                disabled={loading}
-              >
-                {genre}
-              </FilterButton>
-            ))}
+      <FilterSection label="Filter by genre" className="flex-1 min-w-0">
+        <GenreFilterDropdown
+          genres={availableGenres}
+          selectedGenres={selectedGenres}
+          onGenreChange={onGenreChange}
+          filterMode={genreFilterMode}
+          onFilterModeChange={onGenreFilterModeChange}
+          disabled={loading}
+        />
       </FilterSection>
     </div>
   );

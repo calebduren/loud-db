@@ -1,0 +1,148 @@
+// Filter Section
+.filter-section {
+  @apply flex flex-col;
+
+  &__label {
+    @apply block text-sm text-white/60 mb-2 font-medium;
+  }
+
+  &__content {
+    @apply flex flex-wrap gap-2;
+  }
+}
+
+// Filter Button
+.filter-button {
+  @apply inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+  @apply bg-[--color-gray-800] hover:bg-[--color-gray-700];
+  @apply text-white/60 hover:text-white;
+
+  &--active {
+    @apply bg-white text-black hover:bg-white/90;
+  }
+
+  &--loading {
+    @apply animate-pulse;
+  }
+}
+
+// Genre Filter Dropdown
+.genre-dropdown {
+  &__container {
+    @apply flex gap-2 w-full;
+  }
+
+  // Mode Selector
+  &__mode {
+    @apply relative font-medium;
+
+    &-button {
+      @apply flex h-full items-center gap-2 min-w-[120px] px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+      @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
+      @apply text-white/60 hover:text-white;
+    }
+
+    &-chevron {
+      @apply w-4 h-4 transition-transform ml-auto;
+
+      &--open {
+        @apply transform rotate-180;
+      }
+    }
+
+    &-menu {
+      @apply absolute z-50 mt-2 w-full rounded-lg bg-[--color-gray-800] shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden;
+    }
+
+    &-option {
+      @apply flex items-center w-full px-3 py-2 text-sm transition-colors;
+
+      &--selected {
+        @apply text-white/50 bg-white/[3%];
+      }
+
+      &--unselected {
+        @apply text-white hover:bg-[--color-gray-700] hover:text-white;
+      }
+    }
+  }
+
+  // Input Area
+  &__input {
+    @apply relative flex-1;
+
+    &-button {
+      @apply flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+      @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
+      @apply text-white/60 hover:text-white;
+
+      &--disabled {
+        @apply opacity-50 cursor-not-allowed;
+      }
+    }
+
+    &-content {
+      @apply flex flex-1 flex-wrap gap-1.5 min-h-[1.5rem] items-center;
+    }
+
+    &-placeholder {
+      @apply text-white/60;
+    }
+
+    &-chevron {
+      @apply w-4 h-4 transition-transform shrink-0;
+
+      &--open {
+        @apply transform rotate-180;
+      }
+    }
+  }
+
+  // Selected Genre Pills
+  &__pill {
+    @apply flex items-center gap-1 text-white font-medium text-sm;
+
+    &-remove {
+      @apply p-0.5 bg-white/10 hover:bg-white hover:text-black rounded-md transition-colors;
+
+      svg {
+        @apply w-3 h-3;
+      }
+    }
+  }
+
+  // Dropdown Menu
+  &__menu {
+    @apply absolute z-50 mt-2 w-full rounded-lg bg-[--color-gray-800] shadow-lg ring-1 ring-black ring-opacity-5;
+
+    &-content {
+      @apply p-2;
+    }
+
+    &-list {
+      @apply flex flex-wrap gap-2;
+    }
+  }
+
+  // Genre Option
+  &__option {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+
+    &--selected {
+      @apply bg-white text-black hover:bg-white/90;
+    }
+
+    &--unselected {
+      @apply bg-[--color-gray-700] text-white/60 hover:text-white hover:bg-[--color-gray-600];
+    }
+
+    &-icon {
+      @apply w-3.5 h-3.5 transition-opacity;
+      @apply opacity-60;
+
+      :hover & {
+        @apply opacity-100;
+      }
+    }
+  }
+}

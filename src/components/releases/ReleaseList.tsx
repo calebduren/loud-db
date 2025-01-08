@@ -309,7 +309,7 @@ export function ReleaseList({
       ) : showWeeklyGroups ? (
         groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
-            <div className="sticky bg-[--color-gray-900] top-0 -mx-6 px-6 py-4 z-50">
+            <div className="sticky bg-[--color-gray-900] top-0 -mx-6 px-6 py-4 z-10">
               <button
                 onClick={() => toggleGroup(weekRange.key)}
                 className="flex items-center gap-2 text-xl font-semibold hover:text-white/80 transition-colors"

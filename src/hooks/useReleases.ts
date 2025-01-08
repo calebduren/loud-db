@@ -12,10 +12,16 @@ const SUBSEQUENT_PAGE_SIZE = 50;
 interface UseReleasesParams {
   selectedTypes?: (ReleaseType | 'all')[];
   selectedGenres?: string[];
+  genreFilterMode?: 'include' | 'exclude';
   genreGroups?: Record<string, string[]>;
 }
 
-export function useReleases({ selectedTypes = ['all'], selectedGenres = [], genreGroups = {} }: UseReleasesParams = {}) {
+export function useReleases({ 
+  selectedTypes = ['all'], 
+  selectedGenres = [], 
+  genreFilterMode = 'include',
+  genreGroups = {} 
+}: UseReleasesParams = {}) {
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -58,8 +64,14 @@ export function useReleases({ selectedTypes = ['all'], selectedGenres = [], genr
       if (selectedGenres.length > 0) {
         const allGenres = selectedGenres.flatMap(groupName => genreGroups[groupName] || []);
         if (allGenres.length > 0) {
-          // Use overlaps instead of contains to match any of the genres
-          query = query.overlaps('genres', allGenres);
+          if (genreFilterMode === 'include') {
+            // Include mode: match releases that have any of the selected genres
+            query = query.overlaps('genres', allGenres);
+          } else {
+            // Exclude mode: match releases that don't have any of the selected genres
+            // Use not + overlaps to exclude any releases that have any of the selected genres
+            query = query.not('genres', 'ov', `{${allGenres.join(',')}}`);
+          }
         }
       }
 
@@ -70,6 +82,7 @@ export function useReleases({ selectedTypes = ['all'], selectedGenres = [], genr
       console.log('Fetching releases with params:', {
         selectedTypes,
         selectedGenres,
+        genreFilterMode,
         allGenres: selectedGenres.flatMap(groupName => genreGroups[groupName] || []),
         startRange,
         endRange,
@@ -101,26 +114,28 @@ export function useReleases({ selectedTypes = ['all'], selectedGenres = [], genr
     } catch (error) {
       console.error('Error fetching releases:', error);
       showToast({
-        title: 'Error',
-        description: 'Failed to fetch releases. Please try again.',
+        title: 'Error loading releases',
+        description: 'Please try again later',
         type: 'error',
       });
     } finally {
-      setLoading(false);
+      if (!isLoadMore) {
+        setLoading(false);
+      }
     }
-  }, [releases.length, selectedTypes, selectedGenres, genreGroups, showToast]);
+  }, [releases.length, selectedTypes, selectedGenres, genreFilterMode, genreGroups, showToast]);
 
-  // Reset releases when filters change
+  // Initial load
   useEffect(() => {
-    setReleases([]);
     fetchReleases();
-  }, [selectedTypes, selectedGenres]); // Intentionally omit fetchReleases to avoid infinite loop
+  }, [fetchReleases]);
 
+  // Load more when scrolling
   useEffect(() => {
-    if (inView && hasMore && !loading) {
+    if (inView && !loading && hasMore) {
       fetchReleases(true);
     }
-  }, [inView, hasMore, loading, fetchReleases]);
+  }, [inView, loading, hasMore, fetchReleases]);
 
   return {
     releases,
@@ -128,7 +143,7 @@ export function useReleases({ selectedTypes = ['all'], selectedGenres = [], genr
     hasMore,
     totalCount,
     loadMoreRef: ref,
-    refetch: () => fetchReleases(),
-    loadMore: () => fetchReleases(true),
+    refetch: useCallback(() => fetchReleases(), [fetchReleases]),
+    loadMore: useCallback(() => fetchReleases(true), [fetchReleases]),
   };
 }

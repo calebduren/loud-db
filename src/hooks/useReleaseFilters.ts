@@ -1,11 +1,22 @@
-import { useState, useCallback } from 'react';
-import { Release, ReleaseType } from '../types/database';
+import { useCallback } from 'react';
+import { ReleaseType } from '../types/database';
 import { useGenreGroups } from './useGenreGroups';
 import { useReleases } from './useReleases';
+import { usePersistedState } from './usePersistedState';
 
 export function useReleaseFilters() {
-  const [selectedTypes, setSelectedTypes] = useState<(ReleaseType | 'all')[]>(['all']);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = usePersistedState<(ReleaseType | 'all')[]>(
+    'louddb:selectedTypes',
+    ['all']
+  );
+  const [selectedGenres, setSelectedGenres] = usePersistedState<string[]>(
+    'louddb:selectedGenres',
+    []
+  );
+  const [genreFilterMode, setGenreFilterMode] = usePersistedState<'include' | 'exclude'>(
+    'louddb:genreFilterMode',
+    'include'
+  );
   const { genreGroups } = useGenreGroups();
 
   // Only show genre groups as available filters
@@ -22,6 +33,7 @@ export function useReleaseFilters() {
   } = useReleases({
     selectedTypes,
     selectedGenres,
+    genreFilterMode,
     genreGroups,
   });
 
@@ -37,7 +49,7 @@ export function useReleaseFilters() {
         
       return newTypes.length === 0 ? ['all'] : newTypes;
     });
-  }, []);
+  }, [setSelectedTypes]);
 
   const handleGenreChange = useCallback((genre: string) => {
     setSelectedGenres(prev => {
@@ -46,11 +58,16 @@ export function useReleaseFilters() {
       }
       return [...prev, genre];
     });
-  }, []);
+  }, [setSelectedGenres]);
+
+  const handleGenreFilterModeChange = useCallback((mode: 'include' | 'exclude') => {
+    setGenreFilterMode(mode);
+  }, [setGenreFilterMode]);
 
   return {
     selectedTypes,
     selectedGenres,
+    genreFilterMode,
     availableGenres,
     filteredReleases,
     loading,
@@ -61,5 +78,6 @@ export function useReleaseFilters() {
     loadMore,
     handleTypeChange,
     handleGenreChange,
+    handleGenreFilterModeChange,
   };
 }

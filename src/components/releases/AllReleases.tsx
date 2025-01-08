@@ -27,6 +27,8 @@ export function AllReleases() {
     loadMore,
     handleTypeChange,
     handleGenreChange,
+    genreFilterMode,
+    handleGenreFilterModeChange,
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -77,6 +79,8 @@ export function AllReleases() {
         availableGenres={availableGenres}
         onTypeChange={handleTypeChange}
         onGenreChange={handleGenreChange}
+        genreFilterMode={genreFilterMode}
+        onGenreFilterModeChange={handleGenreFilterModeChange}
       />
 
       <div className="mt-6">

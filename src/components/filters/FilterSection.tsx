@@ -1,17 +1,19 @@
 import React from "react";
+import { cn } from "../../lib/utils";
 
 interface FilterSectionProps {
   label: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-export function FilterSection({ label, children }: FilterSectionProps) {
+export function FilterSection({ label, children, className }: FilterSectionProps) {
   return (
-    <div>
-      <label className="block text-sm text-white/60 mb-2 font-medium">
+    <div className={cn("filter-section", className)}>
+      <label className="filter-section__label">
         {label}
       </label>
-      <div className="flex flex-wrap gap-2">{children}</div>
+      <div className="filter-section__content">{children}</div>
     </div>
   );
 }
