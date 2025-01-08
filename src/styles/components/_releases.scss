@@ -1,6 +1,6 @@
 .release-grid {
   @apply grid gap-6;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
 }
 
 .release-card {
