@@ -85,6 +85,9 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
                 <NavItem to="/admin/users">Users</NavItem>
               </div>
               <div>
+                <NavItem to="/admin/components">Components</NavItem>
+              </div>
+              <div>
                 <NavItem to="/admin/genres">Genres</NavItem>
               </div>
               <div>
