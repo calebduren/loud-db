@@ -93,6 +93,19 @@ const SkeletonCard = () => (
   </div>
 );
 
+const SkeletonWeeklyGroup = () => (
+  <div className="my-6">
+    <div className="mb-6">
+      <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
+    </div>
+    <div className="release-grid">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+    </div>
+  </div>
+);
+
 export function ReleaseList({
   releases,
   loading,
@@ -116,74 +129,78 @@ export function ReleaseList({
     });
   }, [releases]);
 
-  if (!uniqueReleases) return null;
-
-  const formatArtists = (release: Release) => {
+  const formatArtists = useCallback((release: Release) => {
     if (!release.artists?.length) return "";
     const sortedArtists = [...release.artists].sort(
       (a, b) => a.position - b.position
     );
     return sortedArtists.map((ra) => ra.artist.name).join(", ");
-  };
+  }, []);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
     });
-  };
+  }, []);
 
-  const getWeekKey = (date: Date) => {
+  const getWeekKey = useCallback((date: Date) => {
     const dayOfWeek = date.getDay();
     const daysUntilFriday = (dayOfWeek + 2) % 7;
     const start = new Date(date);
     start.setDate(start.getDate() - daysUntilFriday);
     start.setHours(0, 0, 0, 0);
     return start.toISOString();
-  };
+  }, []);
 
-  const getWeekRange = (date: Date) => {
-    const dayOfWeek = date.getDay();
-    const daysUntilFriday = (dayOfWeek + 2) % 7;
-    const start = new Date(date);
-    start.setDate(start.getDate() - daysUntilFriday);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    return {
-      start,
-      end,
-      key: start.toISOString(),
-      label: `${formatDate(start.toISOString())} – ${formatDate(
-        end.toISOString()
-      )}`,
-    };
-  };
+  const getWeekRange = useCallback(
+    (date: Date) => {
+      const dayOfWeek = date.getDay();
+      const daysUntilFriday = (dayOfWeek + 2) % 7;
+      const start = new Date(date);
+      start.setDate(start.getDate() - daysUntilFriday);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      return {
+        start,
+        end,
+        key: start.toISOString(),
+        label: `${formatDate(start.toISOString())} – ${formatDate(
+          end.toISOString()
+        )}`,
+      };
+    },
+    [formatDate]
+  );
 
-  const groupReleasesByWeek = (releases: Release[]): WeekGroup[] => {
-    const groups = new Map<string, Release[]>();
-    const sortedReleases = [...releases].sort((a, b) => {
-      const dateA = new Date(a.release_date).getTime();
-      const dateB = new Date(b.release_date).getTime();
-      return dateB - dateA;
-    });
+  const groupReleasesByWeek = useCallback(
+    (releases: Release[]) => {
+      const groups = new Map<string, Release[]>();
+      const sortedReleases = [...releases].sort((a, b) => {
+        const dateA = new Date(a.release_date).getTime();
+        const dateB = new Date(b.release_date).getTime();
+        return dateB - dateA;
+      });
 
-    sortedReleases.forEach((release) => {
-      const weekKey = getWeekKey(new Date(release.release_date));
-      const group = groups.get(weekKey) || [];
-      group.push(release);
-      groups.set(weekKey, group);
-    });
+      sortedReleases.forEach((release) => {
+        const weekKey = getWeekKey(new Date(release.release_date));
+        const group = groups.get(weekKey) || [];
+        group.push(release);
+        groups.set(weekKey, group);
+      });
 
-    return Array.from(groups.entries())
-      .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
-      .map(([key, releases]) => ({
-        weekRange: getWeekRange(new Date(key)),
-        releases,
-      }));
-  };
+      return Array.from(groups.entries())
+        .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
+        .map(([key, releases]) => ({
+          weekRange: getWeekRange(new Date(key)),
+          releases,
+        }));
+    },
+    [getWeekKey, getWeekRange]
+  );
 
-  const formatReleaseType = (type: string) => {
+  const formatReleaseType = useCallback((type: string) => {
     switch (type.toLowerCase()) {
       case "single":
         return "Single";
@@ -192,7 +209,7 @@ export function ReleaseList({
       default:
         return type;
     }
-  };
+  }, []);
 
   const renderRelease = useCallback(
     (release: Release) => (
@@ -304,18 +321,30 @@ export function ReleaseList({
         </div>
       </div>
     ),
-    [selectedRelease]
+    [selectedRelease, formatArtists, formatDate, formatReleaseType]
   );
+
+  if (loading) {
+    return (
+      <div className="space-y-12">
+        {showWeeklyGroups ? (
+          <SkeletonWeeklyGroup />
+        ) : (
+          <div className="release-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (!uniqueReleases) return null;
 
   return (
     <div className="space-y-8">
-      {loading ? (
-        <div className="release-grid">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : showWeeklyGroups ? (
+      {showWeeklyGroups ? (
         groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
             <div className="weekly-group-header">

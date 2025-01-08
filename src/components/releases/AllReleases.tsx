@@ -68,7 +68,7 @@ export function AllReleases() {
           onGenreChange={handleGenreChange}
           onGenreFilterModeChange={handleGenreFilterModeChange}
         />
-        <ReleaseList releases={[]} loading={true} />
+        <ReleaseList releases={[]} loading={true} showWeeklyGroups={true} />
       </div>
     );
   }
