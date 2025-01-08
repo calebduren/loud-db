@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Profile } from "../../../types/database";
 import { formatDate } from "../../../lib/utils/dateUtils";
 import { useAuth } from "../../../hooks/useAuth";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
 import { validateImage } from "../../../lib/validation/imageValidation";
+import { useToast } from "../../../hooks/useToast";
 import { PixelAvatar } from "./PixelAvatar";
 
 interface ProfileHeaderProps {
@@ -22,24 +24,25 @@ export function ProfileHeader({
   const isOwnProfile = user?.id === profile.id;
   const [preview, setPreview] = useState<string | null>(null);
   const { uploadPicture, loading } = useProfilePicture();
+  const { showToast } = useToast();
+  const showCreated = profile.role === "admin" || profile.role === "creator";
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate image before uploading
-    const validation = validateImage(file);
-    if (!validation.valid) {
-      event.target.value = ""; // Clear the input
-      return;
+    try {
+      await validateImage(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
+      await uploadPicture(file);
+    } catch (error) {
+      showToast({
+        message:
+          error instanceof Error ? error.message : "Failed to upload image",
+        type: "error",
+      });
     }
-
-    // Create preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-
-    // Upload file
-    await uploadPicture(file);
   };
 
   return (
@@ -93,17 +96,41 @@ export function ProfileHeader({
         </div>
       )}
 
-      <h1 className="text-2xl font-semibold mt-8">@{profile.username}</h1>
+      <div className="flex items-center justify-between mt-8">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">@{profile.username}</h1>
+          {profile.role === "admin" && (
+            <span className="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-400 ring-1 ring-inset ring-purple-400/30">
+              Admin
+            </span>
+          )}
+          {profile.role === "creator" && (
+            <span className="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30">
+              Creator
+            </span>
+          )}
+        </div>
+        {isOwnProfile && (
+          <Link
+            to="/account"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+          >
+            Edit Profile
+          </Link>
+        )}
+      </div>
 
       <p className="text-sm text-white/60 font-mono mt-1">
         Joined {formatDate(profile.created_at)}
       </p>
 
       <div className="flex gap-6 mt-8">
-        <div>
-          <p className="text-sm text-white/60 font-mono">Created</p>
-          <p className="text-2xl font-bold">{releasesCount}</p>
-        </div>
+        {showCreated && (
+          <div>
+            <p className="text-sm text-white/60 font-mono">Created</p>
+            <p className="text-2xl font-bold">{releasesCount}</p>
+          </div>
+        )}
 
         <div>
           <p className="text-sm text-white/60 font-mono">Likes</p>

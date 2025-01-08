@@ -8,8 +8,7 @@ import { PageTitle } from "../layout/PageTitle";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { usePermissions } from "../../hooks/usePermissions";
 import { Release } from "../../types/database";
-import { AlertCircle, Plus } from "lucide-react";
-import { Button } from "../ui/button";
+import { AlertCircle } from "lucide-react";
 
 export function CreatedReleases() {
   const { username } = useParams();
