@@ -309,21 +309,21 @@ export function ReleaseList({
       ) : showWeeklyGroups ? (
         groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
-            <div className="sticky bg-[--color-gray-900] top-0 -mx-6 px-6 py-4 z-10">
+            <div className="weekly-group-header">
               <button
                 onClick={() => toggleGroup(weekRange.key)}
-                className="flex items-center gap-2 text-xl font-semibold hover:text-white/80 transition-colors"
+                className="flex items-baseline gap-2 text-xl font-semibold hover:text-white/80 transition-colors"
               >
-                {weekRange.label}
-                <span className="text-sm font-normal text-white/60">
-                  ({releases.length}{" "}
-                  {releases.length === 1 ? "release" : "releases"})
-                </span>
                 {collapsedGroups.has(weekRange.key) ? (
-                  <ChevronDown className="w-5 h-5" />
+                  <ChevronDown className="w-4 h-4" />
                 ) : (
-                  <ChevronUp className="w-5 h-5" />
+                  <ChevronUp className="w-4 h-4" />
                 )}
+                {weekRange.label}
+                <span className="text-base font-normal text-white/60 ml-1">
+                  {releases.length}{" "}
+                  {releases.length === 1 ? "release" : "releases"}
+                </span>
               </button>
             </div>
             {!collapsedGroups.has(weekRange.key) && (
