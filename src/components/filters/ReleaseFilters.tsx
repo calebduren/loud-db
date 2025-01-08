@@ -17,10 +17,10 @@ interface ReleaseFiltersProps {
   loading?: boolean;
   selectedTypes: (ReleaseType | "all")[];
   selectedGenres: string[];
-  genreFilterMode: "include" | "exclude";
+  genreFilterMode: "exclude" | "include";
   onTypeChange: (type: ReleaseType | "all") => void;
   onGenreChange: (genre: string) => void;
-  onGenreFilterModeChange: (mode: "include" | "exclude") => void;
+  onGenreFilterModeChange: (mode: "exclude" | "include") => void;
 }
 
 export function ReleaseFilters({
@@ -40,7 +40,7 @@ export function ReleaseFilters({
   }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col sm:flex-row gap-6">
       <FilterSection label="Filter by length">
         {releaseLengthOptions.map((option) => (
           <button

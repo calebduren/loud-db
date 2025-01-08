@@ -26,14 +26,14 @@ export function Layout({ children }: LayoutProps) {
         className="sidebar-toggle"
         aria-label="Toggle navigation menu"
       >
-        <Menu size={24} />
+        <Menu size={24} strokeWidth={1.5} />
       </button>
 
-      <div className={`sidebar ${isSidebarOpen ? 'sidebar--open' : ''}`}>
+      <div className={`sidebar ${isSidebarOpen ? "sidebar--open" : ""}`}>
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      <main className="sm:ml-60 relative z-0">
+      <main className="mt-12 sm:mt-0 sm:ml-60 relative z-0">
         <div className="mx-auto p-10">{children}</div>
       </main>
     </div>

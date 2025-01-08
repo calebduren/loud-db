@@ -80,20 +80,6 @@ export function GenreFilterDropdown({
             <div className="py-1">
               <button
                 onClick={() => {
-                  onFilterModeChange("include");
-                  setIsFilterModeOpen(false);
-                }}
-                className={cn(
-                  "genre-dropdown__mode-option",
-                  filterMode === "include"
-                    ? "genre-dropdown__mode-option--selected"
-                    : "genre-dropdown__mode-option--unselected"
-                )}
-              >
-                Include
-              </button>
-              <button
-                onClick={() => {
                   onFilterModeChange("exclude");
                   setIsFilterModeOpen(false);
                 }}
@@ -105,6 +91,20 @@ export function GenreFilterDropdown({
                 )}
               >
                 Exclude
+              </button>
+              <button
+                onClick={() => {
+                  onFilterModeChange("include");
+                  setIsFilterModeOpen(false);
+                }}
+                className={cn(
+                  "genre-dropdown__mode-option",
+                  filterMode === "include"
+                    ? "genre-dropdown__mode-option--selected"
+                    : "genre-dropdown__mode-option--unselected"
+                )}
+              >
+                Include
               </button>
             </div>
           </div>
@@ -121,7 +121,9 @@ export function GenreFilterDropdown({
         >
           <div className="genre-dropdown__input-content">
             {selectedGenres.length === 0 ? (
-              <span className="genre-dropdown__input-placeholder">Select genres</span>
+              <span className="genre-dropdown__input-placeholder">
+                Select genres
+              </span>
             ) : (
               selectedGenres.map((genre) => (
                 <div key={genre} className="genre-dropdown__pill">
