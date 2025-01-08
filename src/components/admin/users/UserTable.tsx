@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { PixelAvatar } from "../../user/profile/PixelAvatar";
 
 interface UserTableProps {
-  users: (Profile & { email: string })[];
+  users: Profile[];
   onUpdateRole: (userId: string, role: UserRole) => Promise<void>;
   onToggleSuspension: (userId: string, suspend: boolean) => Promise<void>;
 }
@@ -21,7 +21,6 @@ export function UserTable({
         <thead className="text-sm text-white/60 border-b border-white/10">
           <tr>
             <th className="px-4 py-3">User</th>
-            <th className="px-4 py-3">Email</th>
             <th className="px-4 py-3">Role</th>
             <th className="px-4 py-3">Joined</th>
             <th className="px-4 py-3">Status</th>
@@ -47,7 +46,6 @@ export function UserTable({
                   <div>@{user.username}</div>
                 </Link>
               </td>
-              <td className="px-4 py-3 text-white/60">{user.email}</td>
               <td className="px-4 py-3">
                 <select
                   value={user.role}

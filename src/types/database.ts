@@ -58,10 +58,13 @@ export interface TrackCredit {
   created_at: string;
 }
 
+export type UserRole = 'admin' | 'creator' | 'user';
+
 export interface Profile {
   id: string;
   username: string;
-  role: 'admin' | 'creator' | 'user';
+  role: UserRole;
+  email: string;
   avatar_url?: string;
   created_at: string;
   updated_at: string;
