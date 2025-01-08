@@ -54,7 +54,7 @@ export function ReleaseFilters({
         ))}
       </FilterSection>
 
-      <FilterSection label="Genre Groups">
+      <FilterSection label="Genres">
         {loading
           ? // Skeleton loading state for genres
             SKELETON_GENRES.map((_, index) => (

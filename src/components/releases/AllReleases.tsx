@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from "react";
-import { useReleases } from "../../hooks/useReleases";
 import { ReleaseList } from "./ReleaseList";
 import { ReleaseFilters } from "../filters/ReleaseFilters";
 import { useReleaseFilters } from "../../hooks/useReleaseFilters";
@@ -7,18 +6,29 @@ import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
 import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import { useDeleteRelease } from "../../hooks/useDeleteRelease";
 import { useToast } from "../../hooks/useToast";
-import { useRecommendedReleases } from "../../hooks/useRecommendedReleases";
+import { Button } from "../ui/button";
 
 export function AllReleases() {
-  const { releases, loading, hasMore, loadMoreRef, refetch } = useReleases();
-  const recommendedReleases = useRecommendedReleases(releases);
+  const {
+    selectedTypes,
+    selectedGenres,
+    availableGenres,
+    filteredReleases,
+    loading,
+    hasMore,
+    totalCount,
+    loadMoreRef,
+    refetch,
+    loadMore,
+    handleTypeChange,
+    handleGenreChange,
+  } = useReleaseFilters();
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | null>(null);
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
@@ -29,15 +39,6 @@ export function AllReleases() {
   const { showToast } = useToast();
 
   const isCreator = profile?.role === "creator";
-
-  const {
-    selectedTypes,
-    selectedGenres,
-    availableGenres,
-    filteredReleases,
-    handleTypeChange,
-    handleGenreChange,
-  } = useReleaseFilters(recommendedReleases);
 
   // Subscribe to release changes
   useReleaseSubscription(refetch);
@@ -52,24 +53,13 @@ export function AllReleases() {
     refetch();
   }, [refetch]);
 
-  const handleDelete = useCallback(
-    async (release: Release) => {
-      const success = await deleteRelease(release.id);
-      if (success) {
-        showToast({
-          type: "success",
-          message: "Release deleted successfully",
-        });
-        refetch();
-      } else {
-        showToast({
-          type: "error",
-          message: "Failed to delete release",
-        });
-      }
-    },
-    [deleteRelease, refetch, showToast]
-  );
+  const handleDeleteSuccess = useCallback(() => {
+    setSelectedRelease(null);
+    refetch();
+  }, [refetch]);
+
+  const hasActiveFilters = selectedTypes.length > 1 || selectedTypes[0] !== 'all' || selectedGenres.length > 0;
+  const showLoadMoreButton = hasActiveFilters && filteredReleases.length === 0 && totalCount > 0;
 
   return (
     <div>
@@ -89,23 +79,34 @@ export function AllReleases() {
         onGenreChange={handleGenreChange}
       />
 
-      <div>
+      <div className="mt-6">
         {loading && filteredReleases.length === 0 ? (
           <ReleaseList releases={[]} loading={true} />
         ) : filteredReleases.length === 0 ? (
-          <p className="text-white/60 text-sm">
-            No releases match your criteria.
-          </p>
+          <div className="text-center">
+            <p className="text-white/60 text-sm mb-4">
+              {showLoadMoreButton
+                ? "No releases found in the initial results."
+                : "No releases match your criteria."}
+            </p>
+            {showLoadMoreButton && (
+              <Button
+                onClick={loadMore}
+                disabled={loading}
+                className="mx-auto"
+              >
+                Load More Releases
+              </Button>
+            )}
+          </div>
         ) : (
           <ReleaseList
             releases={filteredReleases || []}
             loading={loading}
             hasMore={hasMore}
             loadMoreRef={loadMoreRef}
-            showActions={canManageReleases}
-            showWeeklyGroups={true}
-            onEdit={canManageReleases ? setEditingRelease : undefined}
-            onDelete={isAdmin ? handleDelete : undefined}
+            onEditClick={setEditingRelease}
+            onDeleteClick={setSelectedRelease}
           />
         )}
       </div>
@@ -118,14 +119,12 @@ export function AllReleases() {
             onClose={() => setIsCreateModalOpen(false)}
             onSuccess={handleCreateSuccess}
           />
-          {editingRelease && (
-            <ReleaseFormModal
-              isOpen={true}
-              onClose={() => setEditingRelease(null)}
-              onSuccess={handleEditSuccess}
-              release={editingRelease}
-            />
-          )}
+          <ReleaseFormModal
+            release={editingRelease}
+            isOpen={!!editingRelease}
+            onClose={() => setEditingRelease(null)}
+            onSuccess={handleEditSuccess}
+          />
         </>
       )}
     </div>

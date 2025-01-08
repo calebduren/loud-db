@@ -1,43 +1,29 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Release, ReleaseType } from '../types/database';
 import { useGenreGroups } from './useGenreGroups';
+import { useReleases } from './useReleases';
 
-export function useReleaseFilters(releases: Release[]) {
+export function useReleaseFilters() {
   const [selectedTypes, setSelectedTypes] = useState<(ReleaseType | 'all')[]>(['all']);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const { genreGroups } = useGenreGroups();
 
   // Only show genre groups as available filters
-  const availableGenres = useMemo(() => {
-    return Object.keys(genreGroups).sort();
-  }, [genreGroups]);
+  const availableGenres = Object.keys(genreGroups).sort();
 
-  // Memoize filtered releases
-  const filteredReleases = useMemo(() => {
-    if (selectedTypes.includes('all') && selectedGenres.length === 0) {
-      return releases;
-    }
-
-    return releases.filter(release => {
-      // Filter by type
-      if (!selectedTypes.includes('all')) {
-        const matchesType = selectedTypes.some(
-          selectedType => release.release_type.toLowerCase() === selectedType.toLowerCase()
-        );
-        if (!matchesType) return false;
-      }
-
-      // Filter by genre groups
-      if (selectedGenres.length > 0) {
-        return selectedGenres.some(groupName => {
-          const groupGenres = genreGroups[groupName] || [];
-          return release.genres.some(genre => groupGenres.includes(genre));
-        });
-      }
-
-      return true;
-    });
-  }, [releases, selectedTypes, selectedGenres, genreGroups]);
+  const {
+    releases: filteredReleases,
+    loading,
+    hasMore,
+    totalCount,
+    loadMoreRef,
+    refetch,
+    loadMore,
+  } = useReleases({
+    selectedTypes,
+    selectedGenres,
+    genreGroups,
+  });
 
   const handleTypeChange = useCallback((type: ReleaseType | 'all') => {
     setSelectedTypes(prev => {
@@ -54,11 +40,12 @@ export function useReleaseFilters(releases: Release[]) {
   }, []);
 
   const handleGenreChange = useCallback((genre: string) => {
-    setSelectedGenres(prev =>
-      prev.includes(genre)
-        ? prev.filter(g => g !== genre)
-        : [...prev, genre]
-    );
+    setSelectedGenres(prev => {
+      if (prev.includes(genre)) {
+        return prev.filter(g => g !== genre);
+      }
+      return [...prev, genre];
+    });
   }, []);
 
   return {
@@ -66,6 +53,12 @@ export function useReleaseFilters(releases: Release[]) {
     selectedGenres,
     availableGenres,
     filteredReleases,
+    loading,
+    hasMore,
+    totalCount,
+    loadMoreRef,
+    refetch,
+    loadMore,
     handleTypeChange,
     handleGenreChange,
   };
