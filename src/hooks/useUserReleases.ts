@@ -91,5 +91,6 @@ export function useUserReleases(userId?: string) {
     hasMore,
     error,
     loadMoreRef: ref,
+    refetch: () => fetchReleases(false)
   };
 }

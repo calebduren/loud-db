@@ -19,7 +19,7 @@ export function CreatedReleases() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
 
-  const isOwnProfile = !username || user?.username === username;
+  const isOwnProfile = !username || currentProfile?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
   const {
     releases,
