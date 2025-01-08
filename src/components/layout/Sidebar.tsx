@@ -57,7 +57,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
   if (!profile) return null;
 
   return (
-    <aside className="sidebar-inner">
+    <>
       {/* Logo section */}
       <NavLink to="/" className="sidebar__logo-container">
         <div className="sidebar__logo">
@@ -67,64 +67,64 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
 
       {/* Main navigation */}
       <nav className="sidebar__nav">
-        <ul className="sidebar__list">
-          <li>
+        <div className="sidebar__list">
+          <div>
             <NavItem to="/">New music</NavItem>
-          </li>
-          <li>
+          </div>
+          <div>
             <NavItem to="/likes">Your likes</NavItem>
-          </li>
+          </div>
           {(isAdmin || isCreator) && (
-            <li>
+            <div>
               <NavItem to="/created">Created by you</NavItem>
-            </li>
+            </div>
           )}
           {isAdmin && (
             <>
-              <li>
+              <div>
                 <NavItem to="/admin/users">Users</NavItem>
-              </li>
-              <li>
+              </div>
+              <div>
                 <NavItem to="/admin/genres">Genres</NavItem>
-              </li>
-              <li>
+              </div>
+              <div>
                 <NavItem to="/admin/invites">Invites</NavItem>
-              </li>
+              </div>
             </>
           )}
-        </ul>
+        </div>
       </nav>
 
       {/* Footer navigation */}
       <div className="sidebar__bottom">
         <nav className="sidebar__footer">
-          <ul className="sidebar__footer-links">
-            <li>
+          <div className="sidebar__footer-links">
+            <div>
               <NavItem to={`/${profile?.username}`}>Profile</NavItem>
-            </li>
-            <li>
+            </div>
+            <div>
               <NavItem to="/preferences">Preferences</NavItem>
-            </li>
-            <li>
+            </div>
+            <div>
               <NavItem to="/account">Account</NavItem>
-            </li>
-            <li>
+            </div>
+            <div>
               <button
                 onClick={() => setIsPrivacyOpen(true)}
                 className="sidebar__footer-link"
               >
                 Privacy policy
               </button>
-            </li>
-            <li>
+            </div>
+            <div>
               <button
                 onClick={() => setIsTermsOpen(true)}
                 className="sidebar__footer-link"
               >
                 Terms of service
               </button>
-            </li>
-          </ul>
+            </div>
+          </div>
         </nav>
       </div>
 
@@ -133,6 +133,6 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         onClose={() => setIsPrivacyOpen(false)}
       />
       <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
-    </aside>
+    </>
   );
 };
