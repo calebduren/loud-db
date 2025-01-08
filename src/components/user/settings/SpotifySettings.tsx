@@ -1,9 +1,11 @@
-import React from 'react';
-import { Music2 } from 'lucide-react';
-import { Button } from '../../ui/button';
-import { useSpotifyConnection } from '../../../hooks/useSpotifyConnection';
-import { initiateSpotifyAuth, disconnectSpotify } from '../../../lib/spotify/auth';
-import { useToast } from '../../../hooks/useToast';
+import React from "react";
+import { Button } from "../../ui/button";
+import { useSpotifyConnection } from "../../../hooks/useSpotifyConnection";
+import {
+  initiateSpotifyAuth,
+  disconnectSpotify,
+} from "../../../lib/spotify/auth";
+import { useToast } from "../../../hooks/useToast";
 
 export function SpotifySettings() {
   const { isConnected, loading, checkConnection } = useSpotifyConnection();
@@ -14,10 +16,13 @@ export function SpotifySettings() {
     try {
       await initiateSpotifyAuth();
     } catch (error) {
-      console.error('Error initiating Spotify auth:', error);
+      console.error("Error initiating Spotify auth:", error);
       showToast({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to connect to Spotify'
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to connect to Spotify",
       });
     }
   };
@@ -28,14 +33,14 @@ export function SpotifySettings() {
       await disconnectSpotify();
       await checkConnection();
       showToast({
-        type: 'success',
-        message: 'Spotify account disconnected successfully'
+        type: "success",
+        message: "Spotify account disconnected successfully",
       });
     } catch (error) {
-      console.error('Error disconnecting Spotify:', error);
+      console.error("Error disconnecting Spotify:", error);
       showToast({
-        type: 'error',
-        message: 'Failed to disconnect Spotify account'
+        type: "error",
+        message: "Failed to disconnect Spotify account",
       });
     } finally {
       setDisconnecting(false);
@@ -45,7 +50,6 @@ export function SpotifySettings() {
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <Music2 className="w-5 h-5" />
         Spotify Integration
       </h2>
 
@@ -67,13 +71,11 @@ export function SpotifySettings() {
               onClick={handleDisconnect}
               disabled={disconnecting}
             >
-              {disconnecting ? 'Disconnecting...' : 'Disconnect Spotify'}
+              {disconnecting ? "Disconnecting..." : "Disconnect Spotify"}
             </Button>
           </div>
         ) : (
-          <Button onClick={handleConnect}>
-            Connect Spotify
-          </Button>
+          <Button onClick={handleConnect}>Connect Spotify</Button>
         )}
       </div>
     </div>

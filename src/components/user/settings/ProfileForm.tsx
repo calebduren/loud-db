@@ -1,5 +1,4 @@
 import React from "react";
-import { User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,6 +13,7 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
@@ -49,7 +49,6 @@ export function ProfileForm() {
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <User className="w-5 h-5" />
         Profile Settings
       </h2>
 
@@ -82,13 +81,9 @@ export function ProfileForm() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn btn-primary w-full"
-            >
+            <Button type="submit" disabled={saving}>
               {saving ? "Saving..." : "Save Changes"}
-            </button>
+            </Button>
           </form>
         </Form>
       </div>

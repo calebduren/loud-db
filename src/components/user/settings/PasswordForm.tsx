@@ -1,9 +1,8 @@
-import React from 'react';
-import { Lock } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { usePasswordForm } from '../../../hooks/settings/usePasswordForm';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { usePasswordForm } from "../../../hooks/settings/usePasswordForm";
 import {
   Form,
   FormControl,
@@ -11,12 +10,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../ui/form';
-import { Input } from '../../ui/input';
+} from "../../ui/form";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 
 const formSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export function PasswordForm() {
@@ -25,15 +25,14 @@ export function PasswordForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      currentPassword: '',
-      newPassword: '',
+      currentPassword: "",
+      newPassword: "",
     },
   });
 
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <Lock className="w-5 h-5" />
         Change Password
       </h2>
 
@@ -68,15 +67,15 @@ export function PasswordForm() {
           />
 
           {error && <div className="text-red-500 text-sm">{error}</div>}
-          {success && <div className="text-green-500 text-sm">Password updated successfully!</div>}
+          {success && (
+            <div className="text-green-500 text-sm">
+              Password updated successfully!
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="btn btn-primary w-full"
-          >
-            {saving ? 'Updating...' : 'Update Password'}
-          </button>
+          <Button type="submit" disabled={saving}>
+            {saving ? "Updating..." : "Update Password"}
+          </Button>
         </form>
       </Form>
     </div>

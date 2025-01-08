@@ -1,5 +1,4 @@
 import React from "react";
-import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -38,7 +37,6 @@ export function EmailForm() {
   return (
     <div className="card">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        <Mail className="w-5 h-5" />
         Email Settings
       </h2>
 
@@ -69,11 +67,7 @@ export function EmailForm() {
             </div>
           )}
 
-          <Button
-            type="submit"
-            loading={saving}
-            disabled={saving}
-          >
+          <Button type="submit" loading={saving} disabled={saving}>
             Update Email
           </Button>
         </form>
