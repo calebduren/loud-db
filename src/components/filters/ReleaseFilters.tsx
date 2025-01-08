@@ -5,20 +5,20 @@ import { GenreFilterDropdown } from "./GenreFilterDropdown";
 import { ReleaseType } from "../../types/database";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
 
-const releaseLengthOptions: { value: ReleaseType | 'all'; label: string }[] = [
+const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "single", label: "Singles" },
-  { value: "EP", label: "EPs" },
-  { value: "LP", label: "Albums" },
-  { value: "compilation", label: "Compilations" },
+  { value: "single" as ReleaseType, label: "Single" },
+  { value: "EP" as ReleaseType, label: "EP" },
+  { value: "LP" as ReleaseType, label: "LP" },
+  { value: "compilation" as ReleaseType, label: "Compilation" },
 ];
 
 interface ReleaseFiltersProps {
   loading?: boolean;
-  selectedTypes: (ReleaseType | 'all')[];
+  selectedTypes: (ReleaseType | "all")[];
   selectedGenres: string[];
   genreFilterMode: "include" | "exclude";
-  onTypeChange: (type: ReleaseType | 'all') => void;
+  onTypeChange: (type: ReleaseType | "all") => void;
   onGenreChange: (genre: string) => void;
   onGenreFilterModeChange: (mode: "include" | "exclude") => void;
 }
