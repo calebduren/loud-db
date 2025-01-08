@@ -36,18 +36,7 @@ export interface Release {
       name: string;
     };
   }>;
-  tracks: Array<{
-    id: string;
-    name: string;
-    duration_ms: number | null;
-    track_number: number;
-    preview_url: string | null;
-    track_credits?: Array<{
-      id: string;
-      name: string;
-      role: string;
-    }>;
-  }>;
+  tracks?: Track[];
 }
 
 export interface Track {

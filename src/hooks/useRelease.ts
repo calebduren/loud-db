@@ -40,7 +40,17 @@ export function useRelease(id: string) {
       if (error) throw error;
       if (!data) throw new Error('Release not found');
       
-      setRelease(data);
+      // Add missing fields to tracks
+      const tracksWithMissingFields = data.tracks?.map(track => ({
+        ...track,
+        release_id: data.id,
+        created_at: track.created_at || data.created_at // Use track's created_at if available, fallback to release's
+      })) || [];
+
+      setRelease({
+        ...data,
+        tracks: tracksWithMissingFields
+      });
       setError(null);
     } catch (err) {
       console.error('[useRelease] Error fetching release:', err);

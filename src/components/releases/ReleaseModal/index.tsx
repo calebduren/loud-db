@@ -45,7 +45,7 @@ export function ReleaseModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-0 -right-10 z-50 text-white/60 hover:text-white transition-colors"
+          className="absolute top-0 -right-10 z-100 text-white/60 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>

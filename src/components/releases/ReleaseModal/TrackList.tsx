@@ -23,7 +23,7 @@ export function TrackList({ tracks }: TrackListProps) {
               {track.track_number}
             </span>
             <span className="flex-1">{track.name}</span>
-            {track.duration_ms > 0 && (
+            {track.duration_ms != null && track.duration_ms > 0 && (
               <span className="text-white/40">
                 {formatDuration(track.duration_ms)}
               </span>
