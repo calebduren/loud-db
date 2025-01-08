@@ -34,7 +34,7 @@ export const PageTitle = ({
           <p className="text-sm text-white/60 mt-1 font-medium">{subtitle}</p>
         )}
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 order-first">
+      <div className="flex flex-col sm:flex-row gap-3 order-first sm:order-last">
         {actions}
         {canShowAddRelease && (
           <>
