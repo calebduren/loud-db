@@ -17,7 +17,9 @@ export function CreatedReleases() {
   const { profile, loading: profileLoading } = useProfile(username);
   const { canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(
+    undefined
+  );
 
   const isOwnProfile = !username || currentProfile?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
@@ -39,7 +41,7 @@ export function CreatedReleases() {
     return (
       <div>
         <PageTitle
-          title={isOwnProfile ? "Your Created Releases" : "Created Releases"}
+          title={isOwnProfile ? "Releases You Submitted" : "Submitted Releases"}
           showAddRelease={false}
           showImportPlaylist={false}
         />
@@ -78,8 +80,8 @@ export function CreatedReleases() {
       <PageTitle
         title={
           isOwnProfile
-            ? "Your Created Releases"
-            : `${profile?.username}'s Created Releases`
+            ? "Releases You Submitted"
+            : `${profile?.username}'s Submitted Releases`
         }
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}

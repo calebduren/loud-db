@@ -91,9 +91,9 @@ export function useReleases({
         isLoadMore
       });
 
-      const { data, error, count } = await fetchWithRetry(() =>
-        query.range(startRange, endRange)
-      );
+      const { data, error, count } = await query
+        .range(startRange, endRange)
+        .throwOnError();
 
       if (error) throw error;
 

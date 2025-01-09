@@ -48,7 +48,7 @@ export function ProfileHeader({
   return (
     <>
       {isOwnProfile ? (
-        <label className="cursor-pointer block">
+        <label className="cursor-pointer inline-block rounded-full">
           <input
             type="file"
             accept="image/*"
@@ -120,22 +120,23 @@ export function ProfileHeader({
         )}
       </div>
 
-      <p className="text-sm text-white/60 font-mono mt-1">
+      <p className="text-sm font-semibold text-white/60 font-mono mt-1">
         Joined {formatDate(profile.created_at)}
       </p>
 
       <div className="flex gap-6 mt-8">
+        <div>
+          <p className="text-sm font-semibold text-white/60 font-mono">Likes</p>
+          <p className="text-2xl font-bold">{likesCount}</p>
+        </div>
         {showCreated && (
           <div>
-            <p className="text-sm text-white/60 font-mono">Created</p>
+            <p className="text-sm font-semibold text-white/60 font-mono">
+              Submissions
+            </p>
             <p className="text-2xl font-bold">{releasesCount}</p>
           </div>
         )}
-
-        <div>
-          <p className="text-sm text-white/60 font-mono">Likes</p>
-          <p className="text-2xl font-bold">{likesCount}</p>
-        </div>
       </div>
     </>
   );

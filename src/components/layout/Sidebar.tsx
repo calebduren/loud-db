@@ -72,11 +72,11 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
             <NavItem to="/">New music</NavItem>
           </div>
           <div>
-            <NavItem to="/likes">Your likes</NavItem>
+            <NavItem to="/likes">Likes</NavItem>
           </div>
           {(isAdmin || isCreator) && (
             <div>
-              <NavItem to="/created">Created by you</NavItem>
+              <NavItem to="/created">Submissions</NavItem>
             </div>
           )}
           {isAdmin && (
