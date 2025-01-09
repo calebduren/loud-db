@@ -12,11 +12,12 @@ export function PixelAvatar({
   className = "",
 }: PixelAvatarProps) {
   const svgSize = 40;
-  const rectWidth = 2;
-  const rectHeight = 16;
-  const numRects = 256;
+  const rectWidth = 3;
+  const rectHeight = 20;
+  const skewAngle = -12; // Degrees to slant the rectangles
+  const numRects = 64;
   const numColors = 100;
-  const overflow = 8;
+  const overflow = 0;
 
   // Generate deterministic rectangles based on seed
   const rects = useMemo(() => {
@@ -44,8 +45,8 @@ export function PixelAvatar({
       const rnd3 = (value3 % 233280) / 233280;
 
       const hue = Math.floor(rnd1 * 360);
-      const saturation = 40 + Math.floor(rnd2 * 60);
-      const lightness = 30 + Math.floor(rnd3 * 40);
+      const saturation = 30 + Math.floor(rnd2 * 40); // Reduced saturation range (30-70%)
+      const lightness = 35 + Math.floor(rnd3 * 25); // Narrower lightness range (35-60%)
       return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     });
 
@@ -98,14 +99,15 @@ export function PixelAvatar({
         style={{ background: "#2E2E2E" }}
       >
         {rects.map((rect, i) => (
-          <rect
-            key={i}
-            x={rect.x}
-            y={rect.y}
-            width={rectWidth}
-            height={rectHeight}
-            fill={rect.color}
-          />
+          <g key={i} transform={`skewX(${skewAngle})`}>
+            <rect
+              x={rect.x}
+              y={rect.y}
+              width={rectWidth}
+              height={rectHeight}
+              fill={rect.color}
+            />
+          </g>
         ))}
       </svg>
     </div>
