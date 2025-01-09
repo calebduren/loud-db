@@ -5,9 +5,9 @@ import { Profile } from "../../../types/database";
 import { formatDate } from "../../../lib/utils/dateUtils";
 import { useAuth } from "../../../hooks/useAuth";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
-import { validateImage } from "../../../lib/validation/imageValidation";
 import { useToast } from "../../../hooks/useToast";
 import { PixelAvatar } from "./PixelAvatar";
+import { Button } from "../../../components/ui/Button";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -25,119 +25,118 @@ export function ProfileHeader({
   const [preview, setPreview] = useState<string | null>(null);
   const { uploadPicture, loading } = useProfilePicture();
   const { showToast } = useToast();
-  const showCreated = profile.role === "admin" || profile.role === "creator";
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      await validateImage(file);
-      const previewUrl = URL.createObjectURL(file);
-      setPreview(previewUrl);
+      const url = URL.createObjectURL(file);
+      setPreview(url);
       await uploadPicture(file);
     } catch (error) {
       showToast({
-        message:
-          error instanceof Error ? error.message : "Failed to upload image",
+        title: "Error uploading picture",
+        description: "Please try again later",
         type: "error",
       });
+      setPreview(null);
     }
   };
 
   return (
-    <>
-      {isOwnProfile ? (
-        <label className="cursor-pointer inline-block rounded-full">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-            disabled={loading}
-            className="hidden"
-          />
-          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-white/10 group hover:ring-2 hover:ring-white/20 transition-all">
-            {preview || profile.avatar_url ? (
-              <>
-                <img
-                  src={preview || profile.avatar_url}
-                  alt={profile.username}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Upload className="w-6 h-6 text-white" />
+    <div className="flex flex-col items-start">
+      <div className="relative w-20 h-20">
+        {isOwnProfile ? (
+          <label className="cursor-pointer block w-full h-full">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUpload}
+              disabled={loading}
+              className="hidden"
+            />
+            <div className="relative w-full h-full rounded-full overflow-hidden group">
+              {preview || profile.avatar_url ? (
+                <>
+                  <img
+                    src={preview || profile.avatar_url}
+                    alt={profile.username}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                </>
+              ) : (
+                <PixelAvatar seed={profile.username} size={80} />
+              )}
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
                 </div>
-              </>
+              )}
+            </div>
+          </label>
+        ) : (
+          <div className="w-full h-full rounded-full overflow-hidden">
+            {profile.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={profile.username}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <PixelAvatar seed={profile.username} size={96} />
-              </div>
+              <PixelAvatar seed={profile.username} size={80} />
             )}
           </div>
-        </label>
-      ) : (
-        <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10">
-          {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.username}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <PixelAvatar seed={profile.username} size={96} />
-            </div>
-          )}
-        </div>
-      )}
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-          <Loader2 className="w-6 h-6 text-white animate-spin" />
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="flex items-center justify-between mt-8">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold">@{profile.username}</h1>
+      <div className="mt-4">
+        <h1 className="text-2xl font-semibold">@{profile.username}</h1>
+
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium text-white/60">
+            Joined {formatDate(profile.created_at)}
+          </p>
           {profile.role === "admin" && (
-            <span className="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-400 ring-1 ring-inset ring-purple-400/30">
+            <span className="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-400">
               Admin
             </span>
           )}
           {profile.role === "creator" && (
-            <span className="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30">
+            <span className="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400">
               Creator
             </span>
           )}
         </div>
-        {isOwnProfile && (
-          <Link
-            to="/account"
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors"
-          >
-            Edit Profile
-          </Link>
-        )}
       </div>
 
-      <p className="text-sm font-semibold text-white/60 font-mono mt-1">
-        Joined {formatDate(profile.created_at)}
-      </p>
-
-      <div className="flex gap-6 mt-8">
-        <div>
-          <p className="text-sm font-semibold text-white/60 font-mono">Likes</p>
-          <p className="text-2xl font-bold">{likesCount}</p>
+      <div className="flex gap-4 mt-4">
+        <div className="bg-white/5 rounded-lg px-3 py-3">
+          <div className="text-2xl font-bold">{likesCount}</div>
+          <div className="text-sm text-white/60">Likes</div>
         </div>
-        {showCreated && (
-          <div>
-            <p className="text-sm font-semibold text-white/60 font-mono">
-              Submissions
-            </p>
-            <p className="text-2xl font-bold">{releasesCount}</p>
+        {(profile.role === "admin" || profile.role === "creator") && (
+          <div className="bg-white/5 rounded-lg px-3 py-3">
+            <div className="text-2xl font-bold">{releasesCount}</div>
+            <div className="text-sm text-white/60">Submissions</div>
           </div>
         )}
       </div>
-    </>
+
+      {isOwnProfile && (
+        <Link to="/account">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-4"
+          >
+            Edit Profile
+          </Button>
+        </Link>
+      )}
+    </div>
   );
 }

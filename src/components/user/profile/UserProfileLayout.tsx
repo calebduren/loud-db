@@ -56,8 +56,7 @@ export function UserProfileLayout() {
         profile && (
           <ProfileHeader 
             profile={profile}
-            isOwnProfile={currentUser?.id === profile.id}
-            likedCount={likedReleases?.length ?? 0}
+            likesCount={likedReleases?.length ?? 0}
             releasesCount={releasesCount ?? 0}
           />
         )
