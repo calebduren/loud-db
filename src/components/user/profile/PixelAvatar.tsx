@@ -8,16 +8,16 @@ interface PixelAvatarProps {
 
 export function PixelAvatar({
   seed,
-  size = 48,
+  size = 32,
   className = "",
 }: PixelAvatarProps) {
-  const svgSize = 40;
-  const rectWidth = 3;
-  const rectHeight = 20;
-  const skewAngle = -12; // Degrees to slant the rectangles
-  const numRects = 64;
-  const numColors = 100;
-  const overflow = 0;
+  const svgSize = 32;
+  const rectWidth = 1;
+  const rectHeight = 16;
+  const skewAngle = 0;
+  const numRects = 320;
+  const numColors = 64;
+  const overflow = 4;
 
   // Generate deterministic rectangles based on seed
   const rects = useMemo(() => {
@@ -45,41 +45,47 @@ export function PixelAvatar({
       const rnd3 = (value3 % 233280) / 233280;
 
       const hue = Math.floor(rnd1 * 360);
-      const saturation = 30 + Math.floor(rnd2 * 40); // Reduced saturation range (30-70%)
-      const lightness = 35 + Math.floor(rnd3 * 25); // Narrower lightness range (35-60%)
+      const saturation = 80 + Math.floor(rnd2 * 20); // High saturation (80-100%)
+      const lightness = 45 + Math.floor(rnd3 * 25); // Brighter (45-70%)
       return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     });
 
+    // Use first color as background
+    const backgroundColor = baseColors[0];
+
     // Generate positions and assign colors randomly
-    return Array.from({ length: numRects }, (_, i) => {
-      const value1 = Math.abs(
-        (hashValues[i % hashValues.length] + i) * 15485863
-      );
-      const value2 = Math.abs(
-        (hashValues[(i * 3) % hashValues.length] + i) * 32452843
-      );
-      const value3 = Math.abs(
-        (hashValues[(i * 7) % hashValues.length] + i) * 49979687
-      );
+    return {
+      backgroundColor,
+      rectangles: Array.from({ length: numRects }, (_, i) => {
+        const value1 = Math.abs(
+          (hashValues[i % hashValues.length] + i) * 15485863
+        );
+        const value2 = Math.abs(
+          (hashValues[(i * 3) % hashValues.length] + i) * 32452843
+        );
+        const value3 = Math.abs(
+          (hashValues[(i * 7) % hashValues.length] + i) * 49979687
+        );
 
-      const rnd1 = (value1 % 233280) / 233280;
-      const rnd2 = (value2 % 233280) / 233280;
-      const rnd3 = (value3 % 233280) / 233280;
+        const rnd1 = (value1 % 233280) / 233280;
+        const rnd2 = (value2 % 233280) / 233280;
+        const rnd3 = (value3 % 233280) / 233280;
 
-      const angle = rnd1 * Math.PI * 2;
-      const radius = Math.sqrt(rnd2) * (svgSize / 2 + overflow);
-      const x = Math.floor(svgSize / 2 + radius * Math.cos(angle));
-      const y = Math.floor(svgSize / 2 + radius * Math.sin(angle));
+        const angle = rnd1 * Math.PI * 2;
+        const radius = Math.sqrt(rnd2) * (svgSize / 2 + overflow);
+        const x = Math.floor(svgSize / 2 + radius * Math.cos(angle));
+        const y = Math.floor(svgSize / 6 + radius * Math.sin(angle));
 
-      // Pick a random color from our base colors
-      const colorIndex = Math.floor(rnd3 * numColors);
+        // Pick a random color from our base colors
+        const colorIndex = Math.floor(rnd3 * numColors);
 
-      return {
-        x,
-        y,
-        color: baseColors[colorIndex],
-      };
-    });
+        return {
+          x,
+          y,
+          color: baseColors[colorIndex],
+        };
+      }),
+    };
   }, [seed]);
 
   return (
@@ -93,12 +99,12 @@ export function PixelAvatar({
       className={className}
     >
       <svg
-        viewBox="0 0 40 40"
+        viewBox="0 0 32 32"
         width={size}
         height={size}
-        style={{ background: "#2E2E2E" }}
+        style={{ background: rects.backgroundColor }}
       >
-        {rects.map((rect, i) => (
+        {rects.rectangles.map((rect, i) => (
           <g key={i} transform={`skewX(${skewAngle})`}>
             <rect
               x={rect.x}
