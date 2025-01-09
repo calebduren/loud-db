@@ -20,7 +20,7 @@ import { ToastContainer } from './components/ui/ToastContainer';
 import { useAuth } from './hooks/useAuth';
 import { usePermissions } from './hooks/usePermissions';
 
-const RESERVED_PATHS = ['profile', 'admin', 'privacy', 'terms'];
+const RESERVED_PATHS = ['u', 'r', 'admin', 'privacy', 'terms'];
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
@@ -44,7 +44,7 @@ export default function App() {
               <Route path="/created" element={<CreatedReleases />} />
               
               {/* Own Profile Routes */}
-              <Route path="/profile" element={<UserProfileLayout />}>
+              <Route path="/u/me" element={<UserProfileLayout />}>
                 <Route index element={<Navigate to="likes" replace />} />
                 <Route path="likes" element={<LikedReleases />} />
                 <Route path="created" element={<CreatedReleases />} />
@@ -53,17 +53,20 @@ export default function App() {
               <Route path="/account" element={<AccountSettings />} />
 
               {/* Public Profile Routes */}
-              <Route path="/:username" element={
+              <Route path="/u/:username" element={
                 <RestrictedRoute reservedPaths={RESERVED_PATHS}>
                   <UserProfileLayout />
                 </RestrictedRoute>
               }>
                 <Route index element={<LikedReleases />} />
+                <Route path="likes" element={<LikedReleases />} />
+                <Route path="created" element={<CreatedReleases />} />
               </Route>
 
               {/* Admin Routes */}
               {isAdmin && (
-                <Route path="/admin/*" element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="users" replace />} />
                   <Route path="users" element={<UserManagement />} />
                   <Route path="genres" element={<GenreMappingManager />} />
                   <Route path="invites" element={<InviteCodeManager />} />
@@ -71,9 +74,13 @@ export default function App() {
                 </Route>
               )}
 
-              {/* Legal Pages */}
+              {/* Legal Routes */}
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<Terms />} />
+
+              {/* Legacy Profile Route Redirect */}
+              <Route path="/profile/*" element={<Navigate to="/u/me" replace />} />
+              <Route path="/:username" element={<Navigate to="/u/:username" replace />} />
             </>
           )}
         </Routes>

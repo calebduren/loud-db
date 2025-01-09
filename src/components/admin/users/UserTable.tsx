@@ -31,7 +31,7 @@ export function UserTable({
             <tr key={user.id} className="text-sm">
               <td className="px-4 py-3">
                 <Link
-                  to={`/${user.username}`}
+                  to={`/u/${user.username}`}
                   className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                 >
                   {user.avatar_url ? (

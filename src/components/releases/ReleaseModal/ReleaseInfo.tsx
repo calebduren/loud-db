@@ -14,20 +14,20 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
       {/* Release Info Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <h3 className="monospace text-sm text-white/60">Release Date</h3>
+          <h3 className="text-mono text-sm text-white/60">Release Date</h3>
           <p>{formatDate(release.release_date)}</p>
         </div>
         <div>
-          <h3 className="monospace text-sm text-white/60">Type</h3>
+          <h3 className="text-mono text-sm text-white/60">Type</h3>
           <p>{release.release_type.toUpperCase()}</p>
         </div>
         <div>
-          <h3 className="monospace text-sm text-white/60">Tracks</h3>
+          <h3 className="text-mono text-sm text-white/60">Tracks</h3>
           <p>{release.track_count}</p>
         </div>
         {release.record_label && (
           <div>
-            <h3 className="monospace text-sm text-white/60">Label</h3>
+            <h3 className="text-mono text-sm text-white/60">Label</h3>
             <p>{release.record_label}</p>
           </div>
         )}
@@ -36,7 +36,7 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
       {/* Genres */}
       {release.genres.length > 0 && (
         <div>
-          <h3 className="monospace text-sm text-white/60 mb-2">Genres</h3>
+          <h3 className="text-mono text-sm text-white/60 mb-2">Genres</h3>
           <div className="flex flex-wrap gap-2">
             {release.genres.map((genre) => (
               <div key={genre} className="release-card__genres-pill">
@@ -50,7 +50,7 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
       {/* Description */}
       {release.description && (
         <div className="mt-6 space-y-2">
-          <h3 className="monospace text-sm text-white/60">Description</h3>
+          <h3 className="text-mono text-sm text-white/60">Description</h3>
           <div className="bg-white/5 p-4 rounded-lg">
             <p className="text-white/80 whitespace-pre-wrap">
               {release.description}

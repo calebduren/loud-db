@@ -57,7 +57,7 @@ export function UserMenu() {
 
             <div className="p-2">
               <Link
-                to={`/${profile.username}`}
+                to={`/u/${profile.username}`}
                 className="flex items-center gap-2 w-full p-2 text-sm text-white/80 hover:bg-white/10 rounded-md"
                 onClick={() => setIsOpen(false)}
               >

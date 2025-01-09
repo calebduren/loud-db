@@ -14,21 +14,27 @@ interface LikedReleasesProps {
   isOwnProfile?: boolean;
 }
 
-export function LikedReleases({ releases: propReleases, loading: propLoading, isOwnProfile: propIsOwnProfile }: LikedReleasesProps = {}) {
+export function LikedReleases({
+  releases: propReleases,
+  loading: propLoading,
+  isOwnProfile: propIsOwnProfile,
+}: LikedReleasesProps = {}) {
   const { username } = useParams();
   const { pathname } = useLocation();
   const { user } = useAuth();
   const { profile: currentProfile } = useProfile(user?.id);
   const { profile, loading: profileLoading } = useProfile(username);
-  const isOwnProfile = propIsOwnProfile ?? (!username || username === currentProfile?.username);
-  const showPageTitle = pathname === "/likes" || pathname.startsWith("/profile");
+  const isOwnProfile =
+    propIsOwnProfile ?? (!username || username === currentProfile?.username);
+  const showPageTitle =
+    pathname === "/likes" || pathname.startsWith("/u/");
 
   // Get releases based on whether viewing own or other's profile
   const { releases: ownReleases, loading: ownLoading } = useLikedReleases();
   const { releases: userReleases, loading: userLoading } =
     useLikedReleasesByUser(profile?.id);
 
-  console.log('LikedReleases Component State:', {
+  console.log("LikedReleases Component State:", {
     propReleases,
     propLoading,
     propIsOwnProfile,
@@ -39,11 +45,13 @@ export function LikedReleases({ releases: propReleases, loading: propLoading, is
     currentProfileUsername: currentProfile?.username,
     profileId: profile?.id,
     pathname,
-    user: user?.id
+    user: user?.id,
   });
 
-  const releases = isOwnProfile ? ownReleases : (propReleases ?? userReleases);
-  const loading = isOwnProfile ? ownLoading : (propLoading ?? (userLoading || profileLoading));
+  const releases = isOwnProfile ? ownReleases : propReleases ?? userReleases;
+  const loading = isOwnProfile
+    ? ownLoading
+    : propLoading ?? (userLoading || profileLoading);
 
   const isAdmin = currentProfile?.role === "admin";
   const isCreator = currentProfile?.role === "creator";
@@ -58,10 +66,10 @@ export function LikedReleases({ releases: propReleases, loading: propLoading, is
             showImportPlaylist={isAdmin}
           />
         )}
-        <div className="text-center text-white/60 py-8">
+        <div className="text-center text-sm font-medium text-mono text-white/60 py-8">
           {isOwnProfile
             ? "You haven't liked any releases yet"
-            : `${profile?.username} hasn't liked any releases yet`}
+            : `@${profile?.username} hasn't liked any releases yet`}
         </div>
       </div>
     );

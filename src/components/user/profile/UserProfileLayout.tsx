@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, useParams, Outlet } from "react-router-dom";
+import { Navigate, useParams, Outlet, useLocation } from "react-router-dom";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileHeaderSkeleton } from "./ProfileHeaderSkeleton";
 import { useProfile } from "../../../hooks/useProfile";
@@ -10,7 +10,9 @@ import { LikedReleases } from "../LikedReleases";
 
 export function UserProfileLayout() {
   const { username } = useParams();
+  const { pathname } = useLocation();
   const { user: currentUser } = useAuth();
+  const { profile: currentProfile } = useProfile(currentUser?.id);
   const { profile, loading: profileLoading } = useProfile(username);
   const { releases: likedReleases, loading: likesLoading } = useLikedReleasesByUser(profile?.id);
   const { count: releasesCount, loading: releasesLoading } = useUserReleases(profile?.id);
@@ -22,12 +24,16 @@ export function UserProfileLayout() {
     likedReleases: likedReleases?.length,
     likesLoading,
     isOwnProfile: currentUser?.id === profile?.id,
-    pathname: window.location.pathname
+    pathname
   });
 
-  const isOwnProfile = currentUser?.id === profile?.id;
+  // Handle /u/me route
+  if (pathname.startsWith('/u/me') && currentProfile) {
+    return <Navigate to={`/u/${currentProfile.username}`} replace />;
+  }
 
-  if (!username) {
+  // Only redirect to home if we're not on /u/me
+  if (!username && !pathname.startsWith('/u/me')) {
     return <Navigate to="/" replace />;
   }
 
@@ -49,20 +55,14 @@ export function UserProfileLayout() {
       ) : (
         profile && (
           <ProfileHeader 
-            profile={profile} 
-            releasesCount={releasesCount}
-            likesCount={likedReleases?.length ?? 0}
+            profile={profile}
+            isOwnProfile={currentUser?.id === profile.id}
+            likedCount={likedReleases?.length ?? 0}
+            releasesCount={releasesCount ?? 0}
           />
         )
       )}
-
-      <div className="mt-12">
-        {isOwnProfile ? (
-          <Outlet context={{ profile }} />
-        ) : (
-          <LikedReleases releases={likedReleases} loading={likesLoading} isOwnProfile={isOwnProfile} />
-        )}
-      </div>
+      <Outlet />
     </div>
   );
 }

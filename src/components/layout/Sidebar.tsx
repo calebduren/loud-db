@@ -103,7 +103,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         <nav className="sidebar__footer">
           <div className="sidebar__footer-links">
             <div>
-              <NavItem to={`/${profile?.username}`}>Profile</NavItem>
+              <NavItem to="/u/me">Profile</NavItem>
             </div>
             <div>
               <NavItem to="/preferences">Preferences</NavItem>
