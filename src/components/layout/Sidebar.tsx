@@ -6,6 +6,7 @@ import { cn } from "../../lib/utils";
 import { useProfile } from "../../hooks/useProfile";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
 import { TermsModal } from "../legal/TermsModal";
+import { SignOutButton } from "../SignOutButton";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -103,7 +104,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         <nav className="sidebar__footer">
           <div className="sidebar__footer-links">
             <div>
-              <NavItem to="/u/me">Profile</NavItem>
+              <NavItem to={`/u/${profile.username}`}>Profile</NavItem>
             </div>
             <div>
               <NavItem to="/preferences">Preferences</NavItem>
@@ -112,6 +113,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
               <NavItem to="/account">Account</NavItem>
             </div>
             <div className="sidebar__footer-legal">
+              <SignOutButton />
               <button
                 onClick={() => setIsPrivacyOpen(true)}
                 className="sidebar__footer-legal-link"

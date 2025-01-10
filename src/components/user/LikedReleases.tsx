@@ -26,8 +26,7 @@ export function LikedReleases({
   const { profile, loading: profileLoading } = useProfile(username);
   const isOwnProfile =
     propIsOwnProfile ?? (!username || username === currentProfile?.username);
-  const showPageTitle =
-    pathname === "/likes" || pathname.startsWith("/u/");
+  const showPageTitle = pathname === "/likes";
 
   // Get releases based on whether viewing own or other's profile
   const { releases: ownReleases, loading: ownLoading } = useLikedReleases();
