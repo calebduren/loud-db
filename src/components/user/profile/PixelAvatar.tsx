@@ -21,6 +21,13 @@ export function PixelAvatar({
 
   // Generate deterministic rectangles based on seed
   const rects = useMemo(() => {
+    if (!seed) {
+      return {
+        backgroundColor: "hsl(0, 0%, 20%)",
+        rectangles: [],
+      };
+    }
+
     // Create multiple hash values from seed for more randomness
     const hashValues = Array.from(seed).map((char, i) => {
       return Array.from(seed.slice(i)).reduce((acc, c) => {

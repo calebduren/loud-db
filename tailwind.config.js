@@ -28,6 +28,14 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        "slide-down": {
+          "0%": { transform: "translateY(-100%) translateX(-50%)", opacity: 0 },
+          "100%": { transform: "translateY(0) translateX(-50%)", opacity: 1 }
+        },
+        "fade-out": {
+          "0%": { opacity: 1 },
+          "100%": { opacity: 0 }
+        },
         "heart-like": {
           "0%, 100%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.2)" },

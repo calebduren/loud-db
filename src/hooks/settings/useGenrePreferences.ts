@@ -60,7 +60,7 @@ export function useGenrePreferences() {
 
       showToast({
         type: 'success',
-        message: 'Preference updated'
+        message: 'Genre preference updated.'
       });
     } catch (error) {
       console.error('Error updating preference:', error);

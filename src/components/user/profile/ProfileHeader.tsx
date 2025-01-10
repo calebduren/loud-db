@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { Upload, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Profile } from "../../../types/database";
 import { formatDate } from "../../../lib/utils/dateUtils";
 import { useAuth } from "../../../hooks/useAuth";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
 import { useToast } from "../../../hooks/useToast";
-import { PixelAvatar } from "./PixelAvatar";
 import { Button } from "../../../components/ui/button";
+import { AvatarUpload } from "./AvatarUpload";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -47,50 +46,15 @@ export function ProfileHeader({
     <div className="flex flex-col items-start mb-8">
       <div className="flex flex-row w-full items-center justify-between">
         <div className="relative w-20 h-20">
-          {isOwnProfile ? (
-            <label className="cursor-pointer block w-full h-full">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUpload}
-                disabled={loading}
-                className="hidden"
-              />
-              <div className="relative w-full h-full rounded-full overflow-hidden group">
-                {preview || profile.avatar_url ? (
-                  <>
-                    <img
-                      src={preview || profile.avatar_url}
-                      alt={profile.username}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <Upload className="w-6 h-6 text-white" />
-                    </div>
-                  </>
-                ) : (
-                  <PixelAvatar seed={profile.username} size={80} />
-                )}
-                {loading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <Loader2 className="w-6 h-6 text-white animate-spin" />
-                  </div>
-                )}
-              </div>
-            </label>
-          ) : (
-            <div className="w-full h-full rounded-full overflow-hidden">
-              {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.username}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <PixelAvatar seed={profile.username} size={80} />
-              )}
-            </div>
-          )}
+          <AvatarUpload
+            avatarUrl={profile.avatar_url}
+            username={profile.username}
+            size={80}
+            loading={loading}
+            preview={preview}
+            onUpload={handleUpload}
+            isEditable={isOwnProfile}
+          />
         </div>
         {isOwnProfile && (
           <Link to="/account">
