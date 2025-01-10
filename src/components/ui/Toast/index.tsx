@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { AlertCircle, CheckCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 
 // Types
 interface Toast {
@@ -16,35 +16,34 @@ interface ToastContextType {
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 // Toast Component
-function Toast({
+export function ToastComponent({
   message,
   type,
   onClose,
+  className = "",
+  fixed = true,
 }: {
   message: string;
   type: "success" | "error";
-  onClose: () => void;
+  onClose?: () => void;
+  className?: string;
+  fixed?: boolean;
 }) {
-  const Icon = type === "success" ? CheckCircle : AlertCircle;
-
   return (
     <div
       className={`
-        fixed top-8 left-1/2 -translate-x-1/2 z-[9999]
-        ${type === "success" ? "bg-green-600" : "bg-red-600"}
-        text-white px-6 py-4 rounded-lg shadow-2xl 
-        flex items-center gap-4 min-w-[300px]
-        animate-in fade-in slide-in-from-top-4 duration-300
+        toast
+        ${fixed ? "toast--fixed" : ""}
+        ${type === "success" ? "toast--success" : "toast--error"}
+        ${className}
       `}
     >
-      <Icon size={20} className="flex-shrink-0" strokeWidth={2.5} />
-      <span className="text-base font-semibold">{message}</span>
-      <button
-        onClick={onClose}
-        className="ml-auto hover:opacity-80 flex-shrink-0"
-      >
-        <X size={16} strokeWidth={2.5} />
-      </button>
+      <span className="toast__message">{message}</span>
+      {onClose && (
+        <button onClick={onClose} className="toast__close">
+          <X size={16} strokeWidth={1.75} />
+        </button>
+      )}
     </div>
   );
 }
@@ -74,11 +73,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {toasts.map((toast) => (
-        <Toast
+        <ToastComponent
           key={toast.id}
           message={toast.message}
           type={toast.type}
           onClose={() => removeToast(toast.id)}
+          fixed={true}
         />
       ))}
     </ToastContext.Provider>

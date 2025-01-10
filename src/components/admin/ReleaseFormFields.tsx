@@ -1,24 +1,34 @@
-import React from 'react';
-import { ReleaseType } from '../../types/database';
-import { Plus, X } from 'lucide-react';
-import { ImageUpload } from './ImageUpload';
-import { GenresInput } from './GenresInput';
+import React from "react";
+import { ReleaseType } from "../../types/database";
+import { Plus, X } from "lucide-react";
+import { ImageUpload } from "./ImageUpload";
+import { GenresInput } from "./GenresInput";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form';
-import { Input } from '../ui/input';
+} from "../ui/form";
+import { Input } from "../ui/input";
 
-const RELEASE_TYPES: (ReleaseType | '')[] = ['', 'single', 'EP', 'LP', 'compilation'];
+const RELEASE_TYPES: (ReleaseType | "")[] = [
+  "",
+  "single",
+  "EP",
+  "LP",
+  "compilation",
+];
 
 interface ReleaseFormFieldsProps {
   form: any;
-  selectedArtists: { id?: string; name: string; }[];
-  artistOptions: { id: string; name: string; }[];
-  onArtistChange: (index: number, value: string, availableArtists: typeof artistOptions) => void;
+  selectedArtists: { id?: string; name: string }[];
+  artistOptions: { id: string; name: string }[];
+  onArtistChange: (
+    index: number,
+    value: string,
+    availableArtists: typeof artistOptions
+  ) => void;
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
 }
@@ -29,7 +39,7 @@ export function ReleaseFormFields({
   artistOptions,
   onArtistChange,
   onAddArtist,
-  onRemoveArtist
+  onRemoveArtist,
 }: ReleaseFormFieldsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -59,9 +69,15 @@ export function ReleaseFormFields({
                 {...field}
                 className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20"
               >
-                <option value="" className="bg-gray-900">Select Type</option>
-                {RELEASE_TYPES.filter(Boolean).map(type => (
-                  <option key={type} value={type} className="bg-gray-900">
+                <option value="" className="bg-[var(--color-gray-800)]">
+                  Select Type
+                </option>
+                {RELEASE_TYPES.filter(Boolean).map((type) => (
+                  <option
+                    key={type}
+                    value={type}
+                    className="bg-[var(--color-gray-800)]"
+                  >
                     {type.toUpperCase()}
                   </option>
                 ))}
@@ -80,13 +96,15 @@ export function ReleaseFormFields({
             <div key={index} className="flex gap-2">
               <Input
                 value={artist.name}
-                onChange={(e) => onArtistChange(index, e.target.value, artistOptions)}
+                onChange={(e) =>
+                  onArtistChange(index, e.target.value, artistOptions)
+                }
                 placeholder="Artist name"
                 list={`artists-${index}`}
                 required
               />
               <datalist id={`artists-${index}`}>
-                {artistOptions.map(a => (
+                {artistOptions.map((a) => (
                   <option key={a.id} value={a.name} />
                 ))}
               </datalist>
@@ -140,10 +158,7 @@ export function ReleaseFormFields({
             <FormItem>
               <FormLabel>Genres</FormLabel>
               <FormControl>
-                <GenresInput
-                  value={field.value}
-                  onChange={field.onChange}
-                />
+                <GenresInput value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -159,11 +174,7 @@ export function ReleaseFormFields({
           <FormItem>
             <FormLabel>Release Date</FormLabel>
             <FormControl>
-              <Input 
-                type="date" 
-                {...field} 
-                placeholder="Select Date"
-              />
+              <Input type="date" {...field} placeholder="Select Date" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -177,12 +188,7 @@ export function ReleaseFormFields({
           <FormItem>
             <FormLabel>Track Count</FormLabel>
             <FormControl>
-              <Input 
-                type="number" 
-                min="0" 
-                placeholder="0"
-                {...field} 
-              />
+              <Input type="number" min="0" placeholder="0" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

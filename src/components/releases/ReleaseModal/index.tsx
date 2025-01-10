@@ -58,7 +58,7 @@ export function ReleaseModal({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+            <div className="w-full h-full bg-[var(--color-gray-800)] flex items-center justify-center">
               <Music className="w-12 h-12 text-gray-700" />
             </div>
           )}

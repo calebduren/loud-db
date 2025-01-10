@@ -49,7 +49,7 @@ export function UserMenu() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-56 bg-gray-900 rounded-lg shadow-lg overflow-hidden z-20">
+          <div className="absolute right-0 mt-2 w-56 bg-[var(--color-gray-800)] rounded-lg shadow-lg overflow-hidden z-20">
             <div className="px-4 py-3 border-b border-white/10">
               <p className="font-medium">{profile.username}</p>
               <p className="text-sm text-white/60">{user?.email}</p>

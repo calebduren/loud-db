@@ -1,22 +1,32 @@
-import React from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { FormValues } from '../releaseFormSchema';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { ImageUpload } from '../../ImageUpload';
-import { Plus, X } from 'lucide-react';
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
+import { FormValues } from "../releaseFormSchema";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "../../ImageUpload";
+import { Plus, X } from "lucide-react";
 
 interface BasicInfoTabProps {
   form: UseFormReturn<FormValues>;
-  selectedArtists: { id?: string; name: string; }[];
-  artistOptions: { id: string; name: string; }[];
-  onArtistChange: (index: number, value: string, availableArtists: typeof artistOptions) => void;
+  selectedArtists: { id?: string; name: string }[];
+  artistOptions: { id: string; name: string }[];
+  onArtistChange: (
+    index: number,
+    value: string,
+    availableArtists: typeof artistOptions
+  ) => void;
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
 }
 
-const RELEASE_TYPES = ['single', 'EP', 'LP', 'compilation'] as const;
+const RELEASE_TYPES = ["single", "EP", "LP", "compilation"] as const;
 
 export function BasicInfoTab({
   form,
@@ -24,7 +34,7 @@ export function BasicInfoTab({
   artistOptions,
   onArtistChange,
   onAddArtist,
-  onRemoveArtist
+  onRemoveArtist,
 }: BasicInfoTabProps) {
   return (
     <div className="space-y-6">
@@ -54,9 +64,15 @@ export function BasicInfoTab({
                 className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20"
                 required
               >
-                <option value="" className="bg-gray-900">Select Type</option>
-                {RELEASE_TYPES.map(type => (
-                  <option key={type} value={type} className="bg-gray-900">
+                <option value="" className="bg-[var(--color-gray-800)]">
+                  Select Type
+                </option>
+                {RELEASE_TYPES.map((type) => (
+                  <option
+                    key={type}
+                    value={type}
+                    className="bg-[var(--color-gray-800)]"
+                  >
                     {type.toUpperCase()}
                   </option>
                 ))}
@@ -74,13 +90,15 @@ export function BasicInfoTab({
             <div key={index} className="flex gap-2">
               <Input
                 value={artist.name}
-                onChange={(e) => onArtistChange(index, e.target.value, artistOptions)}
+                onChange={(e) =>
+                  onArtistChange(index, e.target.value, artistOptions)
+                }
                 placeholder="Artist name"
                 list={`artists-${index}`}
                 required
               />
               <datalist id={`artists-${index}`}>
-                {artistOptions.map(a => (
+                {artistOptions.map((a) => (
                   <option key={a.id} value={a.name} />
                 ))}
               </datalist>
@@ -129,11 +147,7 @@ export function BasicInfoTab({
           <FormItem>
             <FormLabel>Release Date</FormLabel>
             <FormControl>
-              <Input 
-                type="date" 
-                {...field} 
-                placeholder="Select Date"
-              />
+              <Input type="date" {...field} placeholder="Select Date" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -165,7 +179,7 @@ export function BasicInfoTab({
                 {...field}
                 placeholder="Add a description (optional)"
                 rows={4}
-                value={field.value || ''}
+                value={field.value || ""}
               />
             </FormControl>
             {formState.errors.description && (

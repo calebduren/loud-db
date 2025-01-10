@@ -1,0 +1,41 @@
+.toast {
+  @apply z-[9999] px-4 py-2 rounded-lg shadow-xl border-[0.5px] border-white/[6%] flex items-center gap-2;
+
+  &--fixed {
+    @apply fixed top-8 left-1/2 -translate-x-1/2;
+    @apply transform transition-all duration-300 ease-out;
+    @apply opacity-100 translate-y-0;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  &--success {
+    @apply bg-[var(--color-gray-800)] text-white;
+  }
+
+  &--error {
+    @apply bg-red-600 text-white;
+  }
+
+  &__message {
+    @apply text-sm font-medium;
+  }
+
+  &__icon {
+    @apply flex-shrink-0;
+  }
+
+  &__close {
+    @apply hover:opacity-80 flex-shrink-0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

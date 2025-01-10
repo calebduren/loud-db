@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ToastAction } from '../components/ui/toast';
+import { ToastAction } from '../components/ui/Toast';
 
 interface Toast {
   id: string;
@@ -8,4 +8,4 @@ interface Toast {
   action?: ToastAction;
 }
 
-export { useToast } from '../components/ui/Toast';
+export { ToastComponent, ToastProvider, useToast } from '../components/ui/Toast';
