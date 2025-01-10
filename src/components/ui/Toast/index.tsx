@@ -6,6 +6,10 @@ interface Toast {
   id: string;
   message: string;
   type: "success" | "error";
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 interface ToastContextType {
@@ -22,12 +26,17 @@ export function ToastComponent({
   onClose,
   className = "",
   fixed = true,
+  action,
 }: {
   message: string;
   type: "success" | "error";
   onClose?: () => void;
   className?: string;
   fixed?: boolean;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }) {
   return (
     <div
@@ -37,13 +46,31 @@ export function ToastComponent({
         ${type === "success" ? "toast--success" : "toast--error"}
         ${className}
       `}
+      onClick={(e) => e.stopPropagation()}
     >
       <span className="toast__message">{message}</span>
-      {onClose && (
-        <button onClick={onClose} className="toast__close">
-          <X size={16} strokeWidth={1.75} />
+      <div className="toast__actions">
+        {action && (
+          <button 
+            className="toast__action" 
+            onClick={(e) => {
+              e.stopPropagation();
+              action.onClick();
+            }}
+          >
+            {action.label}
+          </button>
+        )}
+        <button 
+          className="toast__close" 
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose?.();
+          }}
+        >
+          <X size={16} />
         </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -52,35 +79,32 @@ export function ToastComponent({
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  const showToast = useCallback((toast: Omit<Toast, "id">) => {
+    const id = Math.random().toString();
+    setToasts((prev) => [...prev, { ...toast, id }]);
+
+    // Auto remove toast after 5 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 5000);
   }, []);
-
-  const showToast = useCallback(
-    ({ type, message }: Omit<Toast, "id">) => {
-      console.log("ToastProvider: showing toast", { type, message });
-      const id = Math.random().toString(36).substr(2, 9);
-
-      setToasts((prev) => [...prev, { id, type, message }]);
-
-      // Auto-remove after 5 seconds
-      setTimeout(() => removeToast(id), 5000);
-    },
-    [removeToast]
-  );
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {toasts.map((toast) => (
-        <ToastComponent
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-          fixed={true}
-        />
-      ))}
+      <div className="toast-container" onClick={(e) => e.stopPropagation()}>
+        {toasts.map((toast) => (
+          <ToastComponent
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            action={toast.action}
+            onClose={() => {
+              setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+            }}
+          />
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 }

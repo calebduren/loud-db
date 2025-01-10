@@ -37,10 +37,6 @@ export function SpotifyImportSection({ onImport, disabled }: SpotifyImportSectio
       const release = await fetchReleaseFromSpotify(url);
       onImport(release);
       setUrl('');
-      showToast({
-        type: 'success',
-        message: 'Release imported successfully'
-      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to import release';
       setError(message);

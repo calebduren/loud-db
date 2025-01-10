@@ -28,6 +28,8 @@ export function useReleaseForm(release?: Release) {
       spotify_url: '',
       apple_music_url: '',
       release_date: new Date().toISOString().split('T')[0],
+      description: '',
+      tracks: [],
       related_artists: []
     }
   });
@@ -69,11 +71,6 @@ export function useReleaseForm(release?: Release) {
         artists,
         release?.id
       );
-
-      showToast({
-        type: 'success',
-        message: release ? 'Release updated successfully' : 'Release created successfully'
-      });
 
       return releaseId;
     } catch (error) {

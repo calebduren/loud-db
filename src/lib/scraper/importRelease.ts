@@ -1,13 +1,13 @@
 import { supabase } from '../supabase';
 import { ScrapedRelease } from './types';
-import { uploadImageFromUrl } from '../storage/imageUpload';
+import { uploadImageFromUrl } from '../storage/images';
 
 export async function importRelease(release: ScrapedRelease, userId: string) {
   try {
     // Download and upload cover image if available
     let coverUrl = release.coverUrl;
     if (coverUrl) {
-      const uploadedUrl = await uploadImageFromUrl(coverUrl);
+      const uploadedUrl = await uploadImageFromUrl(coverUrl, `${Math.random()}.jpg`);
       if (uploadedUrl) {
         coverUrl = uploadedUrl;
       }

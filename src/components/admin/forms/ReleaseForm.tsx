@@ -20,7 +20,7 @@ interface ReleaseFormProps {
 }
 
 export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
-  const { form, loading, error, handleSubmit } = useReleaseForm(release);
+  const { form, loading, error, handleSubmit: originalHandleSubmit } = useReleaseForm(release);
   const { artists } = useArtists();
   const { showToast } = useToast();
   const {
@@ -89,13 +89,13 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
       return;
     }
     
-    const releaseId = await handleSubmit(values, selectedArtists);
+    const releaseId = await originalHandleSubmit(values, selectedArtists);
     if (releaseId) {
-      // Show success toast with link to view release
+      // Show toast first
       showToast({
         type: 'success',
         message: release ? 'Release updated successfully' : 'Release created successfully',
-        action: release ? undefined : {
+        action: !release ? {
           label: 'View Release',
           onClick: () => {
             // Close modal first to prevent stacking
@@ -108,63 +108,77 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
               }
             }, 100);
           }
-        }
+        } : undefined
       });
-      onSuccess?.();
-      onClose?.();
+
+      // Call callbacks after a small delay
+      setTimeout(() => {
+        onSuccess?.();
+        onClose?.();
+      }, 100);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Error Display */}
-        {error?.code === 'DUPLICATE_RELEASE' ? (
-          <DuplicateReleaseError error={error} />
-        ) : (
-          Object.keys(form.formState.errors).length > 0 && (
-            <div className="text-red-500 text-sm space-y-1">
-              {Object.entries(form.formState.errors).map(([key, error]) => (
-                <p key={key}>{error?.message?.toString() || `Invalid ${key}`}</p>
-              ))}
-            </div>
-          )
-        )}
+    <div onSubmit={e => e.preventDefault()}>
+      <Form {...form}>
+        <form 
+          onSubmit={async e => {
+            e.preventDefault();
+            e.stopPropagation();
+            await form.handleSubmit(onSubmit)(e);
+          }} 
+          className="space-y-6" 
+          noValidate
+        >
+          {/* Error Display */}
+          {error?.code === 'DUPLICATE_RELEASE' ? (
+            <DuplicateReleaseError error={error} />
+          ) : (
+            Object.keys(form.formState.errors).length > 0 && (
+              <div className="text-red-500 text-sm space-y-1">
+                {Object.entries(form.formState.errors).map(([key, error]) => (
+                  <p key={key}>{error?.message?.toString() || `Invalid ${key}`}</p>
+                ))}
+              </div>
+            )
+          )}
 
-        <SpotifyImportSection 
-          onImport={handleSpotifyImport}
-          disabled={loading}
-        />
-
-        <ReleaseFormTabs
-          form={form}
-          selectedArtists={selectedArtists}
-          artistOptions={artists}
-          onArtistChange={handleArtistChange}
-          onAddArtist={addArtist}
-          onRemoveArtist={removeArtist}
-        />
-
-        <div className="flex justify-end">
-          <Button
-            type="submit"
+          <SpotifyImportSection 
+            onImport={handleSpotifyImport}
             disabled={loading}
-            className="flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {release ? 'Saving...' : 'Creating...'}
-              </>
-            ) : (
-              <>
-                <Music className="w-4 h-4 mr-2" />
-                {release ? 'Save Changes' : 'Create Release'}
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          />
+
+          <ReleaseFormTabs
+            form={form}
+            selectedArtists={selectedArtists}
+            artistOptions={artists}
+            onArtistChange={handleArtistChange}
+            onAddArtist={addArtist}
+            onRemoveArtist={removeArtist}
+          />
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {release ? 'Saving...' : 'Creating...'}
+                </>
+              ) : (
+                <>
+                  <Music className="w-4 h-4 mr-2" />
+                  {release ? 'Save Changes' : 'Create Release'}
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

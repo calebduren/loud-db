@@ -1,14 +1,24 @@
 import { supabase } from '../supabase';
-import { Release } from '../../types/database';
+import { Release, ReleaseType } from '../../types/database';
 import { ArtistData, ReleaseFormData } from '../../types/forms';
 import { findOrCreateArtist } from '../artists/artistService';
+import { uploadImageFromUrl } from '../storage/images';
 
 export async function createOrUpdateRelease(
   data: ReleaseFormData & { created_by: string },
   artists: ArtistData[],
-  existingReleaseId?: string
+  existingRelease?: Release
 ): Promise<string> {
   try {
+    // Download and upload cover image if it's a URL
+    let coverUrl = data.cover_url;
+    if (coverUrl && coverUrl.startsWith('http')) {
+      const uploadedUrl = await uploadImageFromUrl(coverUrl, `${Math.random()}.jpg`);
+      if (uploadedUrl) {
+        coverUrl = uploadedUrl;
+      }
+    }
+
     // Process artists first
     const artistIds = await Promise.all(
       artists
@@ -32,7 +42,7 @@ export async function createOrUpdateRelease(
     const releaseData = {
       name: data.name.trim(),
       release_type: data.release_type,
-      cover_url: data.cover_url,
+      cover_url: coverUrl,
       genres: data.genres || [],
       record_label: data.record_label?.trim(),
       track_count: validTracks.length || data.track_count,
@@ -44,9 +54,9 @@ export async function createOrUpdateRelease(
       created_by: data.created_by
     };
 
-    let releaseId = existingReleaseId;
+    let releaseId = existingRelease?.id;
 
-    if (existingReleaseId) {
+    if (existingRelease) {
       // Update existing release
       const { error: releaseError } = await supabase
         .from('releases')
@@ -54,7 +64,7 @@ export async function createOrUpdateRelease(
           ...releaseData,
           updated_at: new Date().toISOString()
         })
-        .eq('id', existingReleaseId);
+        .eq('id', existingRelease.id);
 
       if (releaseError) throw releaseError;
 
@@ -62,13 +72,13 @@ export async function createOrUpdateRelease(
       await supabase
         .from('release_artists')
         .delete()
-        .eq('release_id', existingReleaseId);
+        .eq('release_id', existingRelease.id);
 
       // Delete existing tracks
       await supabase
         .from('tracks')
         .delete()
-        .eq('release_id', existingReleaseId);
+        .eq('release_id', existingRelease.id);
     } else {
       // Create new release
       const { data: newRelease, error: releaseError } = await supabase

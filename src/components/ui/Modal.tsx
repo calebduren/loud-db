@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (e?: React.MouseEvent) => void;
   children: React.ReactNode;
   title?: string;
   className?: string;
@@ -34,21 +33,32 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
 
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      e.preventDefault();
+      e.stopPropagation();
+      onClose(e);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto" onClick={handleBackdropClick}>
+      <div className="flex min-h-full items-center justify-center p-4" onClick={handleBackdropClick}>
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
+          onClick={handleBackdropClick}
         />
 
         {/* Modal */}
-        <div className={cn(
-          "relative bg-background rounded-lg shadow-xl w-full border border-white/10",
-          title ? "max-w-2xl" : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
-          className
-        )}>
+        <div 
+          className={cn(
+            "relative bg-background rounded-lg shadow-xl w-full border border-white/10",
+            title ? "max-w-2xl" : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
+            className
+          )}
+          onClick={e => e.stopPropagation()}
+        >
           {title ? (
             <>
               {/* Header */}
@@ -58,7 +68,19 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
                   onClick={onClose}
                   className="text-white/60 hover:text-white transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                 </button>
               </div>
               {/* Content with padding */}

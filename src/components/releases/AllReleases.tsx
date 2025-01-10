@@ -37,17 +37,37 @@ export function AllReleases() {
   const isCreator = profile?.role === "creator";
 
   // Subscribe to release changes
-  useReleaseSubscription(refetch);
+  const { markAsUpdated } = useReleaseSubscription(refetch);
 
   const handleCreateSuccess = useCallback(() => {
+    // Mark as updated before closing modal
+    markAsUpdated();
+    // Close modal
     setIsCreateModalOpen(false);
-    refetch();
-  }, [refetch]);
+    // Refetch after a longer delay to ensure the toast shows
+    setTimeout(refetch, 500);
+  }, [refetch, markAsUpdated]);
 
   const handleEditSuccess = useCallback(() => {
+    // Mark as updated before closing modal
+    markAsUpdated();
+    // Close modal
     setEditingRelease(undefined);
-    refetch();
-  }, [refetch]);
+    // Refetch after a longer delay to ensure the toast shows
+    setTimeout(refetch, 500);
+  }, [refetch, markAsUpdated]);
+
+  const handleCloseCreate = useCallback((e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setIsCreateModalOpen(false);
+  }, []);
+
+  const handleCloseEdit = useCallback((e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setEditingRelease(undefined);
+  }, []);
 
   // Only show loading state on initial load when no releases are available
   if (loading && !filteredReleases.length) {
@@ -130,7 +150,7 @@ export function AllReleases() {
           {isCreateModalOpen && (
             <ReleaseFormModal
               onSuccess={handleCreateSuccess}
-              onClose={() => setIsCreateModalOpen(false)}
+              onClose={handleCloseCreate}
             />
           )}
 
@@ -138,7 +158,7 @@ export function AllReleases() {
             <ReleaseFormModal
               release={editingRelease}
               onSuccess={handleEditSuccess}
-              onClose={() => setEditingRelease(undefined)}
+              onClose={handleCloseEdit}
             />
           )}
         </>
