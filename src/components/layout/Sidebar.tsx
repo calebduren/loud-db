@@ -12,7 +12,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export const Sidebar = ({ onClose }: SidebarProps) => {
+export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
@@ -21,7 +21,10 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
   const isAdmin = profile?.role === "admin";
   const isCreator = profile?.role === "creator";
 
-  console.log("Auth state:", { isAdmin, isCreator, user, profile });
+  // Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Auth state:", { isAdmin, isCreator, user, profile });
+  }
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("sidebar__nav-item", isActive && "sidebar__nav-item--active");
@@ -140,4 +143,4 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
       <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
     </>
   );
-};
+});

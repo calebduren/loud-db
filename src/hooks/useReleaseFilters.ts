@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { ReleaseType } from '../types/database';
 import { useGenreGroups } from './useGenreGroups';
 import { useReleases } from './useReleases';
 import { usePersistedState } from './usePersistedState';
+import { useToast } from './useToast';
 
 export function useReleaseFilters() {
   const [selectedTypes, setSelectedTypes] = usePersistedState<(ReleaseType | 'all')[]>(
@@ -18,6 +19,7 @@ export function useReleaseFilters() {
     'include'
   );
   const { genreGroups } = useGenreGroups();
+  const { showToast } = useToast();
 
   // Only show genre groups as available filters
   const availableGenres = Object.keys(genreGroups).sort();
@@ -27,9 +29,11 @@ export function useReleaseFilters() {
     loading,
     hasMore,
     totalCount,
-    loadMoreRef,
-    refetch,
     loadMore,
+    loadMoreRef,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch
   } = useReleases({
     selectedTypes,
     selectedGenres,
@@ -51,13 +55,8 @@ export function useReleaseFilters() {
     });
   }, [setSelectedTypes]);
 
-  const handleGenreChange = useCallback((genre: string) => {
-    setSelectedGenres(prev => {
-      if (prev.includes(genre)) {
-        return prev.filter(g => g !== genre);
-      }
-      return [...prev, genre];
-    });
+  const handleGenreChange = useCallback((genres: string[]) => {
+    setSelectedGenres(genres);
   }, [setSelectedGenres]);
 
   const handleGenreFilterModeChange = useCallback((mode: 'include' | 'exclude') => {
@@ -74,10 +73,12 @@ export function useReleaseFilters() {
     hasMore,
     totalCount,
     loadMoreRef,
-    refetch,
     loadMore,
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch
   };
 }

@@ -15,16 +15,18 @@ export function AllReleases() {
   const {
     selectedTypes,
     selectedGenres,
+    genreFilterMode,
     filteredReleases,
     loading,
     hasMore,
     totalCount,
     loadMoreRef,
-    refetch,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch,
     loadMore,
     handleTypeChange,
     handleGenreChange,
-    genreFilterMode,
     handleGenreFilterModeChange,
   } = useReleaseFilters();
 
@@ -37,33 +39,37 @@ export function AllReleases() {
   const isCreator = profile?.role === "creator";
 
   // Subscribe to release changes
-  const { markAsUpdated } = useReleaseSubscription(refetch);
+  const { markAsUpdated } = useReleaseSubscription(backgroundRefetch);
 
-  const handleCreateSuccess = useCallback(() => {
-    // Mark as updated before closing modal
-    markAsUpdated();
+  const handleCreateSuccess = useCallback(async (release: Release) => {
+    console.log('AllReleases - handleCreateSuccess called');
+    // Optimistically add the release
+    addReleaseOptimistically(release);
     // Close modal
     setIsCreateModalOpen(false);
-    // Refetch after a longer delay to ensure the toast shows
-    setTimeout(refetch, 500);
-  }, [refetch, markAsUpdated]);
+    // Background refetch
+    backgroundRefetch();
+  }, [addReleaseOptimistically, backgroundRefetch]);
 
-  const handleEditSuccess = useCallback(() => {
-    // Mark as updated before closing modal
-    markAsUpdated();
+  const handleEditSuccess = useCallback(async (release: Release) => {
+    console.log('AllReleases - handleEditSuccess called');
+    // Optimistically update the release
+    updateReleaseOptimistically(release);
     // Close modal
     setEditingRelease(undefined);
-    // Refetch after a longer delay to ensure the toast shows
-    setTimeout(refetch, 500);
-  }, [refetch, markAsUpdated]);
+    // Background refetch
+    backgroundRefetch();
+  }, [updateReleaseOptimistically, backgroundRefetch]);
 
   const handleCloseCreate = useCallback((e?: React.MouseEvent) => {
+    console.log('AllReleases - handleCloseCreate called');
     e?.preventDefault();
     e?.stopPropagation();
     setIsCreateModalOpen(false);
   }, []);
 
   const handleCloseEdit = useCallback((e?: React.MouseEvent) => {
+    console.log('AllReleases - handleCloseEdit called');
     e?.preventDefault();
     e?.stopPropagation();
     setEditingRelease(undefined);

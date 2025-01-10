@@ -42,8 +42,22 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-y-auto" onClick={handleBackdropClick}>
-      <div className="flex min-h-full items-center justify-center p-4" onClick={handleBackdropClick}>
+    <div 
+      className="fixed inset-0 z-[9999] overflow-y-auto" 
+      onClick={handleBackdropClick}
+      onSubmit={e => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <div 
+        className="flex min-h-full items-center justify-center p-4" 
+        onClick={handleBackdropClick}
+        onSubmit={e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm"
@@ -57,7 +71,14 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
             title ? "max-w-2xl" : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
             className
           )}
-          onClick={e => e.stopPropagation()}
+          onClick={e => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onSubmit={e => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
           {title ? (
             <>

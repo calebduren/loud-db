@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Release } from '../../../types/database';
 import { ReleaseFormTabs } from './ReleaseFormTabs';
 import { SpotifyImportSection } from '../SpotifyImportSection';
@@ -12,10 +12,11 @@ import { SpotifyReleaseData } from '../../../lib/spotify/types';
 import { validateArtists } from '../../../lib/releases/validation';
 import { DuplicateReleaseError } from '../../releases/DuplicateReleaseError';
 import { useToast } from '../../../hooks/useToast';
+import { useUser } from '../../../hooks/useUser';
 
 interface ReleaseFormProps {
   release?: Release;
-  onSuccess?: () => void;
+  onSuccess?: (release: Release) => void;
   onClose?: () => void;
 }
 
@@ -23,6 +24,9 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   const { form, loading, error, handleSubmit: originalHandleSubmit } = useReleaseForm(release);
   const { artists } = useArtists();
   const { showToast } = useToast();
+  const { user } = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     selectedArtists,
     setSelectedArtists,
@@ -82,103 +86,133 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
     })));
   }, [form, setSelectedArtists]);
 
-  const onSubmit = async (values: any) => {
-    const artistError = validateArtists(selectedArtists);
-    if (artistError) {
-      form.setError('name', { message: artistError });
+  const handleFormSubmit = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (loading || isSubmitting) {
       return;
     }
     
-    const releaseId = await originalHandleSubmit(values, selectedArtists);
-    if (releaseId) {
-      // Show toast first
-      showToast({
-        type: 'success',
-        message: release ? 'Release updated successfully' : 'Release created successfully',
-        action: !release ? {
-          label: 'View Release',
-          onClick: () => {
-            // Close modal first to prevent stacking
-            onClose?.();
-            // Small delay to ensure modal is closed
-            setTimeout(() => {
-              const releaseModal = document.querySelector(`[data-release-id="${releaseId}"]`);
-              if (releaseModal) {
-                releaseModal.dispatchEvent(new MouseEvent('click'));
-              }
-            }, 100);
-          }
-        } : undefined
-      });
+    try {
+      setIsSubmitting(true);
+      
+      const values = form.getValues();
+      const formIsValid = await form.trigger();
+      
+      if (!formIsValid) {
+        return;
+      }
+      
+      const artistError = validateArtists(selectedArtists);
+      if (artistError) {
+        form.setError('name', { message: artistError });
+        return;
+      }
+      
+      const releaseId = await originalHandleSubmit(values, selectedArtists);
+      if (releaseId) {
+        // Create the release object
+        const newRelease: Release = {
+          id: releaseId,
+          ...values,
+          created_by: user?.id || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          artists: selectedArtists.map(a => ({
+            id: a.id,
+            name: a.name,
+            image_url: a.image_url || null
+          }))
+        };
 
-      // Call callbacks after a small delay
-      setTimeout(() => {
-        onSuccess?.();
+        // Close modal first
         onClose?.();
-      }, 100);
+        
+        // Update UI optimistically
+        onSuccess?.(newRelease);
+
+        // Show toast last
+        showToast({
+          type: 'success',
+          message: release ? 'Release updated successfully' : 'Release created successfully',
+          action: !release ? {
+            label: 'View Release',
+            onClick: () => {
+              setTimeout(() => {
+                const releaseModal = document.querySelector(`[data-release-id="${releaseId}"]`);
+                if (releaseModal) {
+                  releaseModal.dispatchEvent(new MouseEvent('click'));
+                }
+              }, 100);
+            }
+          } : undefined,
+          duration: 5000
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      showToast({
+        type: 'error',
+        message: 'Failed to save release. Please try again.',
+        duration: 5000
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div onSubmit={e => e.preventDefault()}>
-      <Form {...form}>
-        <form 
-          onSubmit={async e => {
-            e.preventDefault();
-            e.stopPropagation();
-            await form.handleSubmit(onSubmit)(e);
-          }} 
-          className="space-y-6" 
-          noValidate
-        >
-          {/* Error Display */}
-          {error?.code === 'DUPLICATE_RELEASE' ? (
-            <DuplicateReleaseError error={error} />
-          ) : (
-            Object.keys(form.formState.errors).length > 0 && (
-              <div className="text-red-500 text-sm space-y-1">
-                {Object.entries(form.formState.errors).map(([key, error]) => (
-                  <p key={key}>{error?.message?.toString() || `Invalid ${key}`}</p>
-                ))}
-              </div>
-            )
-          )}
+    <Form {...form}>
+      <div className="space-y-6">
+        {/* Error Display */}
+        {error?.code === 'DUPLICATE_RELEASE' ? (
+          <DuplicateReleaseError error={error} />
+        ) : (
+          Object.keys(form.formState.errors).length > 0 && (
+            <div className="text-red-500 text-sm space-y-1">
+              {Object.entries(form.formState.errors).map(([key, error]) => (
+                <p key={key}>{error?.message?.toString() || `Invalid ${key}`}</p>
+              ))}
+            </div>
+          )
+        )}
 
-          <SpotifyImportSection 
-            onImport={handleSpotifyImport}
-            disabled={loading}
-          />
+        <SpotifyImportSection 
+          onImport={handleSpotifyImport}
+          disabled={loading || isSubmitting}
+        />
 
-          <ReleaseFormTabs
-            form={form}
-            selectedArtists={selectedArtists}
-            artistOptions={artists}
-            onArtistChange={handleArtistChange}
-            onAddArtist={addArtist}
-            onRemoveArtist={removeArtist}
-          />
+        <ReleaseFormTabs
+          form={form}
+          selectedArtists={selectedArtists}
+          artistOptions={artists}
+          onArtistChange={handleArtistChange}
+          onAddArtist={addArtist}
+          onRemoveArtist={removeArtist}
+        />
 
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {release ? 'Saving...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <Music className="w-4 h-4 mr-2" />
-                  {release ? 'Save Changes' : 'Create Release'}
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={handleFormSubmit}
+            disabled={loading || isSubmitting}
+            className="flex items-center gap-2"
+          >
+            {loading || isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {release ? 'Saving...' : 'Creating...'}
+              </>
+            ) : (
+              <>
+                <Music className="w-4 h-4" />
+                {release ? 'Save Changes' : 'Create Release'}
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </Form>
   );
 }

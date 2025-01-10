@@ -11,19 +11,40 @@ interface ReleaseFormModalProps {
 }
 
 export function ReleaseFormModal({ isOpen, onClose, onSuccess, release }: ReleaseFormModalProps) {
-  const handleSuccess = (e?: React.MouseEvent) => {
+  const handleSuccess = async (e?: React.MouseEvent | React.FormEvent) => {
+    console.log('ReleaseFormModal - handleSuccess called');
     if (e) {
+      console.log('ReleaseFormModal - preventing event default');
       e.preventDefault();
       e.stopPropagation();
+      // Also stop immediate propagation
+      if ('nativeEvent' in e) {
+        e.nativeEvent.stopImmediatePropagation();
+      }
     }
-    onSuccess?.();
-    onClose();
+    
+    try {
+      console.log('ReleaseFormModal - calling onSuccess');
+      await Promise.resolve(onSuccess?.());
+      console.log('ReleaseFormModal - onSuccess complete');
+      console.log('ReleaseFormModal - closing modal');
+      onClose();
+      console.log('ReleaseFormModal - modal closed');
+    } catch (error) {
+      console.error('Error in handleSuccess:', error);
+    }
   };
 
   const handleClose = (e?: React.MouseEvent) => {
+    console.log('ReleaseFormModal - handleClose called');
     if (e) {
+      console.log('ReleaseFormModal - preventing event default');
       e.preventDefault();
       e.stopPropagation();
+      // Also stop immediate propagation
+      if ('nativeEvent' in e) {
+        e.nativeEvent.stopImmediatePropagation();
+      }
     }
     onClose();
   };
@@ -35,7 +56,16 @@ export function ReleaseFormModal({ isOpen, onClose, onSuccess, release }: Releas
       title={release ? 'Edit Release' : 'Create New Release'}
       className="max-w-2xl"
     >
-      <div onClick={e => e.stopPropagation()}>
+      <div 
+        onClick={e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onSubmit={e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         <ReleaseForm
           release={release}
           onSuccess={handleSuccess}

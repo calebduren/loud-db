@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, FormValues } from '../components/admin/forms/releaseFormSchema';
@@ -16,9 +16,35 @@ export function useReleaseForm(release?: Release) {
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  // Load initial form state from localStorage or defaults
+  const getInitialValues = () => {
+    if (release) {
+      return {
+        name: release.name,
+        release_type: release.release_type,
+        cover_url: release.cover_url || '',
+        genres: release.genres,
+        record_label: release.record_label || '',
+        track_count: release.track_count,
+        spotify_url: release.spotify_url || '',
+        apple_music_url: release.apple_music_url || '',
+        release_date: new Date(release.release_date).toISOString().split('T')[0],
+        description: release.description || '',
+        tracks: release.tracks || [],
+        related_artists: []
+      };
+    }
+
+    const savedForm = localStorage.getItem('releaseFormDraft');
+    if (savedForm) {
+      try {
+        return JSON.parse(savedForm);
+      } catch (e) {
+        console.error('Error parsing saved form:', e);
+      }
+    }
+
+    return {
       name: '',
       release_type: 'single',
       cover_url: '',
@@ -31,8 +57,21 @@ export function useReleaseForm(release?: Release) {
       description: '',
       tracks: [],
       related_artists: []
-    }
+    };
+  };
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getInitialValues()
   });
+
+  // Save form state to localStorage whenever it changes
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      localStorage.setItem('releaseFormDraft', JSON.stringify(value));
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleSubmit = async (values: FormValues, artists: ArtistData[]): Promise<string | false> => {
     if (!user) return false;
@@ -54,7 +93,8 @@ export function useReleaseForm(release?: Release) {
           setError(validation.error);
           showToast({
             type: 'error',
-            message: validation.error.message
+            message: validation.error.message,
+            duration: 5000
           });
         }
         return false;
@@ -72,12 +112,16 @@ export function useReleaseForm(release?: Release) {
         release?.id
       );
 
+      // Clear saved form data after successful submission
+      localStorage.removeItem('releaseFormDraft');
+
       return releaseId;
     } catch (error) {
       console.error('Error saving release:', error);
       showToast({
         type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to save release'
+        message: error instanceof Error ? error.message : 'Failed to save release',
+        duration: 5000
       });
       return false;
     } finally {

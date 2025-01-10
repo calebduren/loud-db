@@ -44,37 +44,47 @@ export function useReleases({
     }
   };
 
+  const fetchReleasesFromDB = async (startRange: number, endRange: number) => {
+    let query = supabase
+      .from('releases_view')
+      .select('*', { count: 'exact' })
+      .order('release_date', { ascending: false });
+
+    // Apply type filter if not "all"
+    if (!selectedTypes.includes('all')) {
+      console.log('Applying type filter:', { selectedTypes });
+      query = query.in('release_type', selectedTypes);
+    }
+
+    // Apply genre filter
+    if (selectedGenres.length > 0) {
+      const allGenres = selectedGenres.flatMap(groupName => genreGroups[groupName] || []);
+      if (allGenres.length > 0) {
+        if (genreFilterMode === 'include') {
+          // Include mode: match releases that have any of the selected genres
+          query = query.overlaps('genres', allGenres);
+        } else {
+          // Exclude mode: match releases that don't have any of the selected genres
+          // Use not + overlaps to exclude any releases that have any of the selected genres
+          query = query.not('genres', 'ov', `{${allGenres.join(',')}}`);
+        }
+      }
+    }
+
+    const { data, error, count } = await query
+      .range(startRange, endRange)
+      .throwOnError();
+
+    if (error) throw error;
+
+    return { data, count };
+  };
+
   const fetchReleases = useCallback(async (isLoadMore = false) => {
     try {
       // Only set loading on initial fetch when no releases exist
       if (!isLoadMore && releases.length === 0) {
         setLoading(true);
-      }
-
-      let query = supabase
-        .from('releases_view')
-        .select('*', { count: 'exact' })
-        .order('release_date', { ascending: false });
-
-      // Apply type filter if not "all"
-      if (!selectedTypes.includes('all')) {
-        console.log('Applying type filter:', { selectedTypes });
-        query = query.in('release_type', selectedTypes);
-      }
-
-      // Apply genre filter
-      if (selectedGenres.length > 0) {
-        const allGenres = selectedGenres.flatMap(groupName => genreGroups[groupName] || []);
-        if (allGenres.length > 0) {
-          if (genreFilterMode === 'include') {
-            // Include mode: match releases that have any of the selected genres
-            query = query.overlaps('genres', allGenres);
-          } else {
-            // Exclude mode: match releases that don't have any of the selected genres
-            // Use not + overlaps to exclude any releases that have any of the selected genres
-            query = query.not('genres', 'ov', `{${allGenres.join(',')}}`);
-          }
-        }
       }
 
       const pageSize = isLoadMore ? SUBSEQUENT_PAGE_SIZE : INITIAL_PAGE_SIZE;
@@ -91,11 +101,9 @@ export function useReleases({
         isLoadMore
       });
 
-      const { data, error, count } = await query
-        .range(startRange, endRange)
-        .throwOnError();
-
-      if (error) throw error;
+      const { data, count } = await fetchWithRetry(() =>
+        fetchReleasesFromDB(startRange, endRange)
+      );
 
       console.log('Query results:', {
         count,
@@ -133,20 +141,93 @@ export function useReleases({
     fetchReleases();
   }, [fetchReleases]);
 
-  // Load more when scrolling
+  const handleLoadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+    
+    try {
+      const pageSize = SUBSEQUENT_PAGE_SIZE;
+      const startRange = releases.length;
+      const endRange = startRange + pageSize - 1;
+
+      const { data: newReleases, count } = await fetchWithRetry(() =>
+        fetchReleasesFromDB(startRange, endRange)
+      );
+
+      if (newReleases) {
+        setReleases(prev => [...prev, ...newReleases]);
+        if (count !== null) {
+          setTotalCount(count);
+          setHasMore(releases.length + newReleases.length < count);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading more releases:', error);
+    }
+  }, [loading, hasMore, releases.length]);
+
+  // Auto-load more when scrolling
   useEffect(() => {
     if (inView && !loading && hasMore) {
-      fetchReleases(true);
+      handleLoadMore();
     }
-  }, [inView, loading, hasMore, fetchReleases]);
+  }, [inView, loading, hasMore, handleLoadMore]);
+
+  // Add optimistic update functions
+  const addReleaseOptimistically = useCallback((release: Release) => {
+    setReleases(prev => {
+      const newReleases = [release, ...prev];
+      // Update total count
+      setTotalCount(prev => prev + 1);
+      return newReleases;
+    });
+  }, []);
+
+  const updateReleaseOptimistically = useCallback((updatedRelease: Release) => {
+    setReleases(prev => {
+      const newReleases = prev.map(r => 
+        r.id === updatedRelease.id ? updatedRelease : r
+      );
+      return newReleases;
+    });
+  }, []);
+
+  const backgroundRefetch = useCallback(async () => {
+    try {
+      const { data: newReleases, count } = await fetchWithRetry(() =>
+        fetchReleasesFromDB(0, INITIAL_PAGE_SIZE)
+      );
+
+      if (newReleases) {
+        setReleases(prev => {
+          // Merge optimistic updates with new data
+          const merged = [...newReleases];
+          prev.forEach(oldRelease => {
+            if (!merged.find(r => r.id === oldRelease.id)) {
+              merged.push(oldRelease);
+            }
+          });
+          return merged;
+        });
+        
+        if (count !== null) {
+          setTotalCount(count);
+        }
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error in background refetch:', error);
+    }
+  }, []);
 
   return {
     releases,
     loading,
     hasMore,
     totalCount,
+    loadMore: handleLoadMore,
     loadMoreRef: ref,
-    refetch: useCallback(() => fetchReleases(), [fetchReleases]),
-    loadMore: useCallback(() => fetchReleases(true), [fetchReleases]),
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch
   };
 }

@@ -19,19 +19,28 @@ export function useAuth() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event);
+      
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setEmail('');
+        // Only navigate on actual sign out
         navigate('/', { replace: true });
-      } else {
-        setUser(session?.user ?? null);
-        setEmail(session?.user?.email ?? '');
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Don't update state if user hasn't changed
+        const newUser = session?.user;
+        setUser(prev => {
+          if (prev?.id === newUser?.id) return prev;
+          return newUser ?? null;
+        });
+        setEmail(newUser?.email ?? '');
       }
+      
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   return { user, email, loading };
 }
