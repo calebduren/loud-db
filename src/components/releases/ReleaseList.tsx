@@ -4,6 +4,7 @@ import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ReleaseModal } from "./ReleaseModal";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
+import { Button } from "../ui/button";
 
 interface WeekGroup {
   weekRange: {
@@ -22,7 +23,7 @@ interface ReleaseListProps {
   onEdit?: (release: Release) => void;
   onDelete?: (release: Release) => void;
   hasMore?: boolean;
-  loadMoreRef?: (node?: Element | null) => void;
+  loadMore?: () => void;
   showWeeklyGroups?: boolean;
 }
 
@@ -113,7 +114,7 @@ export function ReleaseList({
   onEdit,
   onDelete,
   hasMore,
-  loadMoreRef,
+  loadMore,
   showWeeklyGroups = false,
 }: ReleaseListProps) {
   const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
@@ -365,15 +366,19 @@ export function ReleaseList({
         <div className="release-grid">{uniqueReleases.map(renderRelease)}</div>
       )}
 
-      {/* Load more trigger */}
-      {!loading && loadMoreRef && (
-        <div
-          ref={loadMoreRef}
-          className="col-span-full h-10 flex items-center justify-center"
-        >
-          {hasMore && (
-            <div className="w-8 h-8 animate-spin rounded-full border-4 border-white/10 border-t-white" />
-          )}
+      {/* Load more button */}
+      {hasMore && !loading && (
+        <div className="col-span-full mt-8 flex justify-center">
+          <Button onClick={() => loadMore?.()} disabled={loading}>
+            {loading ? "Loading..." : "Load More Releases"}
+          </Button>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && (
+        <div className="col-span-full h-20 flex items-center justify-center">
+          <div className="w-8 h-8 animate-spin rounded-full border-4 border-white/10 border-t-white" />
         </div>
       )}
 

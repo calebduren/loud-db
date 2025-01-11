@@ -144,7 +144,7 @@ export function AllReleases() {
             releases={filteredReleases}
             loading={loading}
             hasMore={hasMore}
-            loadMoreRef={loadMoreRef}
+            loadMore={loadMore}
             showWeeklyGroups={true}
             onEdit={isAdmin ? setEditingRelease : undefined}
           />
