@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo } from "react";
 import { Release } from "../../types/database";
 import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
-import { ReleaseModal } from "./ReleaseModal";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 import { Button } from "../ui/button";
 
@@ -20,11 +19,13 @@ interface ReleaseListProps {
   releases: Release[];
   loading?: boolean;
   showActions?: boolean;
-  onEdit?: (release: Release) => void;
-  onDelete?: (release: Release) => void;
   hasMore?: boolean;
   loadMore?: () => void;
   showWeeklyGroups?: boolean;
+  onSelect?: (release: Release) => void;
+  selectedRelease?: Release;
+  onEdit?: (release: Release) => void;
+  onDelete?: (release: Release) => void;
 }
 
 const SkeletonCard = () => (
@@ -111,13 +112,15 @@ export function ReleaseList({
   releases,
   loading,
   showActions = true,
-  onEdit,
-  onDelete,
   hasMore,
   loadMore,
   showWeeklyGroups = false,
+  onSelect,
+  selectedRelease,
+  onEdit,
+  onDelete,
 }: ReleaseListProps) {
-  const [selectedRelease, setSelectedRelease] = useState<Release | null>(null);
+  const [selectedReleaseState, setSelectedReleaseState] = useState<Release | null>(selectedRelease);
 
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
@@ -217,7 +220,7 @@ export function ReleaseList({
       <div
         key={`${release.id}-${release.created_by}`}
         className="release-card"
-        onClick={() => setSelectedRelease(release)}
+        onClick={() => onSelect?.(release)}
       >
         <div className="release-card__cover">
           <div className="release-card__image-container">
@@ -322,7 +325,7 @@ export function ReleaseList({
         </div>
       </div>
     ),
-    [selectedRelease, formatArtists, formatDate, formatReleaseType]
+    [selectedReleaseState, formatArtists, formatDate, formatReleaseType]
   );
 
   if (loading) {
@@ -380,28 +383,6 @@ export function ReleaseList({
         <div className="col-span-full h-20 flex items-center justify-center">
           <div className="w-8 h-8 animate-spin rounded-full border-4 border-white/10 border-t-white" />
         </div>
-      )}
-
-      {selectedRelease && (
-        <ReleaseModal
-          release={selectedRelease}
-          isOpen={true}
-          onClose={() => setSelectedRelease(null)}
-          onEdit={
-            onEdit &&
-            (() => {
-              onEdit(selectedRelease);
-              setSelectedRelease(null);
-            })
-          }
-          onDelete={
-            onDelete &&
-            (() => {
-              onDelete(selectedRelease);
-              setSelectedRelease(null);
-            })
-          }
-        />
       )}
     </div>
   );

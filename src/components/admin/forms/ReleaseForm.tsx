@@ -112,17 +112,20 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
       
       const releaseId = await originalHandleSubmit(values, selectedArtists);
       if (releaseId) {
-        // Create the release object
+        // Create the release object, preserving existing ID if updating
         const newRelease: Release = {
-          id: releaseId,
+          id: release?.id || releaseId,
           ...values,
-          created_by: user?.id || '',
-          created_at: new Date().toISOString(),
+          created_by: release?.created_by || user?.id || '',
+          created_at: release?.created_at || new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          artists: selectedArtists.map(a => ({
-            id: a.id,
-            name: a.name,
-            image_url: a.image_url || null
+          artists: selectedArtists.map((a, index) => ({
+            position: index,
+            artist: {
+              id: a.id || '',
+              name: a.name,
+              image_url: a.image_url || null
+            }
           }))
         };
 

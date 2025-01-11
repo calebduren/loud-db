@@ -27,17 +27,17 @@ export function ReleaseModal({
   const { isAdmin, canManageReleases } = usePermissions();
   const { user } = useAuth();
 
-  // Check if user can edit this release
+  // Check if user can edit this release - use memoized value to prevent unnecessary re-renders
   const canEdit = React.useMemo(() => {
     if (!user || !canManageReleases) return false;
     return isAdmin || user.id === release.created_by;
-  }, [user, canManageReleases, isAdmin, release.created_by]);
+  }, [user?.id, canManageReleases, isAdmin, release.created_by]);
 
-  // Only admins can delete releases
+  // Only admins can delete releases - use memoized value
   const canDelete = React.useMemo(() => {
-    if (!user) return false;
+    if (!user?.id) return false;
     return isAdmin;
-  }, [user, isAdmin]);
+  }, [user?.id, isAdmin]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -81,23 +81,27 @@ export function ReleaseModal({
 
                   {/* Admin Actions */}
                   {(canEdit || canDelete) && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       {canEdit && onEdit && (
                         <Button
-                          variant="outline"
+                          variant="primary"
                           size="sm"
-                          onClick={onEdit}
-                          className="bg-white hover:bg-white/90 text-black"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit();
+                          }}
                         >
                           Edit
                         </Button>
                       )}
                       {canDelete && onDelete && (
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="sm"
-                          onClick={() => onDelete(release)}
-                          className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(release);
+                          }}
                         >
                           Delete
                         </Button>

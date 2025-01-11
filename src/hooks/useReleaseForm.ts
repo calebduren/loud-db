@@ -109,7 +109,7 @@ export function useReleaseForm(release?: Release) {
           description_author_id: values.description?.trim() ? user.id : null
         },
         artists,
-        release?.id
+        release
       );
 
       // Clear saved form data after successful submission

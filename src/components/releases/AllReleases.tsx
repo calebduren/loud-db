@@ -3,6 +3,7 @@ import { ReleaseList } from "./ReleaseList";
 import { ReleaseFilters } from "../filters/ReleaseFilters";
 import { useReleaseFilters } from "../../hooks/useReleaseFilters";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
+import { ReleaseModal } from "./ReleaseModal";
 import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -10,6 +11,7 @@ import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
 import { Button } from "../ui/button";
+import { supabase } from "../../lib/supabase";
 
 export function AllReleases() {
   const {
@@ -32,6 +34,7 @@ export function AllReleases() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(undefined);
   const { isAdmin } = usePermissions();
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
@@ -43,23 +46,39 @@ export function AllReleases() {
 
   const handleCreateSuccess = useCallback(async (release: Release) => {
     console.log('AllReleases - handleCreateSuccess called');
-    // Optimistically add the release
     addReleaseOptimistically(release);
-    // Close modal
     setIsCreateModalOpen(false);
-    // Background refetch
     backgroundRefetch();
   }, [addReleaseOptimistically, backgroundRefetch]);
 
   const handleEditSuccess = useCallback(async (release: Release) => {
     console.log('AllReleases - handleEditSuccess called');
-    // Optimistically update the release
     updateReleaseOptimistically(release);
-    // Close modal
     setEditingRelease(undefined);
-    // Background refetch
     backgroundRefetch();
   }, [updateReleaseOptimistically, backgroundRefetch]);
+
+  const handleDelete = useCallback(async (release: Release) => {
+    console.log('AllReleases - handleDelete called');
+    try {
+      const { error } = await supabase
+        .from('releases')
+        .delete()
+        .eq('id', release.id);
+
+      if (error) throw error;
+      setViewingRelease(undefined);
+      backgroundRefetch();
+    } catch (error) {
+      console.error('Error deleting release:', error);
+    }
+  }, [backgroundRefetch]);
+
+  const handleEdit = useCallback((release: Release) => {
+    console.log('AllReleases - handleEdit called');
+    setEditingRelease(release);
+    setViewingRelease(undefined);
+  }, []);
 
   const handleCloseCreate = useCallback((e?: React.MouseEvent) => {
     console.log('AllReleases - handleCloseCreate called');
@@ -73,6 +92,13 @@ export function AllReleases() {
     e?.preventDefault();
     e?.stopPropagation();
     setEditingRelease(undefined);
+  }, []);
+
+  const handleCloseView = useCallback((e?: React.MouseEvent) => {
+    console.log('AllReleases - handleCloseView called');
+    e?.preventDefault();
+    e?.stopPropagation();
+    setViewingRelease(undefined);
   }, []);
 
   // Only show loading state on initial load when no releases are available
@@ -146,22 +172,36 @@ export function AllReleases() {
             hasMore={hasMore}
             loadMore={loadMore}
             showWeeklyGroups={true}
-            onEdit={isAdmin ? setEditingRelease : undefined}
+            onSelect={setViewingRelease}
+            selectedRelease={viewingRelease}
+            onEdit={isAdmin ? handleEdit : undefined}
+            onDelete={isAdmin ? handleDelete : undefined}
           />
         )}
       </div>
 
+      {/* Modals */}
+      {viewingRelease && (
+        <ReleaseModal
+          release={viewingRelease}
+          isOpen={true}
+          onClose={handleCloseView}
+          onEdit={isAdmin ? () => handleEdit(viewingRelease) : undefined}
+          onDelete={isAdmin ? handleDelete : undefined}
+        />
+      )}
+
       {(isAdmin || isCreator) && (
         <>
-          {isCreateModalOpen && (
-            <ReleaseFormModal
-              onSuccess={handleCreateSuccess}
-              onClose={handleCloseCreate}
-            />
-          )}
+          <ReleaseFormModal
+            isOpen={isCreateModalOpen}
+            onSuccess={handleCreateSuccess}
+            onClose={handleCloseCreate}
+          />
 
           {editingRelease && (
             <ReleaseFormModal
+              isOpen={true}
               release={editingRelease}
               onSuccess={handleEditSuccess}
               onClose={handleCloseEdit}
