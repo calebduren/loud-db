@@ -1,75 +1,97 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Release } from '../types/database';
 import { useGenrePreferences } from './settings/useGenrePreferences';
 import { useGenreGroups } from './useGenreGroups';
+import { useLikes } from './useLikes';
 
-export function useReleaseSorting(releases: Release[]) {
+export function useReleaseSorting() {
   const { preferences, loading: preferencesLoading } = useGenrePreferences();
   const { genreGroups, loading: groupsLoading } = useGenreGroups();
-  const [sortedReleases, setSortedReleases] = useState<Release[]>([]);
-  const [sorting, setSorting] = useState(true);
+  const { likedReleases, loading: likesLoading } = useLikes();
 
-  useEffect(() => {
-    if (!releases.length || preferencesLoading || groupsLoading) {
-      setSorting(true);
-      return;
-    }
+  const sortReleases = useMemo(() => {
+    return (releases: Release[]) => {
+      if (!releases?.length || !preferences || !genreGroups) {
+        return releases || [];
+      }
 
-    // Use setTimeout to ensure UI shows loading state
-    const timeoutId = setTimeout(() => {
-      const sorted = [...releases].sort((a, b) => {
-        // First apply genre preference scoring
-        const scoreA = calculateReleaseScore(a, preferences, genreGroups);
-        const scoreB = calculateReleaseScore(b, preferences, genreGroups);
-        
-        if (scoreA !== scoreB) {
-          return scoreB - scoreA; // Higher scores first
-        }
-
-        // If scores are equal, sort by date
-        return new Date(b.release_date).getTime() - new Date(a.release_date).getTime();
+      return [...releases].sort((a, b) => {
+        const scoreA = calculateReleaseScore(a, preferences, genreGroups, likedReleases, releases);
+        const scoreB = calculateReleaseScore(b, preferences, genreGroups, likedReleases, releases);
+        return scoreB - scoreA;
       });
-
-      setSortedReleases(sorted);
-      setSorting(false);
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [releases, preferences, genreGroups, preferencesLoading, groupsLoading]);
+    };
+  }, [preferences, genreGroups, likedReleases]);
 
   return {
-    releases: sortedReleases,
-    loading: sorting || preferencesLoading || groupsLoading
+    sortReleases,
+    loading: preferencesLoading || groupsLoading || likesLoading
   };
 }
 
 function calculateReleaseScore(
   release: Release,
   preferences: Record<string, number>,
-  genreGroups: Record<string, string[]>
+  genreGroups: Record<string, string[]>,
+  likedReleases: Set<string>,
+  allReleases: Release[]
 ): number {
-  if (!release.genres?.length) return -1000; // Penalize releases without genres
+  if (!release) return -Infinity;
+  
+  let score = 0;
 
-  let totalScore = 0;
-  let matchedGroups = new Set<string>();
+  // Base penalty for no genres
+  if (!release.genres?.length) {
+    score -= 10000;
+  }
 
-  // Check each genre against genre groups
-  for (const genre of release.genres) {
+  // Genre preference scoring
+  const matchedGroups = new Set<string>();
+  for (const genre of release.genres || []) {
     for (const [groupName, groupGenres] of Object.entries(genreGroups)) {
       if (groupGenres.includes(genre)) {
         // Only count each group once per release
         if (!matchedGroups.has(groupName)) {
           const preferenceScore = preferences[groupName] || 0;
-          totalScore += preferenceScore * 1000; // Scale up scores significantly
+          score += preferenceScore * 2000; // Scale up preference scores
           matchedGroups.add(groupName);
         }
       }
     }
   }
 
-  // Apply recency boost (small bonus for newer releases)
-  const daysOld = (Date.now() - new Date(release.release_date).getTime()) / (1000 * 60 * 60 * 24);
-  const recencyBonus = Math.max(0, 100 - daysOld); // Up to 100 point bonus for new releases
+  // Boost score if user has liked similar releases
+  if (release.artists && likedReleases?.size > 0) {
+    const artistIds = new Set(release.artists.map(a => a.artist?.id).filter(Boolean));
+    let similarLikedCount = 0;
+    
+    for (const likedId of likedReleases) {
+      const likedRelease = allReleases.find(r => r.id === likedId);
+      if (likedRelease?.artists && likedRelease?.genres) {
+        // Check for shared artists
+        const likedArtistIds = new Set(likedRelease.artists.map(a => a.artist?.id).filter(Boolean));
+        const hasSharedArtist = Array.from(artistIds).some(id => id && likedArtistIds.has(id));
+        
+        // Check for shared genres
+        const likedGenres = new Set(likedRelease.genres);
+        const hasSharedGenre = (release.genres || []).some(g => likedGenres.has(g));
+        
+        if (hasSharedArtist || hasSharedGenre) {
+          similarLikedCount++;
+        }
+      }
+    }
+    
+    // Add bonus for similar liked releases
+    score += similarLikedCount * 1000;
+  }
 
-  return totalScore + recencyBonus;
+  // Small recency bonus (max 500 points for newest releases)
+  if (release.release_date) {
+    const daysOld = (Date.now() - new Date(release.release_date).getTime()) / (1000 * 60 * 60 * 24);
+    const recencyBonus = Math.max(0, 500 - daysOld);
+    score += recencyBonus;
+  }
+
+  return score;
 }

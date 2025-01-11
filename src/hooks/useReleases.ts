@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import { Release, ReleaseType } from "../types/database";
 import { useToast } from "./useToast";
+import { useReleaseSorting } from "./useReleaseSorting";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -26,6 +27,7 @@ export function useReleases({
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const { showToast } = useToast();
+  const { sortReleases } = useReleaseSorting();
 
   const fetchWithRetry = async (
     fn: () => Promise<any>,
@@ -46,6 +48,7 @@ export function useReleases({
     let query = supabase
       .from("releases_view")
       .select("*", { count: "exact" })
+      // Only sort by date in the DB query, we'll do preference sorting in memory
       .order("release_date", { ascending: false });
 
     // Apply type filter if not "all"
@@ -121,14 +124,12 @@ export function useReleases({
           if (isLoadMore) {
             setReleases((prev) => [...prev, ...(data || [])]);
           } else {
-            setReleases(data || []);
+            setReleases(sortReleases(data || []));
           }
 
           if (count !== null) {
             setTotalCount(count);
-            setHasMore(
-              (data?.length || 0) === pageSize && startRange + pageSize < count
-            );
+            setHasMore(count > endRange + 1);
           }
 
           setLoading(false);
@@ -149,6 +150,7 @@ export function useReleases({
       genreFilterMode,
       genreGroups,
       showToast,
+      sortReleases,
     ]
   );
 
@@ -252,14 +254,20 @@ export function useReleases({
 
       if (newReleases) {
         setReleases((prev) => {
-          // Merge optimistic updates with new data
-          const merged = [...newReleases];
-          prev.forEach((oldRelease) => {
-            if (!merged.find((r) => r.id === oldRelease.id)) {
-              merged.push(oldRelease);
-            }
+          // Create a map of new releases for quick lookup
+          const newReleasesMap = new Map(newReleases.map(r => [r.id, r]));
+          
+          // Update existing releases with new data while maintaining order
+          const updatedReleases = prev.map(oldRelease => {
+            const newData = newReleasesMap.get(oldRelease.id);
+            // Delete from map to track which new releases need to be added
+            newReleasesMap.delete(oldRelease.id);
+            return newData || oldRelease;
           });
-          return merged;
+          
+          // Add any completely new releases at the start
+          const brandNewReleases = Array.from(newReleasesMap.values());
+          return [...brandNewReleases, ...updatedReleases];
         });
 
         if (count !== null) {
