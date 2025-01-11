@@ -29,6 +29,20 @@ export function useReleases({
   const { showToast } = useToast();
   const { sortReleases } = useReleaseSorting();
 
+  // Re-sort releases when sorting preferences change, but only if we actually have releases
+  useEffect(() => {
+    if (releases.length === 0) return;
+    
+    // Create a stable reference to the sorted releases
+    const sortedReleases = sortReleases(releases);
+    
+    // Only update if the order has actually changed
+    const hasOrderChanged = sortedReleases.some((release, index) => release.id !== releases[index]?.id);
+    if (hasOrderChanged) {
+      setReleases(sortedReleases);
+    }
+  }, [sortReleases]); // Only depend on sortReleases, not releases
+
   const fetchWithRetry = async (
     fn: () => Promise<any>,
     retries = MAX_RETRIES
@@ -122,7 +136,7 @@ export function useReleases({
         // Batch all state updates in a single animation frame
         requestAnimationFrame(() => {
           if (isLoadMore) {
-            setReleases((prev) => [...prev, ...(data || [])]);
+            setReleases((prev) => sortReleases([...prev, ...(data || [])]));
           } else {
             setReleases(sortReleases(data || []));
           }
@@ -150,7 +164,6 @@ export function useReleases({
       genreFilterMode,
       genreGroups,
       showToast,
-      sortReleases,
     ]
   );
 

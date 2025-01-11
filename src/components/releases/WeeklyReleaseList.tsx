@@ -3,6 +3,7 @@ import { Release } from '../../types/database';
 import { ReleaseList } from './ReleaseList';
 import { groupReleasesByWeek, formatWeekHeader } from '../../lib/dates/weekGrouping';
 import { ReleaseSkeleton } from './ReleaseSkeleton';
+import { useReleaseSorting } from '../../hooks/useReleaseSorting';
 
 interface WeeklyReleaseListProps {
   releases: Release[];
@@ -19,9 +20,14 @@ export function WeeklyReleaseList({
   onEdit,
   onDelete 
 }: WeeklyReleaseListProps) {
-  const weekGroups = groupReleasesByWeek(releases);
+  const { sortReleases, loading: sortingLoading } = useReleaseSorting();
+  const weekGroups = React.useMemo(() => {
+    return groupReleasesByWeek(releases, sortReleases);
+  }, [releases, sortReleases]);
 
-  if (!releases.length && loading) {
+  const isLoading = loading || sortingLoading;
+
+  if (!releases.length && isLoading) {
     // Create skeleton groups for loading state
     return (
       <div className="space-y-12">
@@ -48,7 +54,7 @@ export function WeeklyReleaseList({
           </h2>
           <ReleaseList
             releases={group.releases}
-            loading={loading}
+            loading={isLoading}
             showActions={showActions}
             onEdit={onEdit}
             onDelete={onDelete}

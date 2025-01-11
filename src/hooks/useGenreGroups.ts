@@ -21,6 +21,7 @@ export function useGenreGroups() {
         const groupMap = await fetchGenreGroups();
         if (!mounted) return;
 
+        console.log('Loaded genre groups:', groupMap);
         setGroups(groupMap);
         setError(null);
 

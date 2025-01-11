@@ -4,6 +4,7 @@ import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 import { Button } from "../ui/button";
+import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
 
 interface WeekGroup {
   weekRange: {
@@ -178,6 +179,8 @@ export function ReleaseList({
     [formatDate]
   );
 
+  const { sortReleases } = useReleaseSorting(); // Get the sortReleases function from the hook
+
   const groupReleasesByWeek = useCallback(
     (releases: Release[]) => {
       const groups = new Map<string, Release[]>();
@@ -198,10 +201,10 @@ export function ReleaseList({
         .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
         .map(([key, releases]) => ({
           weekRange: getWeekRange(new Date(key)),
-          releases,
+          releases: sortReleases(releases), // Sort releases within each week
         }));
     },
-    [getWeekKey, getWeekRange]
+    [getWeekKey, getWeekRange, sortReleases]
   );
 
   const formatReleaseType = useCallback((type: string) => {

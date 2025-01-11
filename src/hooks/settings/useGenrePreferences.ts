@@ -19,13 +19,24 @@ export function useGenrePreferences() {
 
   const fetchPreferences = async () => {
     try {
-      const { data: prefs } = await supabase
+      console.log('Fetching preferences for user:', user?.id);
+      
+      const { data: prefs, error } = await supabase
         .from('user_genre_preferences')
         .select(`
           weight,
           genre_group:genre_groups(name)
         `)
         .eq('user_id', user?.id);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log('Raw preferences from DB:', {
+        count: prefs?.length || 0,
+        preferences: prefs
+      });
 
       if (prefs) {
         const prefMap = prefs.reduce((acc, pref) => {
@@ -34,10 +45,25 @@ export function useGenrePreferences() {
           }
           return acc;
         }, {} as Record<string, number>);
+
+        console.log('Processed preferences:', {
+          count: Object.keys(prefMap).length,
+          preferences: prefMap
+        });
+
         setPreferences(prefMap);
+      } else {
+        console.log('No preferences found, using empty map');
+        setPreferences({});
       }
     } catch (error) {
       console.error('Error fetching preferences:', error);
+      showToast({
+        type: 'error',
+        message: 'Failed to load genre preferences'
+      });
+      // Set empty preferences to allow the app to function
+      setPreferences({});
     } finally {
       setLoading(false);
     }
