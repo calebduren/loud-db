@@ -4,10 +4,9 @@ import { ReleaseFilters } from "../filters/ReleaseFilters";
 import { useReleaseFilters } from "../../hooks/useReleaseFilters";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { ReleaseModal } from "./ReleaseModal";
+import { PageTitle } from "../layout/PageTitle";
 import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
-import { usePermissions } from "../../hooks/usePermissions";
-import { PageTitle } from "../layout/PageTitle";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { Button } from "../ui/button";
@@ -22,7 +21,6 @@ export function AllReleases() {
     loading,
     hasMore,
     totalCount,
-    loadMoreRef,
     addReleaseOptimistically,
     updateReleaseOptimistically,
     backgroundRefetch,
@@ -33,73 +31,96 @@ export function AllReleases() {
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
-  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(undefined);
-  const { isAdmin } = usePermissions();
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const { isAdmin } = useAuth();
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
 
   const isCreator = profile?.role === "creator";
 
   // Subscribe to release changes
-  const { markAsUpdated } = useReleaseSubscription(backgroundRefetch);
+  useReleaseSubscription(backgroundRefetch);
 
-  const handleCreateSuccess = useCallback(async (release: Release) => {
-    console.log('AllReleases - handleCreateSuccess called');
-    addReleaseOptimistically(release);
-    setIsCreateModalOpen(false);
-    backgroundRefetch();
-  }, [addReleaseOptimistically, backgroundRefetch]);
-
-  const handleEditSuccess = useCallback(async (release: Release) => {
-    console.log('AllReleases - handleEditSuccess called');
-    updateReleaseOptimistically(release);
-    setEditingRelease(undefined);
-    backgroundRefetch();
-  }, [updateReleaseOptimistically, backgroundRefetch]);
-
-  const handleDelete = useCallback(async (release: Release) => {
-    console.log('AllReleases - handleDelete called');
-    try {
-      const { error } = await supabase
-        .from('releases')
-        .delete()
-        .eq('id', release.id);
-
-      if (error) throw error;
-      setViewingRelease(undefined);
+  const handleCreateSuccess = useCallback(
+    async (release: Release) => {
+      console.log("AllReleases - handleCreateSuccess called");
+      addReleaseOptimistically(release);
+      setIsCreateModalOpen(false);
       backgroundRefetch();
-    } catch (error) {
-      console.error('Error deleting release:', error);
-    }
-  }, [backgroundRefetch]);
+    },
+    [addReleaseOptimistically, backgroundRefetch]
+  );
+
+  const handleEditSuccess = useCallback(
+    async (release: Release) => {
+      console.log("AllReleases - handleEditSuccess called");
+      updateReleaseOptimistically(release);
+      setEditingRelease(undefined);
+      backgroundRefetch();
+    },
+    [updateReleaseOptimistically, backgroundRefetch]
+  );
+
+  const handleDelete = useCallback(
+    async (release: Release) => {
+      console.log("AllReleases - handleDelete called");
+      try {
+        const { error } = await supabase
+          .from("releases")
+          .delete()
+          .eq("id", release.id);
+
+        if (error) throw error;
+        setViewingRelease(undefined);
+        backgroundRefetch();
+      } catch (error) {
+        console.error("Error deleting release:", error);
+      }
+    },
+    [backgroundRefetch]
+  );
 
   const handleEdit = useCallback((release: Release) => {
-    console.log('AllReleases - handleEdit called');
+    console.log("AllReleases - handleEdit called");
     setEditingRelease(release);
     setViewingRelease(undefined);
   }, []);
 
   const handleCloseCreate = useCallback((e?: React.MouseEvent) => {
-    console.log('AllReleases - handleCloseCreate called');
+    console.log("AllReleases - handleCloseCreate called");
     e?.preventDefault();
     e?.stopPropagation();
     setIsCreateModalOpen(false);
   }, []);
 
   const handleCloseEdit = useCallback((e?: React.MouseEvent) => {
-    console.log('AllReleases - handleCloseEdit called');
+    console.log("AllReleases - handleCloseEdit called");
     e?.preventDefault();
     e?.stopPropagation();
     setEditingRelease(undefined);
   }, []);
 
   const handleCloseView = useCallback((e?: React.MouseEvent) => {
-    console.log('AllReleases - handleCloseView called');
+    console.log("AllReleases - handleCloseView called");
     e?.preventDefault();
     e?.stopPropagation();
     setViewingRelease(undefined);
   }, []);
+
+  const handleGenreChangeAdapter = useCallback(
+    (genre: string) => {
+      const newGenres = selectedGenres.includes(genre)
+        ? selectedGenres.filter((g) => g !== genre)
+        : [...selectedGenres, genre];
+      handleGenreChange(newGenres);
+    },
+    [selectedGenres, handleGenreChange]
+  );
 
   // Only show loading state on initial load when no releases are available
   if (loading && !filteredReleases.length) {
@@ -117,7 +138,7 @@ export function AllReleases() {
           selectedGenres={selectedGenres}
           genreFilterMode={genreFilterMode}
           onTypeChange={handleTypeChange}
-          onGenreChange={handleGenreChange}
+          onGenreChange={handleGenreChangeAdapter}
           onGenreFilterModeChange={handleGenreFilterModeChange}
         />
         <ReleaseList releases={[]} loading={true} showWeeklyGroups={true} />
@@ -125,8 +146,12 @@ export function AllReleases() {
     );
   }
 
-  const hasActiveFilters = selectedTypes.length > 1 || selectedTypes[0] !== 'all' || selectedGenres.length > 0;
-  const showLoadMoreButton = hasActiveFilters && filteredReleases.length === 0 && totalCount > 0;
+  const hasActiveFilters =
+    selectedTypes.length > 1 ||
+    selectedTypes[0] !== "all" ||
+    selectedGenres.length > 0;
+  const showLoadMoreButton =
+    hasActiveFilters && filteredReleases.length === 0 && totalCount > 0;
 
   return (
     <div>
@@ -143,7 +168,7 @@ export function AllReleases() {
         selectedGenres={selectedGenres}
         genreFilterMode={genreFilterMode}
         onTypeChange={handleTypeChange}
-        onGenreChange={handleGenreChange}
+        onGenreChange={handleGenreChangeAdapter}
         onGenreFilterModeChange={handleGenreFilterModeChange}
       />
 
@@ -156,11 +181,7 @@ export function AllReleases() {
                 : "No releases match your criteria."}
             </p>
             {showLoadMoreButton && (
-              <Button
-                onClick={loadMore}
-                disabled={loading}
-                className="mx-auto"
-              >
+              <Button onClick={loadMore} disabled={loading} className="mx-auto">
                 Load More Releases
               </Button>
             )}
