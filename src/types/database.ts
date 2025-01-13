@@ -30,9 +30,7 @@ export interface Release {
     username: string;
   } | null;
   artists: Array<{
-    position: number;
     artist: {
-      id: string;
       name: string;
     };
   }>;

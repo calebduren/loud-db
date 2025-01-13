@@ -24,7 +24,6 @@ interface ReleaseListProps {
   loadMore?: () => void;
   showWeeklyGroups?: boolean;
   onSelect?: (release: Release) => void;
-  selectedRelease?: Release;
   onEdit?: (release: Release) => void;
   onDelete?: (release: Release) => void;
 }
@@ -117,12 +116,7 @@ export function ReleaseList({
   loadMore,
   showWeeklyGroups = false,
   onSelect,
-  selectedRelease,
-  onEdit,
-  onDelete,
 }: ReleaseListProps) {
-  const [selectedReleaseState, setSelectedReleaseState] = useState<Release | null>(selectedRelease);
-
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
     const seen = new Set<string>();
@@ -135,11 +129,9 @@ export function ReleaseList({
   }, [releases]);
 
   const formatArtists = useCallback((release: Release) => {
+    console.log('Release artists:', release.artists);
     if (!release.artists?.length) return "";
-    const sortedArtists = [...release.artists].sort(
-      (a, b) => a.position - b.position
-    );
-    return sortedArtists.map((ra) => ra.artist.name).join(", ");
+    return release.artists.map(ra => ra.artist.name).join(", ");
   }, []);
 
   const formatDate = useCallback((dateString: string) => {
@@ -328,7 +320,7 @@ export function ReleaseList({
         </div>
       </div>
     ),
-    [selectedReleaseState, formatArtists, formatDate, formatReleaseType]
+    [formatArtists, formatDate, formatReleaseType]
   );
 
   if (loading) {

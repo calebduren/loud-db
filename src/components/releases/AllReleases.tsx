@@ -173,7 +173,6 @@ export function AllReleases() {
             loadMore={loadMore}
             showWeeklyGroups={true}
             onSelect={setViewingRelease}
-            selectedRelease={viewingRelease}
             onEdit={isAdmin ? handleEdit : undefined}
             onDelete={isAdmin ? handleDelete : undefined}
           />

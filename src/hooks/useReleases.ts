@@ -48,7 +48,29 @@ export function useReleases({
       const data = await cache.get(cacheKey, async () => {
         let query = supabase
           .from("releases")
-          .select("*", { count: "exact" });
+          .select(`
+            id,
+            name,
+            release_type,
+            cover_url,
+            genres,
+            record_label,
+            track_count,
+            spotify_url,
+            apple_music_url,
+            created_at,
+            updated_at,
+            created_by,
+            release_date,
+            description,
+            description_author_id,
+            description_author:profiles!releases_description_author_id_fkey(id, username),
+            artists:release_artists!release_id(
+              artist:artists!artist_id(
+                name
+              )
+            )
+          `, { count: "exact" });
 
         // Apply filters
         if (selectedTypes[0] !== "all") {
@@ -74,6 +96,7 @@ export function useReleases({
         
         if (error) throw error;
         
+        console.log('Release data from Supabase:', data?.[0]);
         return { releases: data || [], total: count || 0 };
       }, { ttl: 5 * 60 * 1000 }); // Cache for 5 minutes
 
