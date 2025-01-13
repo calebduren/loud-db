@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, Loader2, AlertCircle } from 'lucide-react';
 import { scrapeAllMusicNewReleases } from '../../lib/scraper/allmusic';
 import { importRelease } from '../../lib/scraper/importRelease';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from "../../contexts/AuthContext";
 import { useRateLimit } from '../../hooks/useRateLimit';
 import { useToast } from '../../hooks/useToast';
 

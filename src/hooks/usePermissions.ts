@@ -1,4 +1,4 @@
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * @deprecated Use AuthContext directly

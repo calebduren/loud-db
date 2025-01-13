@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { supabase } from '../../../lib/supabase';
 import { formSchema, FormValues } from './releaseFormSchema';
 import { Release } from '../../../types/database';
-import { useAuth } from '../../../hooks/useAuth';
+import { AuthContext } from "../../../contexts/AuthContext";
 import { filterValidGenres } from '../../../lib/utils/genreUtils';
 import { checkDuplicateRelease } from '../../../lib/releases/validation';
 import { useToast } from '../../../hooks/useToast';
@@ -19,7 +19,7 @@ export function useReleaseForm(
   onSuccess?: () => void
 ) {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user } = React.useContext(AuthContext);
   const { showToast } = useToast();
 
   const form = useForm<FormValues>({

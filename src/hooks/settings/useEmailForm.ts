@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import * as z from 'zod';
 
 const formSchema = z.object({

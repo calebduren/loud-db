@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { useLikes } from '../../hooks/useLikes';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface LikeButtonProps {
   releaseId: string;
@@ -9,7 +9,7 @@ interface LikeButtonProps {
 
 export function LikeButton({ releaseId }: LikeButtonProps) {
   const { isLiked, likesCount, toggleLike } = useLikes(releaseId);
-  const { user } = useAuth();
+  const { user } = React.useContext(AuthContext);
 
   if (!user) return null;
 

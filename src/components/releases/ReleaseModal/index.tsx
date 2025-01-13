@@ -4,7 +4,7 @@ import { Modal } from "../../ui/Modal";
 import { Music, X } from "lucide-react";
 import { LikeButton } from "../../LikeButton";
 import { usePermissions } from "../../../hooks/usePermissions";
-import { useAuth } from "../../../hooks/useAuth";
+import { AuthContext } from "../../../contexts/AuthContext";
 import { Button } from "../../ui/button";
 import { TrackList } from "./TrackList";
 import { ReleaseInfo } from "./ReleaseInfo";
@@ -25,7 +25,7 @@ export function ReleaseModal({
   onDelete,
 }: ReleaseModalProps) {
   const { isAdmin, canManageReleases } = usePermissions();
-  const { user } = useAuth();
+  const { user } = React.useContext(AuthContext);
 
   // Check if user can edit this release - use memoized value to prevent unnecessary re-renders
   const canEdit = React.useMemo(() => {

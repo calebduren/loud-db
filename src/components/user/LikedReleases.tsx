@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { AuthContext } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useLikedReleases } from "../../hooks/useLikedReleases";
@@ -21,7 +21,7 @@ export function LikedReleases({
 }: LikedReleasesProps = {}) {
   const { username } = useParams();
   const { pathname } = useLocation();
-  const { user } = useAuth();
+  const { user } = React.useContext(AuthContext);
   const { profile: currentProfile } = useProfile(user?.id);
   const { profile, loading: profileLoading } = useProfile(username);
   const isOwnProfile =

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Release } from '../types/database';
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './useToast';
 import { useInView } from 'react-intersection-observer';
 

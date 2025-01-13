@@ -8,7 +8,7 @@ import { Release } from "../../types/database";
 import { useReleaseSubscription } from "../../hooks/useReleaseSubscription";
 import { usePermissions } from "../../hooks/usePermissions";
 import { PageTitle } from "../layout/PageTitle";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { Button } from "../ui/button";
 import { supabase } from "../../lib/supabase";

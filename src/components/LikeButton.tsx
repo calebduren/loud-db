@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HeartIcon } from "./icons/HeartIcon";
 import { useLikes } from "../hooks/useLikes";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../contexts/AuthContext";
 
 interface LikeButtonProps {
   releaseId: string;

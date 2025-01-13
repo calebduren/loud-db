@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './useToast';
 import { useRetry } from './useRetry';
 

@@ -8,7 +8,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from "../../contexts/AuthContext";
 import { useSearchParams } from 'react-router-dom';
 
 const formSchema = z.object({
@@ -20,7 +20,8 @@ export function SignInForm() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [, setSearchParams] = useSearchParams();
-  const { email: userEmail } = useAuth();
+  const { signIn, loading: authLoading } = React.useContext(AuthContext);
+  const { email: userEmail } = React.useContext(AuthContext);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

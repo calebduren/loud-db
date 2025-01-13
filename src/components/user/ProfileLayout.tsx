@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ProfileNav } from "./ProfileNav";
-import { useAuth } from "../../hooks/useAuth";
+import { AuthContext } from "../../contexts/AuthContext";
 import { ProfileHeader } from "./profile/ProfileHeader";
 import { ProfileStats } from "./profile/ProfileStats";
 import { ProfileHeaderSkeleton } from "./profile/ProfileHeaderSkeleton";
@@ -11,7 +11,7 @@ import { useUserReleases } from "../../hooks/useUserReleases";
 import { useProfile } from "../../hooks/useProfile";
 
 export function ProfileLayout() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = React.useContext(AuthContext);
   const location = useLocation();
   const { profile, loading: profileLoading } = useProfile(user?.id);
   const { releases: likedReleases, loading: likesLoading } = useLikedReleasesByUser(user?.id);

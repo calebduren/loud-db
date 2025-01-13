@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Logo } from "../ui/Logo";
-import { useAuth } from "../../contexts/AuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
 import { TermsModal } from "../legal/TermsModal";
@@ -12,7 +12,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
-  const { user, isAdmin, canManageReleases } = useAuth();
+  const { user, isAdmin, canManageReleases } = React.useContext(AuthContext);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 

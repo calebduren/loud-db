@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Music, Loader2 } from 'lucide-react';
 import { fetchReleaseFromSpotify } from '../../lib/spotify/client';
 import { importRelease } from '../../lib/scraper/importRelease';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../hooks/useToast';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';

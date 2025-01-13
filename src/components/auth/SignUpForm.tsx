@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from "../../contexts/AuthContext";
 import { Link } from 'react-router-dom';
 
 const formSchema = z.object({
@@ -27,13 +27,13 @@ export function SignUpForm() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const navigate = useNavigate();
-  const { email: userEmail } = useAuth();
+  const { signUp, loading: authLoading } = React.useContext(AuthContext);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
-      email: userEmail || '',
+      email: '',
       password: '',
       inviteCode: ''
     },
@@ -41,10 +41,10 @@ export function SignUpForm() {
 
   // Update form when email changes
   React.useEffect(() => {
-    if (userEmail) {
-      form.setValue('email', userEmail);
+    if (signUp?.email) {
+      form.setValue('email', signUp.email);
     }
-  }, [userEmail, form]);
+  }, [signUp?.email, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
@@ -173,8 +173,8 @@ export function SignUpForm() {
           </Link>
         </p>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? (
+        <Button type="submit" className="w-full" disabled={loading || authLoading}>
+          {(loading || authLoading) ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Creating account...

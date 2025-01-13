@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../useProfile';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import * as z from 'zod';
 
 const formSchema = z.object({

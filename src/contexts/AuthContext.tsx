@@ -1,83 +1,135 @@
-import React, { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState, useRef, useMemo, useTransition } from 'react';
+import { User, AuthChangeEvent, AuthSubscription } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useProfile } from '../hooks/useProfile';
+import { cache } from '../lib/cache';
 
-interface AuthContextType {
+interface AuthState {
   user: User | null;
   email: string;
   loading: boolean;
   isAdmin: boolean;
   canManageReleases: boolean;
+}
+
+interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const initialState: AuthState = {
+  user: null,
+  email: '',
+  loading: true,
+  isAdmin: false,
+  canManageReleases: false,
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [email, setEmail] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<AuthState>(initialState);
+  const [isPending, startTransition] = useTransition();
   const navigate = useNavigate();
-  const { profile, loading: profileLoading } = useProfile(user?.id);
+  const { profile, loading: profileLoading } = useProfile(state.user?.id);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  // Cache previous permissions
-  const prevPermissionsRef = useRef({
-    canManageReleases: false,
-    isAdmin: false
-  });
+  // Batch state updates
+  const updateState = (updates: Partial<AuthState>) => {
+    startTransition(() => {
+      setState(prev => {
+        const next = { ...prev, ...updates };
+        return Object.keys(updates).some(key => prev[key as keyof AuthState] !== next[key as keyof AuthState])
+          ? next
+          : prev;
+      });
+    });
+  };
 
-  // Update permissions cache when profile changes
-  useEffect(() => {
-    if (!profileLoading && profile) {
-      prevPermissionsRef.current = {
-        canManageReleases: profile.role === 'admin' || profile.role === 'creator',
-        isAdmin: profile.role === 'admin'
-      };
-    }
-  }, [profile, profileLoading]);
-
-  // Use cached permissions if still loading
-  const canManageReleases = profileLoading 
-    ? prevPermissionsRef.current.canManageReleases 
-    : (profile?.role === 'admin' || profile?.role === 'creator');
-    
-  const isAdmin = profileLoading 
-    ? prevPermissionsRef.current.isAdmin 
-    : profile?.role === 'admin';
-
+  // Initialize auth state
   useEffect(() => {
     let mounted = true;
+    let authSubscription: AuthSubscription | null = null;
+    const startTime = performance.now();
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      setUser(session?.user ?? null);
-      setEmail(session?.user?.email ?? '');
-      setLoading(false);
-    });
+    async function initAuth() {
+      try {
+        const sessionData = await cache.get('auth:session', 
+          () => supabase.auth.getSession(),
+          { ttl: 60 * 1000 }
+        );
+        
+        if (!mounted) return;
+        
+        const session = sessionData.data.session;
+        if (session?.user) {
+          updateState({
+            user: session.user,
+            email: session.user.email ?? '',
+            loading: false
+          });
+        } else {
+          updateState({ loading: false });
+        }
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setEmail('');
-        navigate('/');
-      } else if (session?.user) {
-        setUser(session.user);
-        setEmail(session.user.email ?? '');
+        // Set up auth subscription
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (!mounted) return;
+          
+          const startTime = performance.now();
+          
+          if (event === 'SIGNED_OUT') {
+            cache.clear();
+            updateState({
+              user: null,
+              email: '',
+              isAdmin: false,
+              canManageReleases: false
+            });
+            navigate('/');
+          } else if (session?.user && stateRef.current.user?.id !== session.user.id) {
+            updateState({
+              user: session.user,
+              email: session.user.email ?? '',
+              loading: false
+            });
+          }
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Auth state change (${event}) took ${Math.round(performance.now() - startTime)}ms`);
+          }
+        });
+
+        authSubscription = subscription;
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) updateState({ loading: false });
       }
-    });
+    }
+
+    initAuth();
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
   }, [navigate]);
+
+  // Update permissions when profile changes
+  useEffect(() => {
+    if (profileLoading) return;
+    
+    const isAdmin = profile?.role === 'admin';
+    const canManageReleases = isAdmin || profile?.role === 'creator';
+
+    if (state.isAdmin !== isAdmin || state.canManageReleases !== canManageReleases) {
+      updateState({ isAdmin, canManageReleases });
+    }
+  }, [profile, profileLoading]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -89,15 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const value = React.useMemo(() => ({
-    user,
-    email,
-    loading: loading || profileLoading,
-    isAdmin,
-    canManageReleases,
+  const value = useMemo(() => ({
+    ...state,
     signIn,
-    signOut,
-  }), [user, email, loading, profileLoading, isAdmin, canManageReleases]);
+    signOut
+  }), [state]);
 
   return (
     <AuthContext.Provider value={value}>

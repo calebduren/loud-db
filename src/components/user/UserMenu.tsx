@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { User, Settings, LogOut } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { AuthContext } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { supabase } from "../../lib/supabase";
 import { PixelAvatar } from "./profile/PixelAvatar";
 
 export function UserMenu() {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const { profile } = useProfile(user?.id);
   const [isOpen, setIsOpen] = useState(false);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export function useAdmin() {
   const [isAdmin, setIsAdmin] = useState(false);

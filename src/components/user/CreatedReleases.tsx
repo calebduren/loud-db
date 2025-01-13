@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useUserReleases } from "../../hooks/useUserReleases";

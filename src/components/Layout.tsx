@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import { Sidebar } from "./layout/Sidebar";
 import { Menu } from "lucide-react";
 
@@ -8,7 +8,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!user) {

@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { X } from "lucide-react";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
 import { validateImage } from "../../../lib/validation/imageValidation";
 import { MAX_IMAGE_SIZE_MB } from "../../../lib/constants";
-import { useAuth } from "../../../hooks/useAuth";
+import { AuthContext } from "../../../contexts/AuthContext";
 import { useProfile } from "../../../hooks/useProfile";
 import { AvatarUpload } from "../profile/AvatarUpload";
 
 export function ProfilePictureUpload() {
   const [preview, setPreview] = useState<string | null>(null);
   const { uploadPicture, loading, error } = useProfilePicture();
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const { profile } = useProfile(user?.id);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

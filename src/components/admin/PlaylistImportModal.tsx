@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { fetchPlaylistAlbums } from '../../lib/spotify/playlist';
 import { fetchReleaseFromSpotify } from '../../lib/spotify/client';
 import { createRelease } from '../../lib/releases/createRelease';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from "../../contexts/AuthContext";
 import { SpotifyAlbum } from '../../lib/spotify/types/album';
 import { AppError } from '../../lib/errors/messages';
 import { uploadImageFromUrl } from '../../lib/storage/images';

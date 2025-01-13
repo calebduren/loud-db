@@ -5,13 +5,13 @@ import { ProfileHeaderSkeleton } from "./ProfileHeaderSkeleton";
 import { useProfile } from "../../../hooks/useProfile";
 import { useLikedReleasesByUser } from "../../../hooks/useLikedReleasesByUser";
 import { useUserReleases } from "../../../hooks/useUserReleases";
-import { useAuth } from "../../../hooks/useAuth";
+import { AuthContext } from "../../../contexts/AuthContext";
 import { LikedReleases } from "../LikedReleases";
 
 export function UserProfileLayout() {
   const { username } = useParams();
   const { pathname } = useLocation();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = React.useContext(AuthContext);
   const { profile: currentProfile } = useProfile(currentUser?.id);
   const { profile, loading: profileLoading } = useProfile(username);
   const { releases: likedReleases, loading: likesLoading } = useLikedReleasesByUser(profile?.id);

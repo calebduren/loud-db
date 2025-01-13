@@ -12,7 +12,7 @@ import { SpotifyReleaseData } from '../../../lib/spotify/types';
 import { validateArtists } from '../../../lib/releases/validation';
 import { DuplicateReleaseError } from '../../releases/DuplicateReleaseError';
 import { useToast } from '../../../hooks/useToast';
-import { useUser } from '../../../hooks/useUser';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface ReleaseFormProps {
   release?: Release;
@@ -24,7 +24,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   const { form, loading, error, handleSubmit: originalHandleSubmit } = useReleaseForm(release);
   const { artists } = useArtists();
   const { showToast } = useToast();
-  const { user } = useUser();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {

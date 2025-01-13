@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, FormValues } from '../components/admin/forms/releaseFormSchema';
 import { Release } from '../types/database';
 import { ArtistData } from '../types/forms';
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { createOrUpdateRelease } from '../lib/releases/releaseService';
 import { validateNewRelease } from '../lib/validation/releaseValidation';
 import { ReleaseValidationError } from '../lib/errors/releaseErrors';

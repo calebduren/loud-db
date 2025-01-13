@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Profile } from "../../../types/database";
 import { formatDate } from "../../../lib/utils/dateUtils";
-import { useAuth } from "../../../hooks/useAuth";
 import { useProfilePicture } from "../../../hooks/settings/useProfilePicture";
 import { useToast } from "../../../hooks/useToast";
 import { Button } from "../../../components/ui/button";
 import { AvatarUpload } from "./AvatarUpload";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -19,7 +19,7 @@ export function ProfileHeader({
   releasesCount,
   likesCount,
 }: ProfileHeaderProps) {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const isOwnProfile = user?.id === profile.id;
   const [preview, setPreview] = useState<string | null>(null);
   const { uploadPicture, loading } = useProfilePicture();
