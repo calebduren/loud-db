@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { Release, ReleaseType } from "../types/database";
 import { useToast } from "./useToast";
 import { useReleaseSorting } from "./useReleaseSorting";
+import { useAuth } from "../contexts/AuthContext";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -22,12 +23,22 @@ export function useReleases({
   genreFilterMode = "include",
   genreGroups = {},
 }: UseReleasesParams = {}) {
+  const { user } = useAuth();
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const { showToast } = useToast();
   const { sortReleases } = useReleaseSorting();
+
+  // Memoize query parameters to prevent unnecessary refetches
+  const queryParams = useMemo(() => ({
+    selectedTypes,
+    selectedGenres,
+    genreFilterMode,
+    genreGroups,
+    userId: user?.id
+  }), [selectedTypes, selectedGenres, genreFilterMode, genreGroups, user?.id]);
 
   // Re-sort releases when sorting preferences change, but only if we actually have releases
   useEffect(() => {
@@ -66,18 +77,18 @@ export function useReleases({
       .order("release_date", { ascending: false });
 
     // Apply type filter if not "all"
-    if (!selectedTypes.includes("all")) {
-      console.log("Applying type filter:", { selectedTypes });
-      query = query.in("release_type", selectedTypes);
+    if (!queryParams.selectedTypes.includes("all")) {
+      console.log("Applying type filter:", { selectedTypes: queryParams.selectedTypes });
+      query = query.in("release_type", queryParams.selectedTypes);
     }
 
     // Apply genre filter
-    if (selectedGenres.length > 0) {
-      const allGenres = selectedGenres.flatMap(
-        (groupName) => genreGroups[groupName] || []
+    if (queryParams.selectedGenres.length > 0) {
+      const allGenres = queryParams.selectedGenres.flatMap(
+        (groupName) => queryParams.genreGroups[groupName] || []
       );
       if (allGenres.length > 0) {
-        if (genreFilterMode === "include") {
+        if (queryParams.genreFilterMode === "include") {
           // Include mode: match releases that have any of the selected genres
           query = query.overlaps("genres", allGenres);
         } else {
@@ -110,12 +121,7 @@ export function useReleases({
         const endRange = startRange + pageSize - 1;
 
         console.log("Fetching releases with params:", {
-          selectedTypes,
-          selectedGenres,
-          genreFilterMode,
-          allGenres: selectedGenres.flatMap(
-            (groupName) => genreGroups[groupName] || []
-          ),
+          ...queryParams,
           startRange,
           endRange,
           isLoadMore,
@@ -159,10 +165,7 @@ export function useReleases({
     },
     [
       releases.length,
-      selectedTypes,
-      selectedGenres,
-      genreFilterMode,
-      genreGroups,
+      queryParams,
       showToast,
     ]
   );
@@ -238,7 +241,7 @@ export function useReleases({
     } else {
       console.log('Auth state changed, keeping existing releases:', releases.length);
     }
-  }, [selectedTypes, selectedGenres, genreFilterMode, genreGroups]);
+  }, [queryParams, fetchReleases]);
 
   // Add optimistic update functions
   const addReleaseOptimistically = useCallback((release: Release) => {

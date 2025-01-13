@@ -1,9 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Logo } from "../ui/Logo";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
-import { useProfile } from "../../hooks/useProfile";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
 import { TermsModal } from "../legal/TermsModal";
 import { SignOutButton } from "../SignOutButton";
@@ -13,18 +12,9 @@ interface SidebarProps {
 }
 
 export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
-  const { user } = useAuth();
-  const { profile } = useProfile(user?.id);
+  const { user, isAdmin, canManageReleases } = useAuth();
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
-
-  const isAdmin = profile?.role === "admin";
-  const isCreator = profile?.role === "creator";
-
-  // Only log in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log("Auth state:", { isAdmin, isCreator, user, profile });
-  }
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("sidebar__nav-item", isActive && "sidebar__nav-item--active");
@@ -58,7 +48,7 @@ export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
     );
   };
 
-  if (!profile) return null;
+  if (!user) return null;
 
   return (
     <>
@@ -78,7 +68,7 @@ export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
           <div>
             <NavItem to="/likes">Likes</NavItem>
           </div>
-          {(isAdmin || isCreator) && (
+          {(isAdmin || canManageReleases) && (
             <div>
               <NavItem to="/created">Submissions</NavItem>
             </div>
@@ -107,7 +97,7 @@ export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
         <nav className="sidebar__footer">
           <div className="sidebar__footer-links">
             <div>
-              <NavItem to={`/u/${profile.username}`}>Profile</NavItem>
+              <NavItem to={`/u/${user.username}`}>Profile</NavItem>
             </div>
             <div>
               <NavItem to="/preferences">Preferences</NavItem>

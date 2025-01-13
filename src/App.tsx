@@ -16,14 +16,20 @@ import { InviteCodeManager } from './components/admin/invites/InviteCodeManager'
 import { ComponentLibrary } from './components/admin/ComponentLibrary';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Terms } from './pages/Terms';
-import { useAuth } from './hooks/useAuth';
-import { usePermissions } from './hooks/usePermissions';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const RESERVED_PATHS = ['u', 'r', 'admin', 'privacy', 'terms'];
 
 export default function App() {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin } = usePermissions();
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
+
+function AppRoutes() {
+  const { user, loading: authLoading, isAdmin } = useAuth();
 
   if (authLoading) {
     return <LoadingSpinner />;
