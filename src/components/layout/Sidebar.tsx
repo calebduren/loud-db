@@ -6,6 +6,7 @@ import { cn } from "../../lib/utils";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
 import { TermsModal } from "../legal/TermsModal";
 import { SignOutButton } from "../SignOutButton";
+import { useProfile } from "../../hooks/useProfile";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -13,6 +14,7 @@ interface SidebarProps {
 
 export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
   const { user, isAdmin, canManageReleases } = React.useContext(AuthContext);
+  const { profile } = useProfile(user?.id);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 
@@ -97,7 +99,7 @@ export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
         <nav className="sidebar__footer">
           <div className="sidebar__footer-links">
             <div>
-              <NavItem to={`/u/${user.username}`}>Profile</NavItem>
+              <NavItem to={`/u/${profile?.username || ""}`}>Profile</NavItem>
             </div>
             <div>
               <NavItem to="/preferences">Preferences</NavItem>
