@@ -3,8 +3,7 @@ import { Release } from "../../../types/database";
 import { Modal } from "../../ui/Modal";
 import { Music, X } from "lucide-react";
 import { LikeButton } from "../../LikeButton";
-import { usePermissions } from "../../../hooks/usePermissions";
-import { AuthContext } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../ui/button";
 import { TrackList } from "./TrackList";
 import { ReleaseInfo } from "./ReleaseInfo";
@@ -24,8 +23,7 @@ export function ReleaseModal({
   onEdit,
   onDelete,
 }: ReleaseModalProps) {
-  const { isAdmin, canManageReleases } = usePermissions();
-  const { user } = React.useContext(AuthContext);
+  const { user, isAdmin, canManageReleases } = useAuth();
 
   // Check if user can edit this release - use memoized value to prevent unnecessary re-renders
   const canEdit = React.useMemo(() => {
@@ -81,7 +79,10 @@ export function ReleaseModal({
 
                   {/* Admin Actions */}
                   {(canEdit || canDelete) && (
-                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {canEdit && onEdit && (
                         <Button
                           variant="primary"
