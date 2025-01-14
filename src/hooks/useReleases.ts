@@ -6,8 +6,6 @@ import { useReleaseSorting } from "./useReleaseSorting";
 import { useAuth } from "../contexts/AuthContext";
 import { cache } from "../lib/cache";
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
 const INITIAL_PAGE_SIZE = 150;
 const SUBSEQUENT_PAGE_SIZE = 100;
 
@@ -33,22 +31,27 @@ export function useReleases({
   const { sortReleases } = useReleaseSorting();
 
   // Memoize query parameters to prevent unnecessary refetches
-  const queryParams = useMemo(() => ({
-    selectedTypes,
-    selectedGenres,
-    genreFilterMode,
-    genreGroups,
-    userId: user?.id
-  }), [selectedTypes, selectedGenres, genreFilterMode, genreGroups, user?.id]);
+  const queryParams = useMemo(
+    () => ({
+      selectedTypes,
+      selectedGenres,
+      genreFilterMode,
+      genreGroups,
+      userId: user?.id,
+    }),
+    [selectedTypes, selectedGenres, genreFilterMode, genreGroups, user?.id]
+  );
 
-  const fetchReleases = useCallback(async (start = 0, loadMore = false) => {
-    const cacheKey = `releases:${JSON.stringify(queryParams)}:${start}`;
-    
-    try {
-      const data = await cache.get(cacheKey, async () => {
-        let query = supabase
-          .from("releases")
-          .select(`
+  const fetchReleases = useCallback(
+    async (start = 0, loadMore = false) => {
+      const cacheKey = `releases:${JSON.stringify(queryParams)}:${start}`;
+
+      try {
+        const data = await cache.get(
+          cacheKey,
+          async () => {
+            let query = supabase.from("releases").select(
+              `
             id,
             name,
             release_type,
@@ -70,65 +73,86 @@ export function useReleases({
                 name
               )
             )
-          `, { count: "exact" });
+          `,
+              { count: "exact" }
+            );
 
-        // Apply filters
-        if (selectedTypes[0] !== "all") {
-          query = query.in("release_type", selectedTypes);
+            // Apply filters
+            if (selectedTypes[0] !== "all") {
+              query = query.in("release_type", selectedTypes);
+            }
+
+            if (selectedGenres.length > 0) {
+              const allGenres = selectedGenres.flatMap(
+                (group) => genreGroups[group] || [group]
+              );
+              if (genreFilterMode === "include") {
+                // Use contains operator to match ANY of the genres
+                query = query.contains("genres", allGenres);
+              } else {
+                // For exclude mode, negate the contains operator
+                query = query.not("genres", "cs", `{${allGenres.join(",")}}`);
+              }
+            }
+
+            // Add pagination
+            query = query
+              .range(
+                start,
+                start +
+                  (loadMore ? SUBSEQUENT_PAGE_SIZE : INITIAL_PAGE_SIZE) -
+                  1
+              )
+              .order("created_at", { ascending: false });
+
+            const { data, count, error } = await query;
+
+            if (error) throw error;
+
+            console.log("Release data from Supabase:", data?.[0]);
+            return { releases: data || [], total: count || 0 };
+          },
+          { ttl: 5 * 60 * 1000 }
+        ); // Cache for 5 minutes
+
+        const sortedReleases = sortReleases(data.releases);
+        
+        if (!loadMore) {
+          setReleases(sortedReleases);
+        } else {
+          setReleases((prev) => [...prev, ...sortedReleases]);
         }
 
-        if (selectedGenres.length > 0) {
-          const allGenres = selectedGenres.flatMap(group => genreGroups[group] || [group]);
-          if (genreFilterMode === "include") {
-            // Use contains operator to match ANY of the genres
-            query = query.contains('genres', allGenres);
-          } else {
-            // For exclude mode, negate the contains operator
-            query = query.not('genres', 'cs', `{${allGenres.join(',')}}`);
-          }
+        setTotalCount(data.total);
+        setHasMore(start + data.releases.length < data.total);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching releases:", error);
+        let errorMessage = "Error loading releases";
+
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === "object" && error !== null) {
+          // Handle Supabase error object
+          const supabaseError = error as {
+            message?: string;
+            error?: { message?: string };
+          };
+          errorMessage =
+            supabaseError.message ||
+            supabaseError.error?.message ||
+            errorMessage;
         }
 
-        // Add pagination
-        query = query
-          .range(start, start + (loadMore ? SUBSEQUENT_PAGE_SIZE : INITIAL_PAGE_SIZE) - 1)
-          .order("created_at", { ascending: false });
-
-        const { data, count, error } = await query;
-        
-        if (error) throw error;
-        
-        console.log('Release data from Supabase:', data?.[0]);
-        return { releases: data || [], total: count || 0 };
-      }, { ttl: 5 * 60 * 1000 }); // Cache for 5 minutes
-
-      if (!loadMore) {
-        setReleases(data.releases);
-      } else {
-        setReleases(prev => [...prev, ...data.releases]);
+        showToast({
+          message: errorMessage,
+          type: "error",
+        });
+        setLoading(false);
       }
-      
-      setTotalCount(data.total);
-      setHasMore(start + data.releases.length < data.total);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching releases:", error);
-      let errorMessage = "Error loading releases";
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'object' && error !== null) {
-        // Handle Supabase error object
-        const supabaseError = error as { message?: string; error?: { message?: string } };
-        errorMessage = supabaseError.message || supabaseError.error?.message || errorMessage;
-      }
-      
-      showToast({
-        message: errorMessage,
-        type: "error"
-      });
-      setLoading(false);
-    }
-  }, [queryParams, showToast]);
+    },
+    [queryParams, showToast, sortReleases]
+  );
 
   // Initial load
   useEffect(() => {
@@ -146,6 +170,6 @@ export function useReleases({
     loading,
     hasMore,
     loadMore,
-    totalCount
+    totalCount,
   };
 }
