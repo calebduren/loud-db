@@ -42,19 +42,21 @@ export function ReleaseFilters({
   return (
     <div className="flex flex-col sm:flex-row gap-6">
       <FilterSection label="Filter by length">
-        {releaseLengthOptions.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => !loading && onTypeChange(option.value)}
-            className={cn(
-              "pill pill--interactive",
-              selectedTypes.includes(option.value) && "pill--selected",
-              loading && "animate-pulse"
-            )}
-            disabled={loading}
-          >
-            {option.label}
-          </button>
+        {releaseLengthOptions.map((option, index) => (
+          <React.Fragment key={option.value}>
+            <button
+              onClick={() => !loading && onTypeChange(option.value)}
+              className={cn(
+                "pill pill--interactive",
+                selectedTypes.includes(option.value) && "pill--selected",
+                loading && "animate-pulse"
+              )}
+              disabled={loading}
+            >
+              {option.label}
+            </button>
+            {index === 0 && <div className="w-[0.5px] bg-white/20 mx-1" />}
+          </React.Fragment>
         ))}
       </FilterSection>
 
