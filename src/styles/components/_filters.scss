@@ -51,7 +51,7 @@
       @apply flex items-center w-full px-3 py-2 text-sm transition-colors;
 
       &--selected {
-        @apply text-white/50 bg-white/[3%];
+        @apply text-white/50;
       }
 
       &--unselected {

@@ -122,7 +122,7 @@ export function GenreFilterDropdown({
           <div className="genre-dropdown__input-content">
             {selectedGenres.length === 0 ? (
               <span className="genre-dropdown__input-placeholder">
-                Select genres
+                {`Select genres to ${filterMode}`}
               </span>
             ) : (
               selectedGenres.map((genre) => (
