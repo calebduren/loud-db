@@ -56,6 +56,10 @@
     }
   }
 
+  &--icon {
+    @apply h-10 w-10;
+  }
+
   // Icon positioning
   &--icon-left {
     @apply flex-row;

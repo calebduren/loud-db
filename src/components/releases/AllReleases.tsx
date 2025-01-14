@@ -11,6 +11,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { Button } from "../ui/button";
 import { supabase } from "../../lib/supabase";
+import { ArrowUpToLine } from "lucide-react";
 
 export function AllReleases() {
   const {
@@ -110,6 +111,10 @@ export function AllReleases() {
     e?.preventDefault();
     e?.stopPropagation();
     setViewingRelease(undefined);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleGenreChangeAdapter = useCallback(
@@ -229,6 +234,16 @@ export function AllReleases() {
           )}
         </>
       )}
+
+      {/* Scroll to top button */}
+      <Button
+        onClick={scrollToTop}
+        className="fixed bottom-8 right-8 rounded-full"
+        size="icon"
+        tooltip="Scroll to top"
+      >
+        <ArrowUpToLine size={20} strokeWidth={1.5} />
+      </Button>
     </div>
   );
 }
