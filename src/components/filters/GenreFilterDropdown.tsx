@@ -165,9 +165,17 @@ export function GenreFilterDropdown({
                     >
                       {genre}
                       {isSelected ? (
-                        <X className="genre-dropdown__option-icon" />
+                        <X
+                          size={13}
+                          strokeWidth={2.5}
+                          className="genre-dropdown__option-icon"
+                        />
                       ) : (
-                        <Plus className="genre-dropdown__option-icon" />
+                        <Plus
+                          size={13}
+                          strokeWidth={2.5}
+                          className="genre-dropdown__option-icon"
+                        />
                       )}
                     </button>
                   );

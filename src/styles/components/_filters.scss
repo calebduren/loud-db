@@ -48,7 +48,7 @@
     }
 
     &-option {
-      @apply flex items-center w-full px-3 py-2 text-sm transition-colors;
+      @apply bg-[var(--color-gray-600)] flex items-center w-full px-3 py-2 text-sm transition-colors;
 
       &--selected {
         @apply text-white/50;
@@ -65,7 +65,7 @@
     @apply relative flex-1;
 
     &-button {
-      @apply flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+      @apply h-[36px] flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
       @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
       @apply text-white/60 hover:text-white;
 
@@ -118,6 +118,7 @@
   &__option {
     @extend .pill !optional;
     @extend .pill--interactive !optional;
+    @apply bg-[var(--color-gray-700)];
 
     &-icon {
       @extend .pill__icon !optional;

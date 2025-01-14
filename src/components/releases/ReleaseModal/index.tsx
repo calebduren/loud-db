@@ -119,21 +119,6 @@ export function ReleaseModal({
                 </div>
                 <h2 className="release-card__title">{release.name}</h2>
               </div>
-
-              {/* Genres Section */}
-              <div>
-                <div className="text-sm uppercase tracking-wider text-white/60 mb-1">
-                  Genres
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {release.genres?.map((genre) => (
-                    <div key={genre} className="release-card__type-pill">
-                      {genre}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <ReleaseInfo release={release} canEdit={canEdit} />
               <TrackList tracks={release.tracks || []} />
             </div>
