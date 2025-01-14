@@ -94,11 +94,13 @@ export function useReleases({
                 (group) => genreGroups[group] || [group]
               );
               if (genreFilterMode === "include") {
-                // Use contains operator to match ANY of the genres
-                query = query.contains("genres", allGenres);
+                // Use overlap operator to match ANY of the genres
+                query = query.overlaps("genres", allGenres);
               } else {
-                // For exclude mode, negate the contains operator
-                query = query.not("genres", "cs", `{${allGenres.join(",")}}`);
+                // For exclude mode, filter out any releases that contain any of the genres
+                allGenres.forEach((genre) => {
+                  query = query.not('genres', 'cs', `{${genre}}`);
+                });
               }
             }
 
@@ -172,11 +174,44 @@ export function useReleases({
     fetchReleases(releases.length, true);
   }, [fetchReleases, hasMore, loading, releases.length]);
 
+  const loadMoreRef = useCallback((node: HTMLElement | null) => {
+    if (node && hasMore && !loading) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            loadMore();
+          }
+        },
+        { threshold: 0.5 }
+      );
+      observer.observe(node);
+      return () => observer.disconnect();
+    }
+  }, [hasMore, loading, loadMore]);
+
+  const addReleaseOptimistically = useCallback((release: Release) => {
+    setReleases(prev => [release, ...prev]);
+  }, []);
+
+  const updateReleaseOptimistically = useCallback((release: Release) => {
+    setReleases(prev => 
+      prev.map(r => r.id === release.id ? release : r)
+    );
+  }, []);
+
+  const backgroundRefetch = useCallback(async () => {
+    await fetchReleases(0, false);
+  }, [fetchReleases]);
+
   return {
     releases,
     loading,
     hasMore,
     loadMore,
     totalCount,
+    loadMoreRef,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch,
   };
 }

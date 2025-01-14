@@ -1,25 +1,21 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
-import { ReleaseType } from '../types/database';
-import { useGenreGroups } from './useGenreGroups';
-import { useReleases } from './useReleases';
-import { usePersistedState } from './usePersistedState';
-import { useToast } from './useToast';
+import { useCallback } from "react";
+import { ReleaseType } from "../types/database";
+import { useGenreGroups } from "./useGenreGroups";
+import { useReleases } from "./useReleases";
+import { usePersistedState } from "./usePersistedState";
 
 export function useReleaseFilters() {
-  const [selectedTypes, setSelectedTypes] = usePersistedState<(ReleaseType | 'all')[]>(
-    'louddb:selectedTypes',
-    ['all']
-  );
+  const [selectedTypes, setSelectedTypes] = usePersistedState<
+    (ReleaseType | "all")[]
+  >("louddb:selectedTypes", ["all"]);
   const [selectedGenres, setSelectedGenres] = usePersistedState<string[]>(
-    'louddb:selectedGenres',
+    "louddb:selectedGenres",
     []
   );
-  const [genreFilterMode, setGenreFilterMode] = usePersistedState<'include' | 'exclude'>(
-    'louddb:genreFilterMode',
-    'include'
-  );
+  const [genreFilterMode, setGenreFilterMode] = usePersistedState<
+    "include" | "exclude"
+  >("louddb:genreFilterMode", "include");
   const { genreGroups } = useGenreGroups();
-  const { showToast } = useToast();
 
   // Only show genre groups as available filters
   const availableGenres = Object.keys(genreGroups).sort();
@@ -33,7 +29,7 @@ export function useReleaseFilters() {
     loadMoreRef,
     addReleaseOptimistically,
     updateReleaseOptimistically,
-    backgroundRefetch
+    backgroundRefetch,
   } = useReleases({
     selectedTypes,
     selectedGenres,
@@ -41,27 +37,36 @@ export function useReleaseFilters() {
     genreGroups,
   });
 
-  const handleTypeChange = useCallback((type: ReleaseType | 'all') => {
-    setSelectedTypes(prev => {
-      if (type === 'all') {
-        return ['all'];
-      }
-      
-      const newTypes = prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev.filter(t => t !== 'all'), type];
-        
-      return newTypes.length === 0 ? ['all'] : newTypes;
-    });
-  }, [setSelectedTypes]);
+  const handleTypeChange = useCallback(
+    (type: ReleaseType | "all") => {
+      setSelectedTypes((prev) => {
+        if (type === "all") {
+          return ["all"];
+        }
 
-  const handleGenreChange = useCallback((genres: string[]) => {
-    setSelectedGenres(genres);
-  }, [setSelectedGenres]);
+        const newTypes = prev.includes(type)
+          ? prev.filter((t) => t !== type)
+          : [...prev.filter((t) => t !== "all"), type];
 
-  const handleGenreFilterModeChange = useCallback((mode: 'include' | 'exclude') => {
-    setGenreFilterMode(mode);
-  }, [setGenreFilterMode]);
+        return newTypes.length === 0 ? ["all"] : newTypes;
+      });
+    },
+    [setSelectedTypes]
+  );
+
+  const handleGenreChange = useCallback(
+    (genres: string[]) => {
+      setSelectedGenres(genres);
+    },
+    [setSelectedGenres]
+  );
+
+  const handleGenreFilterModeChange = useCallback(
+    (mode: "include" | "exclude") => {
+      setGenreFilterMode(mode);
+    },
+    [setGenreFilterMode]
+  );
 
   return {
     selectedTypes,
@@ -79,6 +84,6 @@ export function useReleaseFilters() {
     handleGenreFilterModeChange,
     addReleaseOptimistically,
     updateReleaseOptimistically,
-    backgroundRefetch
+    backgroundRefetch,
   };
 }
