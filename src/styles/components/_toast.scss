@@ -1,6 +1,6 @@
 .toast {
   @apply flex items-center justify-between gap-4 px-4 py-3 rounded-lg shadow-lg;
-  @apply bg-white text-gray-800;
+  @apply bg-[var(--color-gray-700)] text-white;
   @apply max-w-sm w-full;
 
   &--fixed {
@@ -8,9 +8,6 @@
     @apply transform transition-all duration-300 ease-out;
     @apply opacity-100 translate-y-0;
     animation: slideIn 0.3s ease-out;
-  }
-
-  &--success {
   }
 
   &--error {

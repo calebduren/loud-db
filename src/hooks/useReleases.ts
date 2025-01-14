@@ -80,11 +80,11 @@ export function useReleases({
         if (selectedGenres.length > 0) {
           const allGenres = selectedGenres.flatMap(group => genreGroups[group] || [group]);
           if (genreFilterMode === "include") {
-            // Use overlap operator to match ANY of the genres
-            query = query.overlaps("genres", allGenres);
+            // Use contains operator to match ANY of the genres
+            query = query.contains('genres', allGenres);
           } else {
-            // For exclude mode, use NOT && to exclude any releases that have any of these genres
-            query = query.not("genres", "&&", allGenres);
+            // For exclude mode, negate the contains operator
+            query = query.not('genres', 'cs', `{${allGenres.join(',')}}`);
           }
         }
 

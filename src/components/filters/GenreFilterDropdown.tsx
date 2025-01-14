@@ -128,12 +128,12 @@ export function GenreFilterDropdown({
               selectedGenres.map((genre) => (
                 <div key={genre} className="genre-dropdown__pill">
                   {genre}
-                  <button
+                  <span
                     onClick={(e) => handleRemoveGenre(genre, e)}
-                    className="genre-dropdown__pill-remove"
+                    className="genre-dropdown__pill-remove cursor-pointer"
                   >
                     <X />
-                  </button>
+                  </span>
                 </div>
               ))
             )}
