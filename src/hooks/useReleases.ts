@@ -72,6 +72,13 @@ export function useReleases({
               artist:artists!artist_id(
                 name
               )
+            ),
+            tracks(
+              id,
+              name,
+              track_number,
+              duration_ms,
+              preview_url
             )
           `,
               { count: "exact" }
