@@ -11,11 +11,10 @@
   }
 
   &--success {
-    @apply bg-green-50 text-green-800;
   }
 
   &--error {
-    @apply bg-red-50 text-red-800;
+    @apply bg-red-700;
   }
 
   &__message {
@@ -27,7 +26,7 @@
   }
 
   &__close {
-    @apply text-gray-500 hover:text-gray-700 transition-colors;
+    @apply text-white/50 hover:text-white transition-colors;
   }
 }
 

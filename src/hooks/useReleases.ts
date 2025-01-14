@@ -78,12 +78,13 @@ export function useReleases({
         }
 
         if (selectedGenres.length > 0) {
+          const allGenres = selectedGenres.flatMap(group => genreGroups[group] || [group]);
           if (genreFilterMode === "include") {
-            const allGenres = selectedGenres.flatMap(group => genreGroups[group] || [group]);
-            query = query.contains("genres", allGenres);
+            // Use overlap operator to match ANY of the genres
+            query = query.overlaps("genres", allGenres);
           } else {
-            const excludedGenres = selectedGenres.flatMap(group => genreGroups[group] || [group]);
-            query = query.not("genres", "cs", `{${excludedGenres.join(",")}}`);
+            // For exclude mode, use NOT && to exclude any releases that have any of these genres
+            query = query.not("genres", "&&", allGenres);
           }
         }
 
@@ -111,7 +112,20 @@ export function useReleases({
       setLoading(false);
     } catch (error) {
       console.error("Error fetching releases:", error);
-      showToast("Error loading releases", "error");
+      let errorMessage = "Error loading releases";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        // Handle Supabase error object
+        const supabaseError = error as { message?: string; error?: { message?: string } };
+        errorMessage = supabaseError.message || supabaseError.error?.message || errorMessage;
+      }
+      
+      showToast({
+        message: errorMessage,
+        type: "error"
+      });
       setLoading(false);
     }
   }, [queryParams, showToast]);
