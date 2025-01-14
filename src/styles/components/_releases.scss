@@ -56,14 +56,16 @@
     }
   }
 
+  &__label {
+    @apply text-xs font-semibold text-white/60 text-mono mb-1;
+  }
+
   // Title section
-  &__title {
+  &__title,
+  &__artist {
     @apply text-[24px] font-semibold leading-[0.9];
     color: var(--color-text);
 
-    h2 {
-      @apply font-semibold text-[24px];
-    }
     h2 + h2 {
       @apply mt-2;
     }
@@ -120,7 +122,6 @@
   &__actions {
     @apply flex items-center relative font-semibold border-t-[0.5px] border-white/5;
     color: var(--color-text);
-    font-family: var(--font-innovator);
   }
 
   &__links {
@@ -153,4 +154,16 @@
 .release-divider {
   @apply w-full h-[1px];
   background-color: var(--color-divider);
+}
+
+.release-modal__bottom-actions {
+  @apply absolute bottom-0 left-0 right-0 bg-[var(--color-background)];
+
+  .release-card__links {
+    @apply px-8 py-6;
+  }
+}
+
+.release-modal {
+  @apply rounded-xl overflow-hidden;
 }
