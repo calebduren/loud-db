@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { Release } from '../types/database';
-import { useGenrePreferences } from './settings/useGenrePreferences';
-import { useGenreGroups } from './useGenreGroups';
-import { useLikedReleases } from './useLikedReleases';
+import { useMemo } from "react";
+import { Release } from "../types/database";
+import { useGenrePreferences } from "./settings/useGenrePreferences";
+import { useGenreGroups } from "./useGenreGroups";
+import { useLikedReleases } from "./useLikedReleases";
 
 // Move scoring logic outside the hook to prevent recreation
 function calculateReleaseScore(
@@ -12,7 +12,7 @@ function calculateReleaseScore(
   genrePreferences: Map<string, number>
 ): { score: number; details: string[] } {
   if (!release?.genres?.length) {
-    return { score: -Infinity, details: ['No genres'] };
+    return { score: -Infinity, details: ["No genres"] };
   }
 
   let score = 0;
@@ -44,7 +44,7 @@ function calculateReleaseScore(
 
   // If all rated genres are 0 stars, give a very low score (but above no-genre releases)
   if (hasOnlyZeroStars) {
-    return { score: -1, details: ['All genres rated 0 stars or unrated'] };
+    return { score: -1, details: ["All genres rated 0 stars or unrated"] };
   }
 
   // Base score from highest preference (ensures 5-star genres are always above 4-star, etc.)
@@ -68,7 +68,7 @@ function calculateReleaseScore(
       .filter(([_, groupGenres]) => groupGenres.includes(genre))
       .map(([groupName]) => ({
         groupName,
-        score: preferences[groupName] || 0
+        score: preferences[groupName] || 0,
       }))
       .sort((a, b) => b.score - a.score); // Sort by score to prioritize higher-rated groups
 
@@ -81,14 +81,20 @@ function calculateReleaseScore(
         const genreBonus = group.score * 100 * diminishingMultiplier;
         score += genreBonus;
         details.push(
-          `Genre bonus for ${genre} in ${group.groupName} (${group.score} stars, ${(diminishingMultiplier * 100).toFixed(0)}% weight): +${genreBonus.toFixed(1)}`
+          `Genre bonus for ${genre} in ${group.groupName} (${
+            group.score
+          } stars, ${(diminishingMultiplier * 100).toFixed(
+            0
+          )}% weight): +${genreBonus.toFixed(1)}`
         );
       } else if (group.score === 0) {
-        // Small penalty for 0-star ratings, but don't let it override higher ratings
-        const penalty = -50 * diminishingMultiplier;
+        // Penalty for 0-star ratings, but don't let it override higher ratings
+        const penalty = -1000 * diminishingMultiplier;
         score += penalty;
         details.push(
-          `0-star penalty for ${genre} in ${group.groupName} (${(diminishingMultiplier * 100).toFixed(0)}% weight): ${penalty.toFixed(1)}`
+          `0-star penalty for ${genre} in ${group.groupName} (${(
+            diminishingMultiplier * 100
+          ).toFixed(0)}% weight): ${penalty.toFixed(1)}`
         );
       }
     });
@@ -96,7 +102,9 @@ function calculateReleaseScore(
 
   // Small recency bonus
   if (release.release_date) {
-    const daysOld = (Date.now() - new Date(release.release_date).getTime()) / (1000 * 60 * 60 * 24);
+    const daysOld =
+      (Date.now() - new Date(release.release_date).getTime()) /
+      (1000 * 60 * 60 * 24);
     const recencyBonus = Math.max(0, 100 - daysOld);
     score += recencyBonus;
     details.push(`Recency bonus: +${recencyBonus.toFixed(2)}`);
@@ -113,8 +121,8 @@ export function useReleaseSorting() {
   // Create genre preferences map once
   const genrePreferences = useMemo(() => {
     const map = new Map<string, number>();
-    likedReleases?.forEach(release => {
-      release.genres?.forEach(genre => {
+    likedReleases?.forEach((release) => {
+      release.genres?.forEach((genre) => {
         map.set(genre, (map.get(genre) || 0) + 1);
       });
     });
@@ -131,7 +139,7 @@ export function useReleaseSorting() {
       const scores = new Map<string, number>();
       const details = new Map<string, string[]>();
 
-      releases.forEach(release => {
+      releases.forEach((release) => {
         const result = calculateReleaseScore(
           release,
           preferences || {},
@@ -149,10 +157,16 @@ export function useReleaseSorting() {
         return scoreB - scoreA;
       });
     };
-  }, [preferences, genreGroups, genrePreferences, preferencesLoading, groupsLoading]);
+  }, [
+    preferences,
+    genreGroups,
+    genrePreferences,
+    preferencesLoading,
+    groupsLoading,
+  ]);
 
   return {
     sortReleases,
-    loading: preferencesLoading || groupsLoading
+    loading: preferencesLoading || groupsLoading,
   };
 }
