@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Plus, X } from "lucide-react";
+import { ChevronDown, Plus, X, Repeat2 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface GenreFilterDropdownProps {
@@ -20,9 +20,7 @@ export function GenreFilterDropdown({
   disabled,
 }: GenreFilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isFilterModeOpen, setIsFilterModeOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const filterModeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -31,12 +29,6 @@ export function GenreFilterDropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-      }
-      if (
-        filterModeRef.current &&
-        !filterModeRef.current.contains(event.target as Node)
-      ) {
-        setIsFilterModeOpen(false);
       }
     }
 
@@ -59,56 +51,23 @@ export function GenreFilterDropdown({
     onGenreChange(genre);
   };
 
+  const toggleFilterMode = () => {
+    onFilterModeChange(filterMode === "include" ? "exclude" : "include");
+  };
+
   return (
     <div className="genre-dropdown__container">
-      <div className="genre-dropdown__mode" ref={filterModeRef}>
+      <div className="genre-dropdown__mode">
         <button
-          onClick={() => setIsFilterModeOpen(!isFilterModeOpen)}
+          onClick={toggleFilterMode}
           className="genre-dropdown__mode-button"
+          title={`Click to ${
+            filterMode === "include" ? "exclude" : "include"
+          } genres`}
         >
           {filterMode === "include" ? "Include" : "Exclude"}
-          <ChevronDown
-            className={cn(
-              "genre-dropdown__mode-chevron",
-              isFilterModeOpen && "genre-dropdown__mode-chevron--open"
-            )}
-          />
+          <Repeat2 size={16} strokeWidth={1.5} />
         </button>
-
-        {isFilterModeOpen && (
-          <div className="genre-dropdown__mode-menu">
-            <div className="py-1">
-              <button
-                onClick={() => {
-                  onFilterModeChange("exclude");
-                  setIsFilterModeOpen(false);
-                }}
-                className={cn(
-                  "genre-dropdown__mode-option",
-                  filterMode === "exclude"
-                    ? "genre-dropdown__mode-option--selected"
-                    : "genre-dropdown__mode-option--unselected"
-                )}
-              >
-                Exclude
-              </button>
-              <button
-                onClick={() => {
-                  onFilterModeChange("include");
-                  setIsFilterModeOpen(false);
-                }}
-                className={cn(
-                  "genre-dropdown__mode-option",
-                  filterMode === "include"
-                    ? "genre-dropdown__mode-option--selected"
-                    : "genre-dropdown__mode-option--unselected"
-                )}
-              >
-                Include
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="genre-dropdown__input" ref={dropdownRef}>

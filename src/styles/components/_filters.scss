@@ -30,7 +30,7 @@
     @apply relative font-medium;
 
     &-button {
-      @apply flex h-full items-center gap-2 min-w-[120px] px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+      @apply flex h-full items-center justify-between gap-2 min-w-[104px] px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
       @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
       @apply text-white/60 hover:text-white;
     }
@@ -65,7 +65,7 @@
     @apply relative flex-1;
 
     &-button {
-      @apply h-[36px] flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
+      @apply h-[32px] flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors;
       @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
       @apply text-white/60 hover:text-white;
 
