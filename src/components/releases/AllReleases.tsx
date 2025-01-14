@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { ReleaseList } from "./ReleaseList";
 import { ReleaseFilters } from "../filters/ReleaseFilters";
 import { useReleaseFilters } from "../../hooks/useReleaseFilters";
@@ -12,6 +12,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { Button } from "../ui/button";
 import { supabase } from "../../lib/supabase";
 import { ArrowUpToLine } from "lucide-react";
+import cn from "classnames";
 
 export function AllReleases() {
   const {
@@ -38,6 +39,7 @@ export function AllReleases() {
   const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
     undefined
   );
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const { isAdmin } = useAuth();
   const { user } = useAuth();
   const { profile } = useProfile(user?.id);
@@ -115,6 +117,16 @@ export function AllReleases() {
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setShowScrollButton(scrollPosition > 1000);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleGenreChangeAdapter = useCallback(
@@ -238,7 +250,10 @@ export function AllReleases() {
       {/* Scroll to top button */}
       <Button
         onClick={scrollToTop}
-        className="fixed bottom-8 right-8 rounded-full"
+        className={cn(
+          "scroll-to-top rounded-full btn--glass",
+          showScrollButton ? "scroll-to-top--visible" : "scroll-to-top--hidden"
+        )}
         size="icon"
         tooltip="Scroll to top"
       >
