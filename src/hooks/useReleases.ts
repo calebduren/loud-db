@@ -74,7 +74,7 @@ export function useReleases({
 
         // Apply filters
         if (selectedTypes[0] !== "all") {
-          query = query.in("type", selectedTypes);
+          query = query.in("release_type", selectedTypes);
         }
 
         if (selectedGenres.length > 0) {
