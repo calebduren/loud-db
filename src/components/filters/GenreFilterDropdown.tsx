@@ -58,16 +58,26 @@ export function GenreFilterDropdown({
   return (
     <div className="genre-dropdown__container">
       <div className="genre-dropdown__mode">
-        <button
-          onClick={toggleFilterMode}
-          className="genre-dropdown__mode-button"
-          title={`Click to ${
-            filterMode === "include" ? "exclude" : "include"
-          } genres`}
-        >
-          {filterMode === "include" ? "Include" : "Exclude"}
-          <Repeat2 size={16} strokeWidth={1.5} />
-        </button>
+        <div className="genre-dropdown__mode-toggle">
+          <button
+            onClick={() => onFilterModeChange("include")}
+            className={cn(
+              "genre-dropdown__mode-toggle-option",
+              filterMode === "include" && "genre-dropdown__mode-toggle-option--active"
+            )}
+          >
+            Include
+          </button>
+          <button
+            onClick={() => onFilterModeChange("exclude")}
+            className={cn(
+              "genre-dropdown__mode-toggle-option",
+              filterMode === "exclude" && "genre-dropdown__mode-toggle-option--active"
+            )}
+          >
+            Exclude
+          </button>
+        </div>
       </div>
 
       <div className="genre-dropdown__input" ref={dropdownRef}>

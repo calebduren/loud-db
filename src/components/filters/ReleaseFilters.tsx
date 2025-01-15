@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { cn } from "../../lib/utils";
 import { FilterSection } from "./FilterSection";
 import { GenreFilterDropdown } from "./GenreFilterDropdown";
 import { ReleaseType } from "../../types/database";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
+import { Button } from "../ui/button";
 
 const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -21,6 +22,7 @@ interface ReleaseFiltersProps {
   onTypeChange: (type: ReleaseType | "all") => void;
   onGenreChange: (genre: string) => void;
   onGenreFilterModeChange: (mode: "exclude" | "include") => void;
+  setSelectedGenres: (genres: string[]) => void;
 }
 
 export function ReleaseFilters({
@@ -31,6 +33,7 @@ export function ReleaseFilters({
   onTypeChange,
   onGenreChange,
   onGenreFilterModeChange,
+  setSelectedGenres,
 }: ReleaseFiltersProps) {
   const { genreGroups } = useGenreGroups();
   const availableGenres = Object.keys(genreGroups).sort();
@@ -39,9 +42,14 @@ export function ReleaseFilters({
     return null;
   }
 
+  const handleReset = useCallback(() => {
+    onTypeChange("all");
+    setSelectedGenres([]);
+  }, [onTypeChange, setSelectedGenres]);
+
   return (
-    <div className="flex flex-col sm:flex-row gap-6">
-      <FilterSection label="Filter by length">
+    <div className="flex gap-8 items-end">
+      <FilterSection label="Length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
@@ -55,12 +63,12 @@ export function ReleaseFilters({
             >
               {option.label}
             </button>
-            {index === 0 && <div className="w-[0.5px] bg-white/20 mx-1" />}
+            {index === 0 && <div className="vertical-divider" />}
           </React.Fragment>
         ))}
       </FilterSection>
 
-      <FilterSection label="Filter by genre" className="flex-1 min-w-0">
+      <FilterSection label="Genre" className="flex-1 min-w-0">
         <GenreFilterDropdown
           genres={availableGenres}
           selectedGenres={selectedGenres}
@@ -69,6 +77,18 @@ export function ReleaseFilters({
           onFilterModeChange={onGenreFilterModeChange}
         />
       </FilterSection>
+
+      <Button
+        onClick={handleReset}
+        variant="secondary"
+        disabled={
+          selectedTypes.length === 1 &&
+          selectedTypes[0] === "all" &&
+          selectedGenres.length === 0
+        }
+      >
+        Reset
+      </Button>
     </div>
   );
 }

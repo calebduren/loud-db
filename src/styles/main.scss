@@ -271,3 +271,7 @@ p {
 .font-bold {
   font-weight: var(--font-weight-bold);
 }
+
+.vertical-divider {
+  @apply self-stretch w-[0.5px] bg-white/20 mx-1;
+}
