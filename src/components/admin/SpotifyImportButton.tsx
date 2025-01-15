@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Music, Loader2 } from 'lucide-react';
-import { fetchReleaseFromSpotify } from '../../lib/spotify/client';
-import { importRelease } from '../../lib/scraper/importRelease';
-import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../hooks/useToast';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import React, { useState } from "react";
+import { Music, Loader2 } from "lucide-react";
+import { fetchReleaseFromSpotify } from "../../lib/spotify/client";
+import { importRelease } from "../../lib/scraper/importRelease";
+import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../hooks/useToast";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 export function SpotifyImportButton() {
   const [importing, setImporting] = useState(false);
   const { user } = useAuth();
   const { showToast } = useToast();
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
 
   const handleImport = async () => {
     if (!user || !url) return;
@@ -23,17 +23,18 @@ export function SpotifyImportButton() {
 
       if (success) {
         showToast({
-          type: 'success',
-          message: 'Release imported successfully!'
+          type: "success",
+          message: "Release imported successfully!",
         });
-        setUrl('');
+        setUrl("");
       } else {
-        throw new Error('Failed to import release');
+        throw new Error("Failed to import release");
       }
     } catch (error) {
       showToast({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to import release'
+        type: "error",
+        message:
+          error instanceof Error ? error.message : "Failed to import release",
       });
     } finally {
       setImporting(false);
@@ -65,10 +66,7 @@ export function SpotifyImportButton() {
             Importing...
           </>
         ) : (
-          <>
-            <Music className="w-4 h-4" />
-            Import
-          </>
+          <>Import</>
         )}
       </button>
     </div>

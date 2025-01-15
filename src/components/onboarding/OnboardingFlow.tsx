@@ -1,5 +1,4 @@
 import React from "react";
-import { Music } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GenrePreferences } from "../user/settings/GenrePreferences";
 import { Button } from "../ui/button";
@@ -15,7 +14,6 @@ export function OnboardingFlow() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl space-y-8">
         <div className="text-center space-y-4">
-          <Music className="w-16 h-16 mx-auto" />
           <h1 className="text-3xl font-bold">Welcome to loud db!</h1>
           <p className="text-white/60">
             Let's personalize your experience by setting up your genre

@@ -40,6 +40,22 @@ export function BasicInfoTab({
     <div className="space-y-6">
       <FormField
         control={form.control}
+        name="cover_url"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Cover Image</FormLabel>
+            <FormControl>
+              <ImageUpload
+                value={field.value}
+                onUploadComplete={field.onChange}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
@@ -122,23 +138,6 @@ export function BasicInfoTab({
           </button>
         </div>
       </div>
-
-      <FormField
-        control={form.control}
-        name="cover_url"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Cover Image</FormLabel>
-            <FormControl>
-              <ImageUpload
-                value={field.value}
-                onUploadComplete={field.onChange}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
 
       <FormField
         control={form.control}

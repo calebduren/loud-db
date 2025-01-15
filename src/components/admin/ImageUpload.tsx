@@ -81,7 +81,7 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
   return (
     <div className="space-y-4">
       {preview ? (
-        <div className="relative">
+        <div className="relative inline-flex">
           <div className="relative aspect-square w-48 rounded-lg overflow-hidden bg-white/5">
             <img
               src={preview}
@@ -90,10 +90,10 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
             />
           </div>
           <Button
-            variant="secondary"
+            variant="primary"
             size="sm"
             onClick={clearImage}
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 btn--icon"
           >
             <X size={14} strokeWidth={2} />
           </Button>

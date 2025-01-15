@@ -1,20 +1,21 @@
-@use '../abstracts/colors' as *;
-@use '../abstracts/mixins' as *;
+@use "../abstracts/colors" as *;
+@use "../abstracts/mixins" as *;
 
-.input {
-  background-color: $color-white;
-  border: 1px solid $color-border;
-  border-radius: 0.375rem;
-  padding: 0.75rem 1rem;
-  color: $color-text;
-  height: 3rem;
-  width: 100%;
-  font-size: 1rem;
-  
-  &::placeholder {
-    color: $color-placeholder;
-  }
-  
+input {
   @include focus-ring;
   @include transition;
+
+  &[type="date"] {
+    &::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    &::-webkit-datetime-edit-fields-wrapper {
+      padding: 0;
+    }
+  }
 }

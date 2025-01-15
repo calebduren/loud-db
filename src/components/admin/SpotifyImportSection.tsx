@@ -1,22 +1,25 @@
-import React, { useState } from 'react';
-import { Music, Loader2 } from 'lucide-react';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { fetchReleaseFromSpotify } from '../../lib/spotify/client';
-import { SpotifyReleaseData } from '../../lib/spotify/types';
-import { useToast } from '../../hooks/useToast';
-import { validateSpotifyUrl } from '../../lib/spotify/validation';
+import React, { useState } from "react";
+import { Music, Loader2 } from "lucide-react";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { Alert, AlertDescription } from "../ui/alert";
+import { AlertCircle } from "lucide-react";
+import { fetchReleaseFromSpotify } from "../../lib/spotify/client";
+import { SpotifyReleaseData } from "../../lib/spotify/types";
+import { useToast } from "../../hooks/useToast";
+import { validateSpotifyUrl } from "../../lib/spotify/validation";
 
 interface SpotifyImportSectionProps {
   onImport: (data: SpotifyReleaseData) => void;
   disabled?: boolean;
 }
 
-export function SpotifyImportSection({ onImport, disabled }: SpotifyImportSectionProps) {
-  const [url, setUrl] = useState('');
+export function SpotifyImportSection({
+  onImport,
+  disabled,
+}: SpotifyImportSectionProps) {
+  const [url, setUrl] = useState("");
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
@@ -36,13 +39,14 @@ export function SpotifyImportSection({ onImport, disabled }: SpotifyImportSectio
     try {
       const release = await fetchReleaseFromSpotify(url);
       onImport(release);
-      setUrl('');
+      setUrl("");
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to import release';
+      const message =
+        error instanceof Error ? error.message : "Failed to import release";
       setError(message);
       showToast({
-        type: 'error',
-        message
+        type: "error",
+        message,
       });
     } finally {
       setImporting(false);
@@ -75,7 +79,6 @@ export function SpotifyImportSection({ onImport, disabled }: SpotifyImportSectio
             </>
           ) : (
             <>
-              <Music className="w-4 h-4 mr-2" />
               <span>Import</span>
             </>
           )}
