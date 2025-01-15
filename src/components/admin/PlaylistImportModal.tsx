@@ -9,6 +9,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { SpotifyAlbum } from '../../lib/spotify/types/album';
 import { AppError } from '../../lib/errors/messages';
 import { uploadImageFromUrl } from '../../lib/storage/images';
+import { checkSpotifyDuplicate } from '../../lib/validation/releaseValidation';
 
 interface PlaylistImportModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ interface ImportProgress {
   total: number;
   currentAlbum?: string;
   errors: string[];
+  skipped: string[];
 }
 
 // Helper function to delay between requests
@@ -51,9 +53,93 @@ export function PlaylistImportModal({ isOpen, onClose, onSuccess }: PlaylistImpo
     stage: 'fetching',
     current: 0,
     total: 0,
-    errors: []
+    errors: [],
+    skipped: []
   });
   const { user } = useAuth();
+
+  const importAlbums = async (albums: SpotifyAlbum[]) => {
+    setProgress(prev => ({
+      ...prev,
+      stage: 'importing',
+      current: 0,
+      total: albums.length,
+      errors: [],
+      skipped: []
+    }));
+
+    for (let i = 0; i < albums.length; i++) {
+      const album = albums[i];
+      
+      try {
+        setProgress(prev => ({
+          ...prev,
+          current: i + 1,
+          currentAlbum: album.name
+        }));
+
+        // Check for duplicates before proceeding with import
+        const { isDuplicate, existingRelease } = await checkSpotifyDuplicate(
+          album.name,
+          album.artists.map(a => ({ name: a.name })),
+          album.external_urls.spotify
+        );
+
+        if (isDuplicate && existingRelease) {
+          setProgress(prev => ({
+            ...prev,
+            skipped: [...prev.skipped, `${album.name} - Already exists in database`]
+          }));
+          continue; // Skip this album
+        }
+
+        const releaseData = await retry(() => fetchReleaseFromSpotify(album.id));
+        if (!releaseData) {
+          throw new Error('Failed to fetch release data');
+        }
+
+        // Upload cover image
+        let coverUrl = '';
+        if (album.images[0]?.url) {
+          coverUrl = await retry(() => uploadImageFromUrl(album.images[0].url));
+        }
+
+        await createRelease({
+          name: releaseData.name,
+          release_type: releaseData.album_type as any,
+          cover_url: coverUrl,
+          genres: releaseData.genres || [],
+          record_label: releaseData.label || '',
+          track_count: releaseData.tracks.total,
+          spotify_url: releaseData.external_urls.spotify,
+          release_date: releaseData.release_date,
+          created_by: user?.id || '',
+          artists: releaseData.artists.map(artist => ({
+            name: artist.name
+          })),
+          tracks: releaseData.tracks.items.map(track => ({
+            name: track.name,
+            duration_ms: track.duration_ms,
+            track_number: track.track_number,
+            preview_url: track.preview_url
+          }))
+        });
+
+        await delay(500); // Add a small delay between imports
+      } catch (error) {
+        console.error('Error importing album:', error);
+        setProgress(prev => ({
+          ...prev,
+          errors: [...prev.errors, `${album.name} - ${error instanceof Error ? error.message : 'Unknown error'}`]
+        }));
+      }
+    }
+
+    if (progress.errors.length === 0 && progress.skipped.length === 0) {
+      onSuccess();
+      onClose();
+    }
+  };
 
   const handleImport = async () => {
     if (!user) return;
@@ -64,113 +150,14 @@ export function PlaylistImportModal({ isOpen, onClose, onSuccess }: PlaylistImpo
         stage: 'fetching',
         current: 0,
         total: 0,
-        errors: []
+        errors: [],
+        skipped: []
       });
       
       // Fetch all albums from playlist
       const albums = await fetchPlaylistAlbums(url);
       
-      setProgress(prev => ({
-        ...prev,
-        stage: 'importing',
-        current: 0,
-        total: albums.length
-      }));
-
-      // Process albums in batches of 5
-      const batchSize = 5;
-      const errors: string[] = [];
-
-      for (let i = 0; i < albums.length; i += batchSize) {
-        const batch = albums.slice(i, i + batchSize);
-        
-        // Process batch in parallel with rate limiting
-        await Promise.all(
-          batch.map(async (album, batchIndex) => {
-            try {
-              // Add a small delay between requests in the same batch
-              await delay(batchIndex * 200);
-
-              setProgress(prev => ({
-                ...prev,
-                currentAlbum: album.name
-              }));
-
-              // Get full album data with retries
-              const releaseData = await retry(
-                () => fetchReleaseFromSpotify(`https://open.spotify.com/album/${album.id}`)
-              );
-              
-              // Upload album artwork to Supabase
-              let coverUrl = releaseData.coverUrl;
-              try {
-                if (coverUrl) {
-                  // Use a more organized path structure with release name
-                  const safeName = releaseData.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                  const path = `${album.id}-${safeName}.jpg`;
-                  coverUrl = await uploadImageFromUrl(coverUrl, path);
-                }
-              } catch (error) {
-                console.error('Failed to upload album artwork:', error);
-                // Continue with Spotify CDN URL if upload fails
-              }
-              
-              // Create release with retries
-              await retry(
-                () => createRelease({
-                  name: releaseData.name,
-                  artists: releaseData.artists.map(a => ({ name: a.name })),
-                  release_type: releaseData.releaseType,
-                  cover_url: coverUrl,
-                  genres: releaseData.genres,
-                  record_label: releaseData.recordLabel,
-                  track_count: releaseData.trackCount,
-                  spotify_url: `https://open.spotify.com/album/${album.id}`,
-                  release_date: releaseData.releaseDate,
-                  created_by: user.id,
-                  tracks: releaseData.tracks.map(track => ({
-                    name: track.name,
-                    duration_ms: track.duration_ms,
-                    track_number: track.track_number,
-                    preview_url: track.preview_url
-                  }))
-                })
-              );
-
-              setProgress(prev => ({
-                ...prev,
-                current: prev.current + 1,
-                currentAlbum: undefined
-              }));
-            } catch (error) {
-              const errorMessage = `Failed to import "${album.name}": ${error instanceof Error ? error.message : 'Unknown error'}`;
-              console.error(errorMessage, error);
-              errors.push(errorMessage);
-              
-              setProgress(prev => ({
-                ...prev,
-                errors: [...prev.errors, errorMessage],
-                current: prev.current + 1,
-                currentAlbum: undefined
-              }));
-            }
-          })
-        );
-
-        // Add a delay between batches to avoid rate limits
-        if (i + batchSize < albums.length) {
-          await delay(1000);
-        }
-      }
-
-      if (errors.length === albums.length) {
-        throw new Error('Failed to import any albums from the playlist');
-      }
-
-      onSuccess();
-      if (errors.length === 0) {
-        onClose();
-      }
+      await importAlbums(albums);
     } catch (error) {
       if (error instanceof AppError) {
         if (error.message === 'NOT_FOUND') {
@@ -236,6 +223,20 @@ export function PlaylistImportModal({ isOpen, onClose, onSuccess }: PlaylistImpo
                 <div className="text-sm text-red-400 max-h-32 overflow-y-auto space-y-1">
                   {progress.errors.map((error, i) => (
                     <div key={i}>{error}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Skipped list */}
+            {progress.skipped.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-sm font-medium text-white/60">
+                  Skipped {progress.skipped.length} albums:
+                </h3>
+                <div className="text-sm text-yellow-400 max-h-32 overflow-y-auto space-y-1">
+                  {progress.skipped.map((skipped, i) => (
+                    <div key={i}>{skipped}</div>
                   ))}
                 </div>
               </div>

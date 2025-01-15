@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { normalizeString, areSimilarStrings } from '../utils/stringUtils';
 import { ArtistData } from '../../types/forms';
 import { ReleaseValidationError, RELEASE_ERRORS, createDuplicateError } from '../errors/releaseErrors';
+import { Release } from '../../types/database';
 
 interface ValidationResult {
   isValid: boolean;
@@ -128,4 +129,56 @@ export async function validateNewRelease(
       }
     };
   }
+}
+
+export async function checkSpotifyDuplicate(
+  name: string,
+  artists: ArtistData[],
+  spotifyUrl?: string
+): Promise<{ isDuplicate: boolean; existingRelease?: Release }> {
+  // First, check for exact Spotify URL match if provided
+  if (spotifyUrl) {
+    const { data: releaseByUrl } = await supabase
+      .from('releases')
+      .select('*, artists!releases_artists ( artist:artists( * ) )')
+      .eq('spotify_url', spotifyUrl)
+      .single();
+
+    if (releaseByUrl) {
+      return { isDuplicate: true, existingRelease: releaseByUrl };
+    }
+  }
+
+  // If no match by URL, check for similar name and artists
+  const normalizedName = normalizeString(name);
+  const normalizedArtistNames = artists.map(a => normalizeString(a.name));
+
+  const { data: releases } = await supabase
+    .from('releases')
+    .select('*, artists!releases_artists ( artist:artists( * ) )')
+    .textSearch('name', normalizedName, { config: 'english' });
+
+  if (!releases) return { isDuplicate: false };
+
+  // Check each potential match
+  for (const release of releases) {
+    // Check if name is similar
+    if (!areSimilarStrings(normalizedName, normalizeString(release.name))) {
+      continue;
+    }
+
+    // Get artist names from the release
+    const releaseArtists = release.artists.map(ra => normalizeString(ra.artist.name));
+
+    // Check if the artists match (at least 50% of artists should match)
+    const matchingArtists = normalizedArtistNames.filter(artistName =>
+      releaseArtists.some(releaseArtist => areSimilarStrings(artistName, releaseArtist))
+    );
+
+    if (matchingArtists.length >= Math.min(normalizedArtistNames.length, releaseArtists.length) * 0.5) {
+      return { isDuplicate: true, existingRelease: release };
+    }
+  }
+
+  return { isDuplicate: false };
 }

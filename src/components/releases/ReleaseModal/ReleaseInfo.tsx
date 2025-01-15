@@ -59,7 +59,7 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
               <div className="mt-2 text-sm text-white/60">
                 Written by{" "}
                 <Link
-                  to={`/user/${release.description_author.username}`}
+                  to={`/u/${release.description_author.username}`}
                   className="text-white hover:underline"
                 >
                   @{release.description_author.username}

@@ -270,10 +270,8 @@ export function ReleaseList({
               </div>
             </div>
             <div>
-              <div className="release-card__title">
-                <h2>{formatArtists(release)}</h2>
-                <h2 className="italic">{release.name}</h2>
-              </div>
+              <h2 className="release-card__artist">{formatArtists(release)}</h2>
+              <h2 className="release-card__title">{release.name}</h2>
 
               {release.genres?.length > 0 && (
                 <div className="release-card__genres">

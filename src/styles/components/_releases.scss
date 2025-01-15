@@ -65,10 +65,10 @@
   &__artist {
     @apply text-[24px] font-semibold leading-[0.9];
     color: var(--color-text);
+  }
 
-    h2 + h2 {
-      @apply mt-2;
-    }
+  &__title {
+    @apply italic mt-2;
   }
 
   // Genre pills
