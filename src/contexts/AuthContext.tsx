@@ -11,10 +11,12 @@ interface AuthState {
   loading: boolean;
   isAdmin: boolean;
   canManageReleases: boolean;
+  signUpEmail?: { email: string } | null;
 }
 
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, options?: { data: { username: string } }) => Promise<{ user: User | null; error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -26,6 +28,7 @@ const initialState: AuthState = {
   loading: true,
   isAdmin: false,
   canManageReleases: false,
+  signUpEmail: null,
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -136,6 +139,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
+  const signUp = async (email: string, password: string, options?: { data: { username: string } }) => {
+    const { user, error } = await supabase.auth.signUp({ email, password }, options);
+    return { user, error };
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -144,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     ...state,
     signIn,
+    signUp,
     signOut
   }), [state]);
 

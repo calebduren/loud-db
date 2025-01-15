@@ -8,13 +8,13 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { user } = useContext(AuthContext);
+  const context = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  if (!user) {
+  if (!context?.user) {
     return (
       <div className="min-h-screen text-white">
-        <div className="mx-auto p-10">{children}</div>
+        <div className="mx-auto">{children}</div>
       </div>
     );
   }
@@ -33,8 +33,8 @@ export function Layout({ children }: LayoutProps) {
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      <main className="mt-12 sm:mt-0 sm:ml-60 relative z-0">
-        <div className="mx-auto p-10">{children}</div>
+      <main className="mt-12 sm:mt-0 sm:ml-60 relative z-0 p-10">
+        <div className="mx-auto">{children}</div>
       </main>
     </div>
   );

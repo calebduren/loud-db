@@ -8,13 +8,15 @@ export function AuthForm() {
   const mode = searchParams.get("mode");
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <Logo className="w-[24px] h-[34px] mx-auto mb-4 text-white" />
-        <h1 className="text-2xl font-bold text-white mb-1">Loud</h1>
-        <p className="text-white/80">Find your next obsession</p>
+        <Logo className="mx-auto mb-4 text-white" />
+        <h1 className="text-2xl font-bold text-white">Loud</h1>
+        <p className="text-white/80 font-medium text-sm">
+          A platform for discovering new music
+        </p>
       </div>
-      <div className="card">
+      <div>
         <AuthTabs defaultTab={mode === "reset" ? "reset" : "signin"} />
       </div>
     </div>
