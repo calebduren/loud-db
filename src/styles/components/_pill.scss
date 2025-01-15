@@ -1,5 +1,5 @@
 .pill {
-  @apply h-[32px] flex items-center gap-1.5 px-3.5 text-sm font-medium transition-colors rounded-md;
+  @apply h-[34px] flex items-center gap-1 px-3.5 text-sm font-medium transition-colors rounded-md text-nowrap;
 
   // Default style (used in cards and modals)
   &--default {
@@ -30,6 +30,10 @@
   // Ghost style (used in selected genres)
   &--ghost {
     @apply text-white p-0 bg-transparent;
+
+    &--deemphasized {
+      @apply text-white/60;
+    }
   }
 
   // Sizes

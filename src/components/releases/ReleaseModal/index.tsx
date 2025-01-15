@@ -62,7 +62,7 @@ export function ReleaseModal({
             onClick={onClose}
             className="absolute top-8 right-8 z-100 text-white/60 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X size={14} strokeWidth={2} />
           </button>
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-8">

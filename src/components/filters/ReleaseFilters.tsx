@@ -64,7 +64,7 @@ export function ReleaseFilters({
 
   return (
     <div className="flex gap-7">
-      <FilterSection label="Length">
+      <FilterSection label="Filter by length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
@@ -80,7 +80,7 @@ export function ReleaseFilters({
         ))}
       </FilterSection>
 
-      <FilterSection label="Genre" className="flex-1">
+      <FilterSection label="Filter by genre" className="flex-1">
         <GenreFilterDropdown
           genres={availableGenres}
           selectedGenres={selectedGenres}
@@ -97,7 +97,7 @@ export function ReleaseFilters({
         disabled={isDefaultState}
         className="self-end"
       >
-        Reset
+        Reset filters
       </Button>
     </div>
   );

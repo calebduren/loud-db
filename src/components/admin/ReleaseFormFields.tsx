@@ -114,7 +114,7 @@ export function ReleaseFormFields({
                   onClick={() => onRemoveArtist(index)}
                   className="p-2 text-white/60 hover:text-white"
                 >
-                  <X className="w-5 h-5" />
+                  <X size={14} strokeWidth={2} />
                 </button>
               )}
             </div>

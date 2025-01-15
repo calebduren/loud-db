@@ -31,10 +31,10 @@
 
   // Mode Selector
   &__mode {
-    @apply relative font-medium;
+    @apply relative font-medium flex-none;
 
     &-toggle {
-      @apply h-[32px] flex rounded-md p-0.5 bg-[--color-gray-800] border-[0.5px] border-[--color-gray-700];
+      @apply h-[34px] flex rounded-md p-0.5 bg-[--color-gray-800] border-[0.5px] border-[--color-gray-700];
 
       &-option {
         @apply px-3 py-1 text-sm font-medium transition-colors rounded-sm;
@@ -75,12 +75,12 @@
     }
   }
 
-  // Input Area
+  // Input
   &__input {
-    @apply relative flex-1;
+    @apply relative flex-1 min-w-0;
 
     &-button {
-      @apply min-h-[32px] flex items-center gap-2 w-full px-3 py-0 rounded-md text-sm font-medium transition-colors;
+      @apply h-[34px] flex items-center gap-2 w-full px-3 py-0 rounded-md text-sm font-medium transition-colors;
       @apply bg-[--color-gray-800] hover:bg-[--color-gray-700] border-[0.5px] border-[--color-gray-700];
       @apply text-white/60 hover:text-white;
 
@@ -90,15 +90,15 @@
     }
 
     &-content {
-      @apply flex flex-wrap items-center gap-x-4 flex-1 min-w-0;
+      @apply flex items-center gap-4 flex-1 min-w-0 overflow-hidden;
     }
 
     &-placeholder {
-      @apply text-white/40;
+      @apply text-white/40 truncate;
     }
 
     &-chevron {
-      @apply w-4 h-4 text-white/40 transition-transform;
+      @apply w-4 h-4 text-white/40 transition-transform flex-none;
 
       &--open {
         @apply rotate-180;
@@ -121,7 +121,7 @@
     @apply absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-[--color-gray-700] bg-[--color-gray-800] shadow-lg;
 
     &-content {
-      @apply max-h-60 overflow-auto p-2 gap-4;
+      @apply overflow-auto p-2;
     }
 
     &-list {
@@ -129,7 +129,7 @@
     }
   }
 
-  // Genre Option
+  // Option
   &__option {
     @extend .pill !optional;
     @extend .pill--interactive !optional;

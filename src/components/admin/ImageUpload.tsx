@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Upload, Loader2, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { Button } from '../ui/button';
+import React, { useState, useEffect } from "react";
+import { Upload, Loader2, X } from "lucide-react";
+import { supabase } from "../../lib/supabase";
+import { Button } from "../ui/button";
 
 interface ImageUploadProps {
   value?: string;
@@ -25,9 +25,15 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
       setPreview(event.detail);
     };
 
-    window.addEventListener('coverUrlUpdate', handleCoverUrlUpdate as EventListener);
+    window.addEventListener(
+      "coverUrlUpdate",
+      handleCoverUrlUpdate as EventListener
+    );
     return () => {
-      window.removeEventListener('coverUrlUpdate', handleCoverUrlUpdate as EventListener);
+      window.removeEventListener(
+        "coverUrlUpdate",
+        handleCoverUrlUpdate as EventListener
+      );
     };
   }, []);
 
@@ -36,11 +42,11 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
       setUploading(true);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('You must select an image to upload.');
+        throw new Error("You must select an image to upload.");
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
 
       // Create preview
@@ -49,19 +55,19 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('covers')
+        .from("covers")
         .upload(fileName, file);
 
       if (error) throw error;
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('covers')
-        .getPublicUrl(data.path);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("covers").getPublicUrl(data.path);
 
       onUploadComplete(publicUrl);
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
     } finally {
       setUploading(false);
     }
@@ -69,7 +75,7 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
 
   const clearImage = () => {
     setPreview(null);
-    onUploadComplete('');
+    onUploadComplete("");
   };
 
   return (
@@ -89,7 +95,7 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
             onClick={clearImage}
             className="absolute top-2 right-2"
           >
-            <X className="w-4 h-4" />
+            <X size={14} strokeWidth={2} />
           </Button>
         </div>
       ) : (
