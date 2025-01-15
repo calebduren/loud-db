@@ -43,7 +43,7 @@
 
   // Icon styles
   &__icon {
-    @apply w-3.5 h-3.5 transition-opacity;
+    @apply transition-opacity;
     @apply opacity-60;
 
     .pill:hover & {
@@ -54,9 +54,5 @@
   // Remove button (for selected pills)
   &__remove {
     @apply p-[3px] bg-white/10 hover:bg-white hover:text-black rounded-full transition-colors;
-
-    svg {
-      @apply w-2.5 h-2.5;
-    }
   }
 }
