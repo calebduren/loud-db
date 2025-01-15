@@ -42,43 +42,61 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50" 
+      className="fixed inset-0 z-[9999] overflow-y-auto" 
       onClick={handleBackdropClick}
     >
-      <div className="min-h-full px-4 text-center">
-        <div className="inline-block w-full text-left align-middle transition-all transform">
-          <div
-            className={cn(
-              "relative w-full mx-auto bg-zinc-900 rounded-lg shadow-xl",
-              className
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {title && (
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h2 className="text-xl font-semibold text-white">{title}</h2>
+      <div 
+        className="flex min-h-full items-center justify-center p-4" 
+      >
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        />
+
+        {/* Modal */}
+        <div 
+          className={cn(
+            "relative bg-background rounded-lg shadow-xl w-full border border-white/10",
+            title ? "max-w-2xl" : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
+            className
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {title ? (
+            <>
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <h2 className="text-xl font-semibold">{title}</h2>
                 <button
                   onClick={onClose}
                   className="text-white/60 hover:text-white transition-colors"
                 >
                   <svg
-                    className="w-5 h-5"
-                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
                     viewBox="0 0 24 24"
+                    fill="none"
                     stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
               </div>
-            )}
-            <div className="p-6">{children}</div>
-          </div>
+
+              {/* Content with padding */}
+              <div className="p-6">
+                {children}
+              </div>
+            </>
+          ) : (
+            // Full content without padding
+            children
+          )}
         </div>
       </div>
     </div>
