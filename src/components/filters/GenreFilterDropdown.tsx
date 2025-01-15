@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils";
 interface GenreFilterDropdownProps {
   genres: string[];
   selectedGenres: string[];
-  onGenreChange: (genre: string) => void;
+  onGenreChange: (genre: string, isSelected: boolean) => void;
   filterMode: "include" | "exclude";
   onFilterModeChange: (mode: "include" | "exclude") => void;
   disabled?: boolean;
@@ -43,12 +43,14 @@ export function GenreFilterDropdown({
   };
 
   const handleGenreClick = (genre: string) => {
-    onGenreChange(genre);
+    const isSelected = selectedGenres.includes(genre);
+    onGenreChange(genre, !isSelected);
   };
 
   const handleRemoveGenre = (genre: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    onGenreChange(genre);
+    const isSelected = selectedGenres.includes(genre);
+    onGenreChange(genre, !isSelected);
   };
 
   const toggleFilterMode = () => {

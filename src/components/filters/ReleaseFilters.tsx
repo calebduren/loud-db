@@ -20,9 +20,8 @@ interface ReleaseFiltersProps {
   selectedGenres: string[];
   genreFilterMode: "exclude" | "include";
   onTypeChange: (type: ReleaseType | "all") => void;
-  onGenreChange: (genre: string) => void;
+  onGenreChange: (genres: string[]) => void;
   onGenreFilterModeChange: (mode: "exclude" | "include") => void;
-  setSelectedGenres: (genres: string[]) => void;
 }
 
 export function ReleaseFilters({
@@ -33,7 +32,6 @@ export function ReleaseFilters({
   onTypeChange,
   onGenreChange,
   onGenreFilterModeChange,
-  setSelectedGenres,
 }: ReleaseFiltersProps) {
   const { genreGroups } = useGenreGroups();
   const availableGenres = Object.keys(genreGroups).sort();
@@ -42,24 +40,38 @@ export function ReleaseFilters({
     return null;
   }
 
+  const handleGenreToggle = useCallback(
+    (genre: string) => {
+      const newGenres = selectedGenres.includes(genre)
+        ? selectedGenres.filter((g) => g !== genre)
+        : [...selectedGenres, genre];
+      onGenreChange(newGenres);
+    },
+    [selectedGenres, onGenreChange]
+  );
+
   const handleReset = useCallback(() => {
     onTypeChange("all");
-    setSelectedGenres([]);
-  }, [onTypeChange, setSelectedGenres]);
+    onGenreChange([]);
+    onGenreFilterModeChange("include");
+  }, [onTypeChange, onGenreChange, onGenreFilterModeChange]);
+
+  const isDefaultState =
+    selectedTypes.length === 1 &&
+    selectedTypes[0] === "all" &&
+    selectedGenres.length === 0 &&
+    genreFilterMode === "include";
 
   return (
-    <div className="flex gap-8 items-end">
+    <div className="flex gap-7">
       <FilterSection label="Length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
-              onClick={() => !loading && onTypeChange(option.value)}
-              className={cn(
-                "pill pill--interactive",
-                selectedTypes.includes(option.value) && "pill--selected",
-                loading && "animate-pulse"
-              )}
-              disabled={loading}
+              className={cn("pill pill--interactive", {
+                "pill--selected": selectedTypes.includes(option.value),
+              })}
+              onClick={() => onTypeChange(option.value)}
             >
               {option.label}
             </button>
@@ -68,24 +80,22 @@ export function ReleaseFilters({
         ))}
       </FilterSection>
 
-      <FilterSection label="Genre" className="flex-1 min-w-0">
+      <FilterSection label="Genre" className="flex-1">
         <GenreFilterDropdown
           genres={availableGenres}
           selectedGenres={selectedGenres}
-          onGenreChange={onGenreChange}
+          onGenreChange={handleGenreToggle}
           filterMode={genreFilterMode}
           onFilterModeChange={onGenreFilterModeChange}
+          disabled={loading}
         />
       </FilterSection>
 
       <Button
         onClick={handleReset}
         variant="secondary"
-        disabled={
-          selectedTypes.length === 1 &&
-          selectedTypes[0] === "all" &&
-          selectedGenres.length === 0
-        }
+        disabled={isDefaultState}
+        className="self-end"
       >
         Reset
       </Button>

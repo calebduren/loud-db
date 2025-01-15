@@ -129,16 +129,6 @@ export function AllReleases() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleGenreChangeAdapter = useCallback(
-    (genre: string) => {
-      const newGenres = selectedGenres.includes(genre)
-        ? selectedGenres.filter((g) => g !== genre)
-        : [...selectedGenres, genre];
-      handleGenreChange(newGenres);
-    },
-    [selectedGenres, handleGenreChange]
-  );
-
   // Only show loading state on initial load when no releases are available
   if (loading && !filteredReleases.length) {
     return (
@@ -155,7 +145,7 @@ export function AllReleases() {
           selectedGenres={selectedGenres}
           genreFilterMode={genreFilterMode}
           onTypeChange={handleTypeChange}
-          onGenreChange={handleGenreChangeAdapter}
+          onGenreChange={handleGenreChange}
           onGenreFilterModeChange={handleGenreFilterModeChange}
         />
         <ReleaseList releases={[]} loading={true} showWeeklyGroups={true} />
@@ -185,7 +175,7 @@ export function AllReleases() {
         selectedGenres={selectedGenres}
         genreFilterMode={genreFilterMode}
         onTypeChange={handleTypeChange}
-        onGenreChange={handleGenreChangeAdapter}
+        onGenreChange={handleGenreChange}
         onGenreFilterModeChange={handleGenreFilterModeChange}
       />
 

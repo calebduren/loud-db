@@ -29,7 +29,7 @@
 
   // Ghost style (used in selected genres)
   &--ghost {
-    @apply text-white p-0;
+    @apply text-white p-0 bg-transparent;
   }
 
   // Sizes
