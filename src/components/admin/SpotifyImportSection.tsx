@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Music, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
@@ -30,7 +30,7 @@ export function SpotifyImportSection({
     // Validate URL format
     const validation = validateSpotifyUrl(url);
     if (!validation.isValid) {
-      setError(validation.error);
+      setError(validation.error ?? null);
       return;
     }
 
@@ -54,7 +54,7 @@ export function SpotifyImportSection({
   };
 
   return (
-    <div className="space-y-4 mb-8 p-4 bg-white/5 rounded-lg border border-white/10">
+    <div className="space-y-4 mb-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <div className="flex-1">
           <Label htmlFor="spotify-url">Import from Spotify</Label>

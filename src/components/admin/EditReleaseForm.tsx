@@ -4,35 +4,64 @@ import { Release, ReleaseType } from "../../types/database";
 import { Loader2 } from "lucide-react";
 import { ReleaseFormFields } from "./ReleaseFormFields";
 import { useArtists } from "../../hooks/useArtists";
+import { useForm } from "react-hook-form";
+
+interface ReleaseArtist {
+  artist: {
+    id: string;
+    name: string;
+  };
+  position: number;
+}
 
 interface EditReleaseFormProps {
-  release: Release;
+  release: Release & { artists: ReleaseArtist[] };
   onSuccess?: () => void;
+}
+
+interface FormData {
+  name: string;
+  release_type: ReleaseType;
+  cover_url: string;
+  genres: string[];
+  record_label: string;
+  track_count: number;
+  spotify_url: string;
+  apple_music_url: string;
+}
+
+interface Artist {
+  id: string | undefined;
+  name: string;
 }
 
 export function EditReleaseForm({ release, onSuccess }: EditReleaseFormProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: release.name,
-    release_type: release.release_type as ReleaseType,
-    cover_url: release.cover_url || "",
-    genres: release.genres,
-    record_label: release.record_label || "",
-    track_count: release.track_count,
-    spotify_url: release.spotify_url || "",
-    apple_music_url: release.apple_music_url || "",
+  const form = useForm<FormData>({
+    defaultValues: {
+      name: release.name,
+      release_type: release.release_type,
+      cover_url: release.cover_url || "",
+      genres: release.genres,
+      record_label: release.record_label || "",
+      track_count: release.track_count,
+      spotify_url: release.spotify_url || "",
+      apple_music_url: release.apple_music_url || "",
+    }
   });
 
-  const [selectedArtists, setSelectedArtists] = useState(
-    release.artists
-      .sort((a, b) => a.position - b.position)
-      .map((ra) => ({ id: ra.artist.id, name: ra.artist.name }))
+  const [selectedArtists, setSelectedArtists] = useState<Artist[]>(
+    (release.artists || [])
+      .sort((a: ReleaseArtist, b: ReleaseArtist) => a.position - b.position)
+      .map((ra: ReleaseArtist) => ({ 
+        id: ra.artist.id, 
+        name: ra.artist.name 
+      }))
   );
 
   const { artists } = useArtists();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (formData: FormData) => {
     setLoading(true);
 
     try {
@@ -86,26 +115,22 @@ export function EditReleaseForm({ release, onSuccess }: EditReleaseFormProps) {
     }
   };
 
-  const handleFormDataChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const updateArtist = (index: number, value: string) => {
+  const updateArtist = (index: number, value: string, availableArtists = artists) => {
     const newArtists = [...selectedArtists];
-    const existingArtist = artists.find(
+    const existingArtist = availableArtists.find(
       (a) => a.name.toLowerCase() === value.toLowerCase()
     );
 
     newArtists[index] = existingArtist
       ? { id: existingArtist.id, name: existingArtist.name }
-      : { name: value };
+      : { id: undefined, name: value };
 
     setSelectedArtists(newArtists);
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={form.handleSubmit(handleSubmit)}
       className="space-y-6 bg-white p-6 rounded-lg shadow-md"
     >
       <div>
@@ -115,13 +140,12 @@ export function EditReleaseForm({ release, onSuccess }: EditReleaseFormProps) {
       </div>
 
       <ReleaseFormFields
-        formData={formData}
+        form={form}
         selectedArtists={selectedArtists}
         artistOptions={artists}
-        onFormDataChange={handleFormDataChange}
         onArtistChange={updateArtist}
         onAddArtist={() =>
-          setSelectedArtists([...selectedArtists, { name: "" }])
+          setSelectedArtists([...selectedArtists, { id: undefined, name: "" }])
         }
         onRemoveArtist={(index) =>
           setSelectedArtists(selectedArtists.filter((_, i) => i !== index))

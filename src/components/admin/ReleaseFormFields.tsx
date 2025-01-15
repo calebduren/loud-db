@@ -27,7 +27,7 @@ interface ReleaseFormFieldsProps {
   onArtistChange: (
     index: number,
     value: string,
-    availableArtists: typeof artistOptions
+    availableArtists: { id: string; name: string }[]
   ) => void;
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
