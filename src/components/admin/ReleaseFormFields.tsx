@@ -14,10 +14,10 @@ import { Input } from "../ui/input";
 
 const RELEASE_TYPES: (ReleaseType | "")[] = [
   "",
-  "single",
+  "Single",
   "EP",
   "LP",
-  "compilation",
+  "Compilation",
 ];
 
 interface ReleaseFormFieldsProps {

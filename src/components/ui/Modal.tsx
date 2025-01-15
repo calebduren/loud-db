@@ -34,57 +34,29 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the backdrop
     if (e.target === e.currentTarget) {
-      e.preventDefault();
-      e.stopPropagation();
       onClose(e);
     }
   };
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] overflow-y-auto" 
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50" 
       onClick={handleBackdropClick}
-      onSubmit={e => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
     >
-      <div 
-        className="flex min-h-full items-center justify-center p-4" 
-        onClick={handleBackdropClick}
-        onSubmit={e => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
-        {/* Backdrop */}
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={handleBackdropClick}
-        />
-
-        {/* Modal */}
-        <div 
-          className={cn(
-            "relative bg-background rounded-lg shadow-xl w-full border border-white/10",
-            title ? "max-w-2xl" : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
-            className
-          )}
-          onClick={e => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}
-          onSubmit={e => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          {title ? (
-            <>
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <h2 className="text-xl font-semibold">{title}</h2>
+      <div className="min-h-full px-4 text-center">
+        <div className="inline-block w-full text-left align-middle transition-all transform">
+          <div
+            className={cn(
+              "relative w-full mx-auto bg-zinc-900 rounded-lg shadow-xl",
+              className
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {title && (
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <h2 className="text-xl font-semibold text-white">{title}</h2>
                 <button
                   onClick={onClose}
                   className="text-white/60 hover:text-white transition-colors"
@@ -104,15 +76,9 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
                   </svg>
                 </button>
               </div>
-              {/* Content with padding */}
-              <div className="p-6">
-                {children}
-              </div>
-            </>
-          ) : (
-            // Full content without padding
-            children
-          )}
+            )}
+            <div className="p-6">{children}</div>
+          </div>
         </div>
       </div>
     </div>

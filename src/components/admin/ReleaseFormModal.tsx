@@ -37,6 +37,8 @@ export function ReleaseFormModal({ isOpen, onClose, onSuccess, release }: Releas
         e.nativeEvent.stopImmediatePropagation();
       }
     }
+    // Clear the form data from localStorage when closing
+    localStorage.removeItem('releaseFormDraft');
     onClose();
   };
 

@@ -30,7 +30,7 @@ export function ReleaseFormTabs({
 }: ReleaseFormTabsProps) {
   return (
     <Tabs defaultValue="basic" className="space-y-6">
-      <TabsList>
+      <TabsList onClick={(e) => e.stopPropagation()}>
         <TabsTrigger value="basic" className="flex items-center gap-2">
           Basic Info
         </TabsTrigger>
