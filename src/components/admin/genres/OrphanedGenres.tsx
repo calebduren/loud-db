@@ -1,9 +1,9 @@
-import React from 'react';
-import { useReleases } from '../../../hooks/useReleases';
-import { Button } from '../../ui/button';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { GenreGroup, GenreMapping } from '../../../lib/genres/genreMapping';
-import { MultiSelect } from '../../ui/MultiSelect';
+import React from "react";
+import { useAllGenres } from "../../../hooks/admin/useAllGenres";
+import { Button } from "../../ui/button";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { GenreGroup, GenreMapping } from "../../../lib/genres/genreMapping";
+import { MultiSelect } from "../../ui/MultiSelect";
 
 interface OrphanedGenresProps {
   groups: GenreGroup[];
@@ -11,49 +11,39 @@ interface OrphanedGenresProps {
   onAssignGenre: (genre: string, groupId: string) => Promise<void>;
 }
 
-export function OrphanedGenres({ groups, mappings, onAssignGenre }: OrphanedGenresProps) {
-  const { releases, loading } = useReleases();
-  const [selectedGroups, setSelectedGroups] = React.useState<Record<string, string[]>>({});
+export function OrphanedGenres({
+  groups,
+  mappings,
+  onAssignGenre,
+}: OrphanedGenresProps) {
+  const { genres: allGenres, loading, error: fetchError } = useAllGenres();
+  const [selectedGroups, setSelectedGroups] = React.useState<
+    Record<string, string[]>
+  >({});
   const [assigning, setAssigning] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Get all unique genres from releases
-  const allGenres = React.useMemo(() => {
-    const genres = new Set<string>();
-    releases.forEach(release => {
-      release.genres.forEach(genre => genres.add(genre));
-    });
-    return Array.from(genres).sort();
-  }, [releases]);
-
   // Filter out genres that are already mapped
   const orphanedGenres = React.useMemo(() => {
-    return allGenres.filter(genre => 
-      !mappings.some(mapping => mapping.genre === genre)
+    return allGenres.filter(
+      (genre) => !mappings.some((mapping) => mapping.genre === genre)
     );
   }, [allGenres, mappings]);
 
   const handleAssign = async (genre: string) => {
-    const groupIds = selectedGroups[genre];
-    if (!groupIds?.length) return;
-    
-    setError(null);
+    const groupsToAssign = selectedGroups[genre];
+    if (!groupsToAssign?.length) return;
+
     setAssigning(genre);
-    
+    setError(null);
+
     try {
-      // Assign genre to each selected group
       await Promise.all(
-        groupIds.map(groupId => onAssignGenre(genre, groupId))
+        groupsToAssign.map((groupId) => onAssignGenre(genre, groupId))
       );
-      
-      // Clear selection after successful assignment
-      setSelectedGroups(prev => {
-        const next = { ...prev };
-        delete next[genre];
-        return next;
-      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign genre');
+      console.error("Error assigning genre:", err);
+      setError(err instanceof Error ? err.message : "Failed to assign genre");
     } finally {
       setAssigning(null);
     }
@@ -61,76 +51,67 @@ export function OrphanedGenres({ groups, mappings, onAssignGenre }: OrphanedGenr
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin text-white/40" />
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin" />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex items-center justify-center py-12 text-red-500">
+        <AlertCircle className="w-5 h-5 mr-2" />
+        <p>{fetchError}</p>
       </div>
     );
   }
 
   if (orphanedGenres.length === 0) {
     return (
-      <div className="bg-green-500/10 text-green-500 p-4 rounded-lg flex items-center gap-2">
-        <AlertCircle className="w-5 h-5" />
-        All genres have been assigned to groups!
+      <div className="text-center py-12 text-white/60">
+        <p>No orphaned genres found</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Orphaned Genres</h3>
-        <span className="text-sm text-white/60">
-          {orphanedGenres.length} unassigned {orphanedGenres.length === 1 ? 'genre' : 'genres'}
-        </span>
-      </div>
-
+    <div className="space-y-4">
+      {orphanedGenres.map((genre) => (
+        <div key={genre} className="flex items-center gap-4">
+          <div className="pill pill--default">{genre}</div>
+          <div className="flex-1">
+            <MultiSelect
+              options={groups.map((g) => ({ value: g.id, label: g.name }))}
+              value={selectedGroups[genre] || []}
+              className="w-full"
+              onChange={(selected) =>
+                setSelectedGroups((prev) => ({
+                  ...prev,
+                  [genre]: selected,
+                }))
+              }
+              placeholder="Select groups to add this genre to..."
+            />
+          </div>
+          <Button
+            size="sm"
+            onClick={() => handleAssign(genre)}
+            disabled={!selectedGroups[genre]?.length || assigning === genre}
+          >
+            {assigning === genre ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Assign"
+            )}
+          </Button>
+        </div>
+      ))}
       {error && (
-        <div className="bg-red-500/10 text-red-500 p-4 rounded-lg flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
-          {error}
+        <div className="flex items-center gap-2 text-red-500 bg-red-500/10 px-4 py-2 rounded-lg">
+          <AlertCircle className="w-4 h-4" />
+          <p>{error}</p>
         </div>
       )}
-      
-      <div className="grid gap-4">
-        {orphanedGenres.map(genre => (
-          <div 
-            key={genre}
-            className="flex items-center gap-4 bg-white/5 p-4 rounded-lg"
-          >
-            <span className="flex-1">{genre}</span>
-            
-            <div className="flex items-center gap-2">
-              <MultiSelect
-                value={selectedGroups[genre] || []}
-                onChange={values => setSelectedGroups(prev => ({
-                  ...prev,
-                  [genre]: values
-                }))}
-                options={groups.map(group => ({
-                  value: group.id,
-                  label: group.name
-                }))}
-                placeholder="Select groups..."
-                className="w-64"
-              />
-
-              <Button
-                onClick={() => handleAssign(genre)}
-                disabled={!selectedGroups[genre]?.length || assigning === genre}
-                size="sm"
-              >
-                {assigning === genre ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Assigning...
-                  </>
-                ) : 'Assign'}
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

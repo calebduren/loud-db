@@ -6,10 +6,6 @@
 
   &__label {
     @apply flex items-baseline text-sm font-medium text-white/40;
-    &:after {
-      @apply w-full h-[0.5px] bg-white/20 ml-1.5;
-      content: "";
-    }
   }
 
   &__content {

@@ -68,23 +68,21 @@ function AppRoutes() {
             </Route>
 
             {/* Admin Routes */}
-            {isAdmin && (
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="users" replace />} />
-                <Route path="users" element={<UserManagement />} />
-                <Route path="genres" element={<GenreMappingManager />} />
-                <Route path="invites" element={<InviteCodeManager />} />
-                <Route path="components" element={<ComponentLibrary />} />
-              </Route>
-            )}
-
-            {/* Legal Routes */}
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<Terms />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="users" replace />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="genres" element={<GenreMappingManager />} />
+              <Route path="invites" element={<InviteCodeManager />} />
+              <Route path="components" element={<ComponentLibrary />} />
+            </Route>
 
             {/* Legacy Profile Route Redirect */}
             <Route path="/profile/*" element={<Navigate to="/u/me" replace />} />
             <Route path="/:username" element={<Navigate to="/u/:username" replace />} />
+
+            {/* Legal Routes */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
           </>
         )}
       </Routes>
