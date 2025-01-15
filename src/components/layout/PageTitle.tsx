@@ -31,7 +31,9 @@ export const PageTitle = ({
       <div>
         <h1 className="text-2xl font-semibold text-white">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-white/60 mt-1 font-medium">{subtitle}</p>
+          <p className="text-sm text-[--color-gray-400] font-medium">
+            {subtitle}
+          </p>
         )}
       </div>
       <div className="flex flex-col sm:flex-row gap-3 order-first sm:order-last">

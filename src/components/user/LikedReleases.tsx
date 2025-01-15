@@ -60,7 +60,7 @@ export function LikedReleases({
       <div>
         {showPageTitle && (
           <PageTitle
-            title="Your Liked Releases"
+            title="Your likes"
             showAddRelease={isAdmin || isCreator}
             showImportPlaylist={isAdmin}
           />
@@ -78,7 +78,7 @@ export function LikedReleases({
     <div>
       {showPageTitle && (
         <PageTitle
-          title="Your Liked Releases"
+          title="Your likes"
           showAddRelease={isAdmin || isCreator}
           showImportPlaylist={isAdmin}
         />

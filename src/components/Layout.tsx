@@ -13,14 +13,14 @@ export function Layout({ children }: LayoutProps) {
 
   if (!context?.user) {
     return (
-      <div className="min-h-screen text-white">
+      <div className="min-h-screen">
         <div className="mx-auto">{children}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen text-white relative">
+    <div className="min-h-screen relative">
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         className="sidebar-toggle"
