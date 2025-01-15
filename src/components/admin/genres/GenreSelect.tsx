@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useReleases } from "../../../hooks/useReleases";
+import { supabase } from "../../../lib/supabase";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Check, Search, X } from "lucide-react";
@@ -7,30 +7,47 @@ import { Check, Search, X } from "lucide-react";
 interface GenreSelectProps {
   onSubmit: (genres: string[]) => Promise<void>;
   disabled?: boolean;
+  excludeGenres?: string[];
 }
 
-export function GenreSelect({ onSubmit, disabled }: GenreSelectProps) {
+function useGenres() {
+  const [genres, setGenres] = useState<string[]>([]);
+  
+  useEffect(() => {
+    async function fetchGenres() {
+      const { data } = await supabase
+        .from('releases')
+        .select('genres');
+      
+      if (data) {
+        const uniqueGenres = new Set<string>();
+        data.forEach(release => {
+          release.genres.forEach((genre: string) => uniqueGenres.add(genre));
+        });
+        setGenres(Array.from(uniqueGenres).sort());
+      }
+    }
+    
+    fetchGenres();
+  }, []);
+  
+  return genres;
+}
+
+export function GenreSelect({ onSubmit, disabled, excludeGenres = [] }: GenreSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const { releases } = useReleases();
+  const allGenres = useGenres();
   const [loading, setLoading] = useState(false);
 
-  // Get unique genres from all releases
-  const allGenres = useMemo(() => {
-    const genres = new Set<string>();
-    releases.forEach((release) => {
-      release.genres.forEach((genre) => genres.add(genre));
-    });
-    return Array.from(genres).sort();
-  }, [releases]);
-
-  // Filter genres based on search query
+  // Filter genres based on search query and exclude existing genres
   const filteredGenres = useMemo(() => {
-    if (!searchQuery) return allGenres;
+    const availableGenres = allGenres.filter(genre => !excludeGenres.includes(genre));
+    if (!searchQuery) return availableGenres;
     const query = searchQuery.toLowerCase();
-    return allGenres.filter((genre) => genre.toLowerCase().includes(query));
-  }, [allGenres, searchQuery]);
+    return availableGenres.filter((genre) => genre.toLowerCase().includes(query));
+  }, [allGenres, searchQuery, excludeGenres]);
 
   const handleSubmit = async () => {
     if (selectedGenres.length === 0) return;

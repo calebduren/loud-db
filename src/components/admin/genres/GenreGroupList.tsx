@@ -1,9 +1,9 @@
-import React from 'react';
-import { GenreGroup, GenreMapping } from '../../../lib/genres/genreMapping';
-import { MappingForm } from './MappingForm';
-import { X, Pencil, Check } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { GenreGroup, GenreMapping } from "../../../lib/genres/genreMapping";
+import { MappingForm } from "./MappingForm";
+import { X, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface GenreGroupListProps {
   groups: GenreGroup[];
@@ -18,10 +18,10 @@ export function GenreGroupList({
   mappings,
   onCreateMapping,
   onDeleteMapping,
-  onUpdateGroup
+  onUpdateGroup,
 }: GenreGroupListProps) {
   const [editingGroup, setEditingGroup] = React.useState<string | null>(null);
-  const [editValue, setEditValue] = React.useState('');
+  const [editValue, setEditValue] = React.useState("");
   const [updating, setUpdating] = React.useState(false);
 
   const handleEdit = (group: GenreGroup) => {
@@ -31,7 +31,7 @@ export function GenreGroupList({
 
   const handleUpdate = async (id: string) => {
     if (!editValue.trim()) return;
-    
+
     setUpdating(true);
     try {
       await onUpdateGroup(id, editValue);
@@ -54,7 +54,7 @@ export function GenreGroupList({
 
   return (
     <div className="grid gap-6">
-      {groups.map(group => (
+      {groups.map((group) => (
         <div key={group.id} className="card">
           <div className="flex items-center justify-between mb-4">
             {editingGroup === group.id ? (
@@ -70,39 +70,39 @@ export function GenreGroupList({
                   onClick={() => handleUpdate(group.id)}
                   disabled={updating || !editValue.trim()}
                 >
-                  <Check className="w-4 h-4" />
+                  <Check size={14} strokeWidth={1.5} />
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => setEditingGroup(null)}
                 >
-                  <X className="w-4 h-4" />
+                  <X size={14} strokeWidth={1.5} />
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex w-full items-center justify-between gap-2">
                 <h3 className="text-lg font-semibold">{group.name}</h3>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => handleEdit(group)}
                 >
-                  <Pencil className="w-4 h-4" />
+                  Edit
                 </Button>
               </div>
             )}
           </div>
-          
+
           <div className="space-y-4">
             {/* Existing mappings */}
             <div className="flex flex-wrap gap-2">
               {mappings
-                .filter(m => m.group_id === group.id)
-                .map(mapping => (
+                .filter((m) => m.group_id === group.id)
+                .map((mapping) => (
                   <div
                     key={mapping.id}
-                    className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-sm group"
+                    className="pill pill--interactive group"
                   >
                     <span>{mapping.genre}</span>
                     {/* Show other groups this genre belongs to */}
@@ -122,9 +122,13 @@ export function GenreGroupList({
             </div>
 
             {/* Add new mapping form */}
-            <MappingForm
-              groupId={group.id}
+            <MappingForm 
+              groupId={group.id} 
               onSubmit={onCreateMapping}
+              existingGenres={mappings
+                .filter(m => m.group_id === group.id)
+                .map(m => m.genre)
+              }
             />
           </div>
         </div>
