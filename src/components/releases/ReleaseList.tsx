@@ -1,10 +1,12 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Release } from "../../types/database";
 import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 import { Button } from "../ui/button";
 import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
+import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
+import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
 
 interface WeekGroup {
   weekRange: {
@@ -101,7 +103,7 @@ const SkeletonWeeklyGroup = () => (
       <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
     </div>
     <div className="release-grid">
-      {Array.from({ length: 4 }).map((_, i) => (
+      {Array.from({ length: 9 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
     </div>
@@ -117,6 +119,16 @@ export function ReleaseList({
   showWeeklyGroups = false,
   onSelect,
 }: ReleaseListProps) {
+  const [sortingStabilized, setSortingStabilized] = useState(false);
+  const { preferences, loading: preferencesLoading } = useGenrePreferences();
+  const { genreGroups, loading: groupsLoading } = useGenreGroups();
+  const { sortReleases } = useReleaseSorting();
+
+  // Reset sorting stabilized state when releases or sorting dependencies change
+  useEffect(() => {
+    setSortingStabilized(false);
+  }, [releases, preferences, genreGroups]);
+
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
     const seen = new Set<string>();
@@ -129,9 +141,9 @@ export function ReleaseList({
   }, [releases]);
 
   const formatArtists = useCallback((release: Release) => {
-    console.log('Release artists:', release.artists);
+    console.log("Release artists:", release.artists);
     if (!release.artists?.length) return "";
-    return release.artists.map(ra => ra.artist.name).join(", ");
+    return release.artists.map((ra) => ra.artist.name).join(", ");
   }, []);
 
   const formatDate = useCallback((dateString: string) => {
@@ -171,18 +183,36 @@ export function ReleaseList({
     [formatDate]
   );
 
-  const { sortReleases } = useReleaseSorting(); // Get the sortReleases function from the hook
+  // Memoize the sorted releases
+  const sortedReleases = useMemo(() => {
+    if (!uniqueReleases || preferencesLoading || groupsLoading) return [];
+    return sortReleases(uniqueReleases);
+  }, [uniqueReleases, sortReleases, preferencesLoading, groupsLoading]);
+
+  // Effect to handle sorting stabilization
+  useEffect(() => {
+    if (
+      !loading &&
+      !preferencesLoading &&
+      !groupsLoading &&
+      sortedReleases.length > 0
+    ) {
+      const timer = setTimeout(() => {
+        setSortingStabilized(true);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    } else {
+      setSortingStabilized(false);
+    }
+  }, [loading, preferencesLoading, groupsLoading, sortedReleases]);
 
   const groupReleasesByWeek = useCallback(
     (releases: Release[]) => {
       const groups = new Map<string, Release[]>();
-      const sortedReleases = [...releases].sort((a, b) => {
-        const dateA = new Date(a.release_date).getTime();
-        const dateB = new Date(b.release_date).getTime();
-        return dateB - dateA;
-      });
 
-      sortedReleases.forEach((release) => {
+      // Use already sorted releases instead of sorting again
+      releases.forEach((release) => {
         const weekKey = getWeekKey(new Date(release.release_date));
         const group = groups.get(weekKey) || [];
         group.push(release);
@@ -193,10 +223,10 @@ export function ReleaseList({
         .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
         .map(([key, releases]) => ({
           weekRange: getWeekRange(new Date(key)),
-          releases: sortReleases(releases), // Sort releases within each week
+          releases, // No need to sort again since input is already sorted
         }));
     },
-    [getWeekKey, getWeekRange, sortReleases]
+    [getWeekKey, getWeekRange]
   );
 
   const formatReleaseType = useCallback((type: string) => {
@@ -323,7 +353,15 @@ export function ReleaseList({
     [formatArtists, formatDate, formatReleaseType]
   );
 
-  if (loading) {
+  // Show loading state until everything is ready
+  const isLoading =
+    loading ||
+    preferencesLoading ||
+    groupsLoading ||
+    !sortingStabilized ||
+    !sortedReleases.length;
+
+  if (isLoading) {
     return (
       <div className="space-y-12">
         {showWeeklyGroups ? (
@@ -344,7 +382,7 @@ export function ReleaseList({
   return (
     <div className="space-y-8">
       {showWeeklyGroups ? (
-        groupReleasesByWeek(uniqueReleases).map(({ weekRange, releases }) => (
+        groupReleasesByWeek(sortedReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key} className="relative">
             <div className="weekly-group-header">
               <div className="flex items-baseline gap-2 text-xl font-semibold">
@@ -361,7 +399,7 @@ export function ReleaseList({
           </div>
         ))
       ) : (
-        <div className="release-grid">{uniqueReleases.map(renderRelease)}</div>
+        <div className="release-grid">{sortedReleases.map(renderRelease)}</div>
       )}
 
       {/* Load more button */}
