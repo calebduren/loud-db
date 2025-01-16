@@ -76,7 +76,7 @@ export function CreatedReleases() {
     return (
       <div>
         <PageTitle
-          title={isOwnProfile ? "Releases You Submitted" : "Submitted Releases"}
+          title="Submissions"
           showAddRelease={false}
           showImportPlaylist={false}
         />
@@ -113,11 +113,7 @@ export function CreatedReleases() {
   return (
     <div>
       <PageTitle
-        title={
-          isOwnProfile
-            ? "Submissions"
-            : `${profile?.username}'s Submitted Releases`
-        }
+        title="Submissions"
         subtitle="Sorted by the submission date"
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}

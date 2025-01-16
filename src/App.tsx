@@ -1,24 +1,24 @@
-import React from 'react';
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { Layout } from './components/Layout';
-import { LoadingSpinner } from './components/LoadingSpinner';
-import { WelcomeScreen } from './components/WelcomeScreen';
-import { AllReleases } from './components/releases/AllReleases';
-import { UserProfileLayout } from './components/user/profile/UserProfileLayout';
-import { LikedReleases } from './components/user/LikedReleases';
-import { CreatedReleases } from './components/user/CreatedReleases';
-import { PreferenceSettings } from './components/user/settings/PreferenceSettings';
-import { AccountSettings } from './components/user/settings/AccountSettings';
-import { AdminLayout } from './components/admin/AdminLayout';
-import { UserManagement } from './components/admin/users/UserManagement';
-import { GenreMappingManager } from './components/admin/genres/GenreMappingManager';
-import { InviteCodeManager } from './components/admin/invites/InviteCodeManager';
-import { ComponentLibrary } from './components/admin/ComponentLibrary';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { Terms } from './pages/Terms';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import React from "react";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Layout } from "./components/Layout";
+import { LoadingSpinner } from "./components/LoadingSpinner";
+import { WelcomeScreen } from "./components/WelcomeScreen";
+import { AllReleases } from "./components/releases/AllReleases";
+import { UserProfileLayout } from "./components/user/profile/UserProfileLayout";
+import { LikedReleases } from "./components/user/LikedReleases";
+import { CreatedReleases } from "./components/user/CreatedReleases";
+import { PreferenceSettings } from "./components/user/settings/PreferenceSettings";
+import { AccountSettings } from "./components/user/settings/AccountSettings";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import { UserManagement } from "./components/admin/users/UserManagement";
+import { GenreMappingManager } from "./components/admin/genres/GenreMappingManager";
+import { InviteCodeManager } from "./components/admin/invites/InviteCodeManager";
+import { ComponentLibrary } from "./components/admin/ComponentLibrary";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { Terms } from "./pages/Terms";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-const RESERVED_PATHS = ['u', 'r', 'admin', 'privacy', 'terms'];
+const RESERVED_PATHS = ["u", "r", "admin", "privacy", "terms"];
 
 export default function App() {
   return (
@@ -45,23 +45,26 @@ function AppRoutes() {
             {/* Main Routes */}
             <Route path="/" element={<AllReleases />} />
             <Route path="/likes" element={<LikedReleases />} />
-            <Route path="/created" element={<CreatedReleases />} />
-            
+            <Route path="/submissions" element={<CreatedReleases />} />
+
             {/* Own Profile Routes */}
             <Route path="/u/me" element={<UserProfileLayout />}>
               <Route index element={<Navigate to="likes" replace />} />
               <Route path="likes" element={<LikedReleases />} />
-              <Route path="created" element={<CreatedReleases />} />
+              <Route path="submissions" element={<CreatedReleases />} />
             </Route>
             <Route path="/preferences" element={<PreferenceSettings />} />
             <Route path="/account" element={<AccountSettings />} />
 
             {/* Public Profile Routes */}
-            <Route path="/u/:username" element={
-              <RestrictedRoute reservedPaths={RESERVED_PATHS}>
-                <UserProfileLayout />
-              </RestrictedRoute>
-            }>
+            <Route
+              path="/u/:username"
+              element={
+                <RestrictedRoute reservedPaths={RESERVED_PATHS}>
+                  <UserProfileLayout />
+                </RestrictedRoute>
+              }
+            >
               <Route index element={<LikedReleases />} />
               <Route path="likes" element={<LikedReleases />} />
               <Route path="created" element={<CreatedReleases />} />
@@ -77,8 +80,14 @@ function AppRoutes() {
             </Route>
 
             {/* Legacy Profile Route Redirect */}
-            <Route path="/profile/*" element={<Navigate to="/u/me" replace />} />
-            <Route path="/:username" element={<Navigate to="/u/:username" replace />} />
+            <Route
+              path="/profile/*"
+              element={<Navigate to="/u/me" replace />}
+            />
+            <Route
+              path="/:username"
+              element={<Navigate to="/u/:username" replace />}
+            />
 
             {/* Legal Routes */}
             <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -90,12 +99,18 @@ function AppRoutes() {
   );
 }
 
-function RestrictedRoute({ children, reservedPaths }: { children: React.ReactNode, reservedPaths: string[] }) {
+function RestrictedRoute({
+  children,
+  reservedPaths,
+}: {
+  children: React.ReactNode;
+  reservedPaths: string[];
+}) {
   const { username } = useParams();
-  
+
   if (username && reservedPaths.includes(username)) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }

@@ -72,7 +72,7 @@ export const Sidebar = React.memo(({ onClose }: SidebarProps) => {
           </div>
           {(isAdmin || canManageReleases) && (
             <div>
-              <NavItem to="/created">Submissions</NavItem>
+              <NavItem to="/submissions">Submissions</NavItem>
             </div>
           )}
           {isAdmin && (
