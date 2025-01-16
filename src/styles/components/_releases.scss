@@ -57,7 +57,7 @@
   }
 
   &__label {
-    @apply text-xs font-semibold text-white/60 text-mono mb-1;
+    @apply text-xs font-medium text-[--color-gray-400] text-mono mb-1;
   }
 
   // Title section
@@ -78,7 +78,7 @@
     &-pill {
       @apply rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium backdrop-blur;
       background-color: var(--color-genre-pill-background);
-      border: 1px solid var(--color-genre-pill-border);
+      border: 0.5px solid var(--color-genre-pill-border);
     }
   }
 
@@ -130,7 +130,7 @@
   }
 
   &__link {
-    @apply flex items-center gap-1 text-[12px] whitespace-nowrap transition-opacity;
+    @apply flex items-center gap-1 text-sm whitespace-nowrap transition-opacity;
     &:hover {
       opacity: 0.8;
     }
@@ -156,14 +156,22 @@
   background-color: var(--color-divider);
 }
 
-.release-modal__bottom-actions {
-  @apply absolute bottom-0 left-0 right-0 bg-[var(--color-background)];
-
-  .release-card__links {
-    @apply px-8 py-6;
-  }
-}
-
 .release-modal {
   @apply rounded-xl overflow-hidden;
+
+  &__bottom-actions {
+    @apply absolute bottom-0 left-0 right-0 bg-[var(--color-gray-900)] z-10 border-t-[0.5px] border-[--color-gray-700];
+
+    .release-card__links {
+      @apply pl-10 pr-24 py-6 flex justify-between;
+    }
+  }
+
+  &__track-number {
+    @apply text-sm text-[--color-gray-400] w-6 text-left;
+  }
+
+  &__scrollable {
+    @apply flex-1 overflow-y-auto px-10 pt-10 pb-20;
+  }
 }

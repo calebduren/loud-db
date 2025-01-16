@@ -7,6 +7,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../ui/button";
 import { TrackList } from "./TrackList";
 import { ReleaseInfo } from "./ReleaseInfo";
+import { ExternalLinkArrow } from "../../icons/ExternalLinkArrow";
 
 interface ReleaseModalProps {
   release: Release;
@@ -65,7 +66,7 @@ export function ReleaseModal({
             <X size={14} strokeWidth={2} />
           </button>
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="release-modal__scrollable">
             <div className="space-y-6">
               {/* Artist Section */}
               <div>
@@ -85,66 +86,72 @@ export function ReleaseModal({
               <ReleaseInfo release={release} canEdit={canEdit} />
               <TrackList tracks={release.tracks || []} />
             </div>
-            {/* Admin Actions */}
-            {(canEdit || canDelete) && (
-              <div
-                className="flex gap-2 mt-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {canEdit && onEdit && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit();
-                    }}
-                  >
-                    Edit
-                  </Button>
-                )}
-                {canDelete && onDelete && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(release);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Fixed Actions Bar */}
           <div className="release-modal__bottom-actions">
             <div className="release-card__actions">
               <div className="release-card__links">
-                {release.spotify_url && (
-                  <a
-                    href={release.spotify_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="release-card__link"
-                  >
-                    Spotify <span className="text-[#F1977E]">→</span>
-                  </a>
-                )}
-                {release.apple_music_url && (
-                  <a
-                    href={release.apple_music_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="release-card__link"
-                  >
-                    Apple Music <span className="text-[#F1977E]">→</span>
-                  </a>
-                )}
+                <div>
+                  {release.spotify_url && (
+                    <a
+                      href={release.spotify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Spotify <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                  {release.apple_music_url && (
+                    <a
+                      href={release.apple_music_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Apple Music{" "}
+                      <ExternalLinkArrow className="text-[#F1977E]" />
+                    </a>
+                  )}
+                </div>
+
+                {/* Admin Actions */}
+                <div>
+                  {(canEdit || canDelete) && (
+                    <div
+                      className="flex gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {canEdit && onEdit && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit();
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {canDelete && onDelete && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(release);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               <div
                 className="release-card__like"

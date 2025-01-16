@@ -58,7 +58,7 @@ export function ProfileHeader({
         </div>
         {isOwnProfile && (
           <Link to="/account">
-            <Button variant="secondary" size="sm" className="mt-4">
+            <Button variant="secondary" size="lg">
               Edit Profile
             </Button>
           </Link>
@@ -72,12 +72,12 @@ export function ProfileHeader({
             Joined {formatDate(profile.created_at)}
           </p>
           {profile.role === "admin" && (
-            <span className="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-400">
+            <span className="inline-flex items-center rounded-md bg-green-400/20 px-2 py-1 text-xs font-semibold text-green-400">
               Admin
             </span>
           )}
           {profile.role === "creator" && (
-            <span className="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400">
+            <span className="inline-flex items-center rounded-md bg-purple-400/20 px-2 py-1 text-xs font-semibold text-purple-400">
               Creator
             </span>
           )}
