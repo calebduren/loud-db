@@ -85,7 +85,7 @@ export function LikedReleases({
         message: "Release deleted successfully",
         type: "success",
       });
-      
+
       setViewingRelease(undefined);
       // Refetch likes - this will happen automatically through subscription
     } catch (error) {
@@ -103,6 +103,7 @@ export function LikedReleases({
         {showPageTitle && (
           <PageTitle
             title="Likes"
+            subtitle="You have not liked any releases yet"
             showAddRelease={isAdmin || isCreator}
             showImportPlaylist={isAdmin}
           />
@@ -118,7 +119,9 @@ export function LikedReleases({
 
   return (
     <div>
-      {showPageTitle && <PageTitle title="Likes" />}
+      {showPageTitle && (
+        <PageTitle title="Likes" subtitle="Sorted by date you liked them" />
+      )}
       <ReleaseList
         releases={releases || []}
         loading={loading}

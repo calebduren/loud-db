@@ -59,7 +59,7 @@ export function CreatedReleases() {
         message: "Release deleted successfully",
         type: "success",
       });
-      
+
       setViewingRelease(undefined);
       refetch();
     } catch (error) {
@@ -115,9 +115,10 @@ export function CreatedReleases() {
       <PageTitle
         title={
           isOwnProfile
-            ? "Releases You Submitted"
+            ? "Submissions"
             : `${profile?.username}'s Submitted Releases`
         }
+        subtitle="Sorted by the submission date"
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}
       />
@@ -137,10 +138,14 @@ export function CreatedReleases() {
           isOpen={true}
           release={viewingRelease}
           onClose={() => setViewingRelease(undefined)}
-          onEdit={canManageReleases ? () => {
-            setEditingRelease(viewingRelease);
-            setViewingRelease(undefined);
-          } : undefined}
+          onEdit={
+            canManageReleases
+              ? () => {
+                  setEditingRelease(viewingRelease);
+                  setViewingRelease(undefined);
+                }
+              : undefined
+          }
           onDelete={canManageReleases ? handleDelete : undefined}
         />
       )}
