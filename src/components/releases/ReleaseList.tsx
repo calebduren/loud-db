@@ -239,7 +239,11 @@ export function ReleaseList({
       <div
         key={`${release.id}-${release.created_by}`}
         className="release-card"
-        onClick={() => onSelect?.(release)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onSelect?.(release);
+        }}
       >
         <div className="release-card__cover">
           <div className="release-card__image-container">
@@ -306,6 +310,7 @@ export function ReleaseList({
             <div className="release-card__actions">
               {showActions && (
                 <div className="release-card__links">
+                <div>
                   {release.spotify_url && (
                     <a
                       href={release.spotify_url}
@@ -325,11 +330,11 @@ export function ReleaseList({
                       onClick={(e) => e.stopPropagation()}
                       className="release-card__link"
                     >
-                      Apple Music{" "}
-                      <ExternalLinkArrow className="text-[#F1977E]" />
+                      Apple Music <ExternalLinkArrow className="text-[#F1977E]" />
                     </a>
                   )}
                 </div>
+              </div>
               )}
               <div
                 className="release-card__like"

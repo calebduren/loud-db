@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { AuthContext } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
 import { ReleaseList } from "../releases/ReleaseList";
+import { ReleaseModal } from "../releases/ReleaseModal";
+import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { useLikedReleases } from "../../hooks/useLikedReleases";
 import { useLikedReleasesByUser } from "../../hooks/useLikedReleasesByUser";
 import { PageTitle } from "../layout/PageTitle";
 import { Release } from "../../types/database";
+import { useToast } from "../../hooks/useToast";
+import { supabase } from "../../lib/supabase";
 
 interface LikedReleasesProps {
   releases?: Release[];
@@ -21,7 +25,7 @@ export function LikedReleases({
 }: LikedReleasesProps = {}) {
   const { username } = useParams();
   const { pathname } = useLocation();
-  const { user } = React.useContext(AuthContext);
+  const { user, canManageReleases } = useAuth();
   const { profile: currentProfile } = useProfile(user?.id);
   const { profile, loading: profileLoading } = useProfile(username);
   const isOwnProfile =
@@ -55,12 +59,50 @@ export function LikedReleases({
   const isAdmin = currentProfile?.role === "admin";
   const isCreator = currentProfile?.role === "creator";
 
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const { showToast } = useToast();
+
+  const handleDelete = async (release: Release) => {
+    if (!window.confirm("Are you sure you want to delete this release?")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("releases")
+        .delete()
+        .eq("id", release.id)
+        .eq("created_by", user?.id);
+
+      if (error) throw error;
+
+      showToast({
+        message: "Release deleted successfully",
+        type: "success",
+      });
+      
+      setViewingRelease(undefined);
+      // Refetch likes - this will happen automatically through subscription
+    } catch (error) {
+      console.error("Error deleting release:", error);
+      showToast({
+        message: "Failed to delete release",
+        type: "error",
+      });
+    }
+  };
+
   if (!loading && (!releases || releases.length === 0)) {
     return (
       <div>
         {showPageTitle && (
           <PageTitle
-            title="Your likes"
+            title="Likes"
             showAddRelease={isAdmin || isCreator}
             showImportPlaylist={isAdmin}
           />
@@ -76,14 +118,35 @@ export function LikedReleases({
 
   return (
     <div>
-      {showPageTitle && (
-        <PageTitle
-          title="Your likes"
-          showAddRelease={isAdmin || isCreator}
-          showImportPlaylist={isAdmin}
+      {showPageTitle && <PageTitle title="Likes" />}
+      <ReleaseList
+        releases={releases || []}
+        loading={loading}
+        onSelect={setViewingRelease}
+      />
+      {viewingRelease && (
+        <ReleaseModal
+          isOpen={true}
+          release={viewingRelease}
+          onClose={() => setViewingRelease(undefined)}
+          onEdit={
+            canManageReleases
+              ? () => {
+                  setEditingRelease(viewingRelease);
+                  setViewingRelease(undefined);
+                }
+              : undefined
+          }
+          onDelete={canManageReleases ? handleDelete : undefined}
         />
       )}
-      <ReleaseList releases={releases || []} loading={loading} />
+      {editingRelease && (
+        <ReleaseFormModal
+          isOpen={true}
+          release={editingRelease}
+          onClose={() => setEditingRelease(undefined)}
+        />
+      )}
     </div>
   );
 }

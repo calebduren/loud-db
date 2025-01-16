@@ -1,25 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfile } from "../../hooks/useProfile";
-import { ReleaseList } from "../releases/ReleaseList";
 import { useUserReleases } from "../../hooks/useUserReleases";
-import { PageTitle } from "../layout/PageTitle";
+import { ReleaseList } from "../releases/ReleaseList";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
-import { usePermissions } from "../../hooks/usePermissions";
 import { Release } from "../../types/database";
 import { AlertCircle } from "lucide-react";
+import { ReleaseModal } from "../releases/ReleaseModal";
+import { useToast } from "../../hooks/useToast";
+import { supabase } from "../../lib/supabase";
+import { PageTitle } from "../layout/PageTitle";
 
 export function CreatedReleases() {
   const { username } = useParams();
-  const { user } = useAuth();
+  const { user, canManageReleases } = useAuth();
   const { profile: currentProfile } = useProfile(user?.id);
   const { profile, loading: profileLoading } = useProfile(username);
-  const { canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | undefined>(
     undefined
   );
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const loadMoreRef = useRef<() => void>();
+  const { showToast } = useToast();
 
   const isOwnProfile = !username || currentProfile?.username === username;
   const userId = isOwnProfile ? user?.id : profile?.id;
@@ -29,12 +35,41 @@ export function CreatedReleases() {
     error,
     refetch,
     hasMore,
-    loadMoreRef,
   } = useUserReleases(userId);
   const loading = profileLoading || releasesLoading;
 
   const isAdmin = currentProfile?.role === "admin";
   const isCreator = currentProfile?.role === "creator";
+
+  const handleDelete = async (release: Release) => {
+    if (!window.confirm("Are you sure you want to delete this release?")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("releases")
+        .delete()
+        .eq("id", release.id)
+        .eq("created_by", user?.id);
+
+      if (error) throw error;
+
+      showToast({
+        message: "Release deleted successfully",
+        type: "success",
+      });
+      
+      setViewingRelease(undefined);
+      refetch();
+    } catch (error) {
+      console.error("Error deleting release:", error);
+      showToast({
+        message: "Failed to delete release",
+        type: "error",
+      });
+    }
+  };
 
   // Only show loading state on initial load
   if (loading && !releases.length) {
@@ -91,12 +126,24 @@ export function CreatedReleases() {
         <ReleaseList
           releases={releases || []}
           loading={loading}
-          showActions={isAdmin || isCreator}
-          onEdit={isOwnProfile ? setEditingRelease : undefined}
           hasMore={hasMore}
-          loadMoreRef={loadMoreRef}
+          loadMore={() => loadMoreRef.current?.()}
+          onSelect={setViewingRelease}
         />
       </div>
+
+      {viewingRelease && (
+        <ReleaseModal
+          isOpen={true}
+          release={viewingRelease}
+          onClose={() => setViewingRelease(undefined)}
+          onEdit={canManageReleases ? () => {
+            setEditingRelease(viewingRelease);
+            setViewingRelease(undefined);
+          } : undefined}
+          onDelete={canManageReleases ? handleDelete : undefined}
+        />
+      )}
 
       {(isAdmin || isCreator) && (
         <>
