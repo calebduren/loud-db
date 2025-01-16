@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
 import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
+import { formatDate } from "../../lib/utils/dateUtils";
 
 interface WeekGroup {
   weekRange: {
@@ -144,13 +145,6 @@ export function ReleaseList({
     console.log("Release artists:", release.artists);
     if (!release.artists?.length) return "";
     return release.artists.map((ra) => ra.artist.name).join(", ");
-  }, []);
-
-  const formatDate = useCallback((dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    });
   }, []);
 
   const getWeekKey = useCallback((date: Date) => {
