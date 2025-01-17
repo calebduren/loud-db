@@ -18,12 +18,13 @@ interface PlaylistImportModalProps {
 }
 
 interface ImportProgress {
-  stage: "fetching" | "importing";
+  stage: "fetching" | "importing" | "complete";
   current: number;
   total: number;
   currentAlbum?: string;
   errors: string[];
   skipped: string[];
+  created: string[];
 }
 
 // Helper function to delay between requests
@@ -59,6 +60,7 @@ export function PlaylistImportModal({
     total: 0,
     errors: [],
     skipped: [],
+    created: [],
   });
   const { user } = useAuth();
 
@@ -70,6 +72,7 @@ export function PlaylistImportModal({
       total: albums.length,
       errors: [],
       skipped: [],
+      created: [],
     }));
 
     for (let i = 0; i < albums.length; i++) {
@@ -101,7 +104,7 @@ export function PlaylistImportModal({
         }
 
         const releaseData = await retry(() =>
-          fetchReleaseFromSpotify(album.id)
+          fetchReleaseFromSpotify(`https://open.spotify.com/album/${album.id}`)
         );
         if (!releaseData) {
           throw new Error("Failed to fetch release data");
@@ -140,6 +143,11 @@ export function PlaylistImportModal({
           })),
         });
 
+        setProgress((prev) => ({
+          ...prev,
+          created: [...prev.created, album.name],
+        }));
+
         await delay(500); // Add a small delay between imports
       } catch (error) {
         console.error("Error importing album:", error);
@@ -154,6 +162,11 @@ export function PlaylistImportModal({
         }));
       }
     }
+
+    setProgress((prev) => ({
+      ...prev,
+      stage: "complete",
+    }));
 
     if (progress.errors.length === 0 && progress.skipped.length === 0) {
       onSuccess();
@@ -172,6 +185,7 @@ export function PlaylistImportModal({
         total: 0,
         errors: [],
         skipped: [],
+        created: [],
       });
 
       // Fetch all albums from playlist
@@ -202,9 +216,13 @@ export function PlaylistImportModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Import Spotify Playlist">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Import albums from Spotify playlist"
+    >
       <div className="space-y-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm">
           Enter a Spotify playlist URL to import all albums from that playlist.
         </p>
         <Input
@@ -266,12 +284,36 @@ export function PlaylistImportModal({
                 </div>
               </div>
             )}
+
+            {/* Success Summary */}
+            {progress.stage === "complete" && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-sm font-medium text-white/60">
+                  Import Summary:
+                </h3>
+                <div className="space-y-1 text-sm">
+                  <div className="text-green-400">
+                    Successfully imported: {progress.created.length} albums
+                  </div>
+                  {progress.skipped.length > 0 && (
+                    <div className="text-yellow-400">
+                      Skipped (duplicates): {progress.skipped.length} albums
+                    </div>
+                  )}
+                  {progress.errors.length > 0 && (
+                    <div className="text-red-400">
+                      Failed to import: {progress.errors.length} albums
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={onClose} disabled={loading}>
-            {progress.errors.length > 0 ? "Close" : "Cancel"}
+            {progress.stage === "complete" ? "Done" : "Cancel"}
           </Button>
           <Button onClick={handleImport} disabled={loading || !url.trim()}>
             Import
