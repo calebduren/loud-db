@@ -1,7 +1,7 @@
-import React from 'react';
-import { Modal } from '../ui/Modal';
-import { ReleaseForm } from './forms/ReleaseForm';
-import { Release } from '../../types/database';
+import React from "react";
+import { Modal } from "../ui/Modal";
+import { ReleaseForm } from "./forms/ReleaseForm";
+import { Release } from "../../types/database";
 
 interface ReleaseFormModalProps {
   isOpen: boolean;
@@ -10,35 +10,40 @@ interface ReleaseFormModalProps {
   release?: Release;
 }
 
-export function ReleaseFormModal({ isOpen, onClose, onSuccess, release }: ReleaseFormModalProps) {
+export function ReleaseFormModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  release,
+}: ReleaseFormModalProps) {
   const handleSuccess = async (release: Release) => {
-    console.log('ReleaseFormModal - handleSuccess called');
-    
+    console.log("ReleaseFormModal - handleSuccess called");
+
     try {
-      console.log('ReleaseFormModal - calling onSuccess');
+      console.log("ReleaseFormModal - calling onSuccess");
       await Promise.resolve(onSuccess?.(release));
-      console.log('ReleaseFormModal - onSuccess complete');
-      console.log('ReleaseFormModal - closing modal');
+      console.log("ReleaseFormModal - onSuccess complete");
+      console.log("ReleaseFormModal - closing modal");
       onClose();
-      console.log('ReleaseFormModal - modal closed');
+      console.log("ReleaseFormModal - modal closed");
     } catch (error) {
-      console.error('Error in handleSuccess:', error);
+      console.error("Error in handleSuccess:", error);
     }
   };
 
   const handleClose = (e?: React.MouseEvent) => {
-    console.log('ReleaseFormModal - handleClose called');
+    console.log("ReleaseFormModal - handleClose called");
     if (e) {
-      console.log('ReleaseFormModal - preventing event default');
+      console.log("ReleaseFormModal - preventing event default");
       e.preventDefault();
       e.stopPropagation();
       // Also stop immediate propagation
-      if ('nativeEvent' in e) {
+      if ("nativeEvent" in e) {
         e.nativeEvent.stopImmediatePropagation();
       }
     }
     // Clear the form data from localStorage when closing
-    localStorage.removeItem('releaseFormDraft');
+    localStorage.removeItem("releaseFormDraft");
     onClose();
   };
 
@@ -46,15 +51,15 @@ export function ReleaseFormModal({ isOpen, onClose, onSuccess, release }: Releas
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={release ? 'Edit Release' : 'Create New Release'}
+      title={release ? "Edit release" : "Create new release"}
       className="max-w-2xl"
     >
-      <div 
-        onClick={e => {
+      <div
+        onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
         }}
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
         }}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema, FormValues } from '../components/admin/forms/releaseFormSchema';
@@ -64,6 +64,23 @@ export function useReleaseForm(release?: Release) {
     resolver: zodResolver(formSchema),
     defaultValues: getInitialValues()
   });
+
+  const reset = useCallback(() => {
+    form.reset({
+      name: '',
+      release_type: 'single',
+      cover_url: '',
+      genres: [],
+      record_label: '',
+      track_count: 0,
+      spotify_url: '',
+      apple_music_url: '',
+      release_date: new Date().toISOString().split('T')[0],
+      description: '',
+      tracks: [],
+      related_artists: []
+    });
+  }, [form]);
 
   // Save form state to localStorage whenever it changes
   useEffect(() => {
@@ -133,6 +150,7 @@ export function useReleaseForm(release?: Release) {
     form,
     loading,
     error,
-    handleSubmit
+    handleSubmit,
+    reset,
   };
 }

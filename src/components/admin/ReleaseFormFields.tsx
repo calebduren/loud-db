@@ -67,7 +67,7 @@ export function ReleaseFormFields({
             <FormControl>
               <select
                 {...field}
-                className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20"
+                className="flex h-[34px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20"
               >
                 <option value="" className="bg-[var(--color-gray-800)]">
                   Select Type

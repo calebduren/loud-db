@@ -60,6 +60,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
     loading,
     error,
     handleSubmit: originalHandleSubmit,
+    reset,
   } = useReleaseForm(release);
   const { artists } = useArtists();
   const { showToast } = useToast();
@@ -79,6 +80,14 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
       image_url: ra.artist.image_url,
     })) || [{ name: "" }]
   );
+
+  const handleClose = useCallback(() => {
+    // Clear form data
+    localStorage.removeItem("releaseFormDraft");
+    reset();
+    setSelectedArtists([{ name: "" }]);
+    onClose?.();
+  }, [onClose, reset, setSelectedArtists]);
 
   // Initialize form with release data if editing
   React.useEffect(() => {
@@ -213,7 +222,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         };
 
         // Close modal first
-        onClose?.();
+        handleClose();
 
         // Update UI optimistically
         onSuccess?.(newRelease);
