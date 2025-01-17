@@ -26,7 +26,7 @@ interface BasicInfoTabProps {
   onRemoveArtist: (index: number) => void;
 }
 
-const RELEASE_TYPES = ["single", "ep", "lp", "compilation"] as const;
+const RELEASE_TYPES = ["single", "EP", "LP", "compilation"] as const;
 
 export function BasicInfoTab({
   form,
