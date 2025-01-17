@@ -87,21 +87,20 @@
   // Title section
   &__title,
   &__artist {
-    @apply text-[24px] font-semibold leading-[0.9];
-    color: var(--color-text);
+    @apply text-[24px] font-semibold leading-[1.02];
   }
 
   &__title {
     @apply italic;
   }
 
-  &__title + &__artist {
-    @apply mt-2;
+  &__artist + &__title {
+    @apply mt-3;
   }
 
   // Genre pills
   &__genres {
-    @apply flex flex-wrap gap-2 mt-4;
+    @apply flex flex-wrap gap-2 mt-[14px];
 
     &-pill {
       @apply rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium backdrop-blur;
@@ -112,12 +111,12 @@
 
   // Details section
   &__details {
-    @apply w-full px-[6px] pb-[6px];
-    background-color: var(--color-card-background);
+    @apply w-full px-[6px] pb-[6px] bg-[--color-gray-800];
 
     &-container {
-      @apply w-full rounded-[3px_3px_8px_8px];
-      background-color: var(--color-surface-dark);
+      @apply w-full rounded-[3px_3px_8px_8px] bg-[--color-gray-700];
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.02),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.25);
     }
   }
 
