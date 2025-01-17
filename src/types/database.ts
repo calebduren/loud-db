@@ -31,7 +31,9 @@ export interface Release {
   } | null;
   artists: Array<{
     artist: {
+      id: string;
       name: string;
+      image_url?: string | null;
     };
   }>;
   tracks?: Track[];

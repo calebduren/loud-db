@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 
 interface ReleaseTrack {
   name: string;
-  duration_ms: number;
+  duration_ms: number | undefined;
   track_number: number;
   credits: Array<{
     name: string;
@@ -24,7 +24,9 @@ interface ReleaseTrack {
     id?: string;
   }>;
   id?: string;
-  preview_url?: string | null;
+  preview_url?: string;
+  release_id?: string;
+  created_at?: string;
 }
 
 interface ReleaseFormData {
@@ -105,7 +107,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
               id: credit.id,
             })) || [],
           id: track.id,
-          preview_url: track.preview_url,
+          preview_url: track.preview_url || undefined,
         })),
       };
 
@@ -140,6 +142,8 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         description: "",
         tracks: importedData.tracks.map((track) => ({
           ...track,
+          duration_ms: track.duration_ms ?? undefined,
+          preview_url: track.preview_url || undefined,
           credits: [],
         })),
         apple_music_url: "",
@@ -150,7 +154,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         importedData.artists.map((artist) => ({
           id: undefined,
           name: artist.name,
-          image_url: null,
         }))
       );
     },
@@ -198,8 +201,14 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
             artist: {
               id: a.id || "",
               name: a.name,
-              image_url: a.image_url || null,
             },
+          })),
+          tracks: values.tracks.map((track) => ({
+            ...track,
+            id: track.id || crypto.randomUUID(),
+            release_id: release?.id || releaseId,
+            created_at: new Date().toISOString(),
+            preview_url: track.preview_url || null,
           })),
         };
 
