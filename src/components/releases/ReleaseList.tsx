@@ -26,6 +26,7 @@ interface ReleaseListProps {
   hasMore?: boolean;
   loadMore?: () => void;
   showWeeklyGroups?: boolean;
+  disableSorting?: boolean;
   onSelect?: (release: Release) => void;
   onEdit?: (release: Release) => void;
   onDelete?: (release: Release) => void;
@@ -91,7 +92,7 @@ const SkeletonCard = () => (
               <div className="h-4 w-24" />
             </div>
           </div>
-          <div className="release-card__like w-[62px] h-full"></div>
+          <div className="release__like w-[62px] h-full"></div>
         </div>
       </div>
     </div>
@@ -118,6 +119,7 @@ export function ReleaseList({
   hasMore,
   loadMore,
   showWeeklyGroups = false,
+  disableSorting = false,
   onSelect,
 }: ReleaseListProps) {
   const [sortingStabilized, setSortingStabilized] = useState(false);
@@ -179,9 +181,18 @@ export function ReleaseList({
 
   // Memoize the sorted releases
   const sortedReleases = useMemo(() => {
+    if (disableSorting) {
+      return uniqueReleases;
+    }
     if (!uniqueReleases || preferencesLoading || groupsLoading) return [];
     return sortReleases(uniqueReleases);
-  }, [uniqueReleases, sortReleases, preferencesLoading, groupsLoading]);
+  }, [
+    uniqueReleases,
+    sortReleases,
+    disableSorting,
+    preferencesLoading,
+    groupsLoading,
+  ]);
 
   // Effect to handle sorting stabilization
   useEffect(() => {
@@ -310,34 +321,36 @@ export function ReleaseList({
             <div className="release-card__actions">
               {showActions && (
                 <div className="release-card__links">
-                <div>
-                  {release.spotify_url && (
-                    <a
-                      href={release.spotify_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="release-card__link"
-                    >
-                      Spotify <ExternalLinkArrow className="text-[#F1977E]" />
-                    </a>
-                  )}
-                  {release.apple_music_url && (
-                    <a
-                      href={release.apple_music_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="release-card__link"
-                    >
-                      Apple Music <ExternalLinkArrow className="text-[#F1977E]" />
-                    </a>
-                  )}
+                  <div>
+                    {release.spotify_url && (
+                      <a
+                        href={release.spotify_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="release-card__link"
+                      >
+                        Spotify{" "}
+                        <ExternalLinkArrow className="text-[--color-loud]" />
+                      </a>
+                    )}
+                    {release.apple_music_url && (
+                      <a
+                        href={release.apple_music_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="release-card__link"
+                      >
+                        Apple Music{" "}
+                        <ExternalLinkArrow className="text-[--color-loud]" />
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
               )}
               <div
-                className="release-card__like"
+                className="release__like"
                 onClick={(e) => e.stopPropagation()}
               >
                 <LikeButton releaseId={release.id} />

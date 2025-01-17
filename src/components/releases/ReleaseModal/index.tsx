@@ -1,7 +1,7 @@
 import React from "react";
 import { Release } from "../../../types/database";
 import { Modal } from "../../ui/Modal";
-import { Music, X } from "lucide-react";
+import { ImageOff, X } from "lucide-react";
 import { LikeButton } from "../../LikeButton";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../ui/button";
@@ -40,121 +40,113 @@ export function ReleaseModal({
 
   return (
     <Modal className="release-modal" isOpen={isOpen} onClose={onClose}>
-      <div className="grid grid-cols-[640px_1fr] h-full">
+      <div className="release-modal__grid">
         {/* Left Column - Cover Art */}
-        <div className="relative h-[640px]">
+        <div className="release-modal__left">
           {release.cover_url ? (
             <img
               src={release.cover_url}
               alt={`${release.name} cover`}
-              className="w-full h-full object-cover"
+              className="release-modal__cover"
             />
           ) : (
             <div className="w-full h-full bg-[var(--color-gray-800)] flex items-center justify-center">
-              <Music className="w-12 h-12 text-gray-700" />
+              <ImageOff size={14} strokeWidth={1.5} className="text-gray-600" />
             </div>
           )}
         </div>
 
         {/* Right Column - Details */}
-        <div className="relative flex flex-col h-full overflow-hidden pb-16">
+        <div className="release-modal__right">
           {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-8 right-8 z-100 text-white/60 hover:text-white transition-colors"
-          >
-            <X size={14} strokeWidth={2} />
+          <button onClick={onClose} className="release-modal__close">
+            <X size={16} strokeWidth={1.5} />
           </button>
           {/* Scrollable Content */}
           <div className="release-modal__scrollable">
-            <div className="space-y-6">
-              {/* Artist Section */}
+            {/* Artist Section */}
+            <div>
+              <div className="release-card__label">Artist(s)</div>
+              <h2 className="release-card__artist">
+                {release.artists?.map((ra) => ra.artist.name).join(", ")}
+              </h2>
+            </div>
+
+            {/* Title Section */}
+            <div>
+              <div className="release-card__label">Title</div>
+              <h2 className="release-card__title">{release.name}</h2>
+            </div>
+            <ReleaseInfo release={release} canEdit={canEdit} />
+            <TrackList tracks={release.tracks || []} />
+            {/* Admin Actions */}
+            {(canEdit || canDelete) && (
               <div>
-                <div className="release-card__label">Artist(s)</div>
-                <div className="flex items-center justify-between">
-                  <h2 className="release-card__artist">
-                    {release.artists?.map((ra) => ra.artist.name).join(", ")}
-                  </h2>
+                <div className="release-card__label">Actions</div>
+                <div
+                  className="flex gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {canEdit && onEdit && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit();
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  {canDelete && onDelete && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(release);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </div>
               </div>
-
-              {/* Title Section */}
-              <div>
-                <div className="release-card__label">Title</div>
-                <h2 className="release-card__title">{release.name}</h2>
-              </div>
-              <ReleaseInfo release={release} canEdit={canEdit} />
-              <TrackList tracks={release.tracks || []} />
-            </div>
+            )}
           </div>
 
           {/* Fixed Actions Bar */}
           <div className="release-modal__bottom-actions">
-            <div className="release-card__actions">
-              <div className="release-card__links">
-                <div>
-                  {release.spotify_url && (
-                    <a
-                      href={release.spotify_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="release-card__link"
-                    >
-                      Spotify <ExternalLinkArrow className="text-[#F1977E]" />
-                    </a>
-                  )}
-                  {release.apple_music_url && (
-                    <a
-                      href={release.apple_music_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="release-card__link"
-                    >
-                      Apple Music{" "}
-                      <ExternalLinkArrow className="text-[#F1977E]" />
-                    </a>
-                  )}
-                </div>
-
-                {/* Admin Actions */}
-                <div>
-                  {(canEdit || canDelete) && (
-                    <div
-                      className="flex gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {canEdit && onEdit && (
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit();
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                      {canDelete && onDelete && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(release);
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
+            <div className="release-card__links">
+              <div>
+                {release.spotify_url && (
+                  <Button
+                    variant="primary"
+                    className="release-card__link"
+                    onClick={(e) => e.stopPropagation()}
+                    href={release.spotify_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Spotify <ExternalLinkArrow />
+                  </Button>
+                )}
+                {release.apple_music_url && (
+                  <Button
+                    variant="primary"
+                    className="release-card__link"
+                    onClick={(e) => e.stopPropagation()}
+                    href={release.apple_music_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Apple Music <ExternalLinkArrow />
+                  </Button>
+                )}
               </div>
               <div
-                className="release-card__like"
+                className="release__like"
                 onClick={(e) => e.stopPropagation()}
               >
                 <LikeButton releaseId={release.id} />

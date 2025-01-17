@@ -6,9 +6,16 @@ export function useReleaseSubscription(onUpdate: () => void) {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef<number>(0);
+  const isInitialLoadRef = useRef(true);
 
   useEffect(() => {
     console.log('Setting up subscription hook...');
+    
+    // Skip the first update since it happens right after initial load
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
+      return;
+    }
     
     // Debounced update handler to prevent multiple rapid refreshes
     const handleUpdate = () => {

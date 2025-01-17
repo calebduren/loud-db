@@ -1,3 +1,5 @@
+@use "../components/button";
+
 .release-grid {
   @apply grid gap-6;
   grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
@@ -5,6 +7,28 @@
 
 .weekly-group-header {
   @apply z-[11];
+}
+
+.release__like-button {
+  &--liked {
+    @apply bg-[--color-loud] text-white;
+  }
+
+  &--not-liked {
+    @apply text-white hover:text-white/80;
+  }
+
+  &__icon {
+    @apply transition-all duration-200;
+
+    &--liked {
+      @apply text-white;
+    }
+
+    &--not-liked {
+      @apply text-white/40 text-white opacity-30;
+    }
+  }
 }
 
 .release-card {
@@ -125,7 +149,7 @@
   }
 
   &__links {
-    @apply flex-1 flex-shrink-0 basis-0 flex items-center gap-6 px-[14px] py-[14px];
+    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[14px];
     color: var(--color-accent);
   }
 
@@ -141,13 +165,18 @@
     background-color: var(--color-divider);
   }
 
-  &__like {
-    @apply absolute right-0 top-0 bottom-0 flex items-stretch h-full whitespace-nowrap border-l-[0.5px] border-white/5 hover:bg-white/10 transition-colors rounded-br-[8px];
-    color: var(--color-text);
+  .release__like {
+    @apply flex flex-col self-stretch flex-grow-0 flex-shrink-0 whitespace-nowrap border-l-[0.5px] border-white/5 hover:bg-white/10 transition-colors rounded-br-[8px] overflow-hidden;
   }
 
-  &__like-button {
-    @apply h-full w-full p-[14px] flex items-center justify-center gap-3 text-xs transition-colors;
+  .release__like-button {
+    @apply flex h-full px-4 items-center justify-center gap-3 text-xs transition-colors;
+  }
+
+  .release__like-button {
+    &__not-liked {
+      @apply bg-transparent text-white hover:text-white/80;
+    }
   }
 }
 
@@ -159,11 +188,49 @@
 .release-modal {
   @apply rounded-xl overflow-hidden;
 
+  &__grid {
+    @apply grid grid-cols-[640px_1fr] h-full;
+  }
+
+  &__left {
+    @apply relative w-full aspect-square;
+  }
+
+  &__right {
+    @apply relative flex flex-col h-full overflow-hidden;
+  }
+
+  &__cover {
+    @apply w-full h-full object-cover;
+  }
+
+  &__close {
+    @apply absolute top-10 right-10 z-[100] text-white/60 hover:text-white transition-colors;
+  }
+
   &__bottom-actions {
-    @apply absolute bottom-0 left-0 right-0 bg-[var(--color-gray-900)] z-10 border-t-[0.5px] border-[--color-gray-700];
+    @apply flex absolute bottom-0 left-0 right-0 overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent z-10 pointer-events-none;
 
     .release-card__links {
-      @apply pl-10 pr-24 py-6 flex justify-between;
+      @apply px-10 pt-24 pb-10 flex justify-between;
+    }
+
+    .btn {
+      @apply pointer-events-auto;
+    }
+  }
+
+  .release__like-button {
+    @apply border-[0.5px] border-white/5 hover:bg-white/10;
+    @extend .btn !optional;
+    @extend .btn--lg !optional;
+
+    &--liked {
+      @apply bg-[--color-loud] text-white hover:bg-[--color-loud-light];
+    }
+
+    &--not-liked {
+      @apply bg-[--color-gray-800] text-white hover:text-white/80;
     }
   }
 
@@ -172,6 +239,6 @@
   }
 
   &__scrollable {
-    @apply flex-1 overflow-y-auto px-10 pt-10 pb-20;
+    @apply flex-1 overflow-y-auto px-10 pt-10 pb-32 space-y-6;
   }
 }

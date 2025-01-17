@@ -120,12 +120,18 @@ export function LikedReleases({
   return (
     <div>
       {showPageTitle && (
-        <PageTitle title="Likes" subtitle="Sorted by date you liked them" />
+        <PageTitle
+          title="Likes"
+          subtitle="Sorted by date you liked them"
+          showAddRelease={isAdmin || isCreator}
+          showImportPlaylist={isAdmin}
+        />
       )}
       <ReleaseList
         releases={releases || []}
         loading={loading}
         onSelect={setViewingRelease}
+        disableSorting={true} // Disable preference-based sorting since we want to maintain like order
       />
       {viewingRelease && (
         <ReleaseModal

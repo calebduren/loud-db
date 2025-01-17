@@ -1,17 +1,30 @@
-import React, { ButtonHTMLAttributes } from "react";
+import React, { ButtonHTMLAttributes, AnchorHTMLAttributes } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "./tooltip";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type ButtonBaseProps = {
   variant?: "primary" | "secondary" | "destructive";
   size?: "sm" | "lg" | "icon";
   icon?: LucideIcon;
   iconPosition?: "left" | "right";
   loading?: boolean;
   tooltip?: string;
+  disabled?: boolean;
   children: React.ReactNode;
-}
+};
+
+type ButtonAsButton = ButtonBaseProps &
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof ButtonBaseProps> & {
+    href?: never;
+  };
+
+type ButtonAsLink = ButtonBaseProps &
+  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof ButtonBaseProps> & {
+    href: string;
+  };
+
+export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 export function Button({
   variant = "primary",
@@ -22,11 +35,20 @@ export function Button({
   disabled,
   className,
   tooltip,
+  href,
   children,
   ...props
 }: ButtonProps) {
-  const button = (
-    <button
+  const Comp = href ? "a" : "button";
+  const content = (
+    <span className="btn__content">
+      {Icon && <Icon className="btn__icon" aria-hidden="true" />}
+      {children}
+    </span>
+  );
+
+  const buttonElement = (
+    <Comp
       className={cn(
         "btn",
         `btn--${variant}`,
@@ -36,18 +58,16 @@ export function Button({
         className
       )}
       disabled={disabled || loading}
-      {...props}
+      href={href}
+      {...(props as any)}
     >
-      <span className="btn__content">
-        {Icon && <Icon className="btn__icon" aria-hidden="true" />}
-        {children}
-      </span>
-    </button>
+      {content}
+    </Comp>
   );
 
   if (tooltip) {
-    return <Tooltip text={tooltip}>{button}</Tooltip>;
+    return <Tooltip text={tooltip}>{buttonElement}</Tooltip>;
   }
 
-  return button;
+  return buttonElement;
 }

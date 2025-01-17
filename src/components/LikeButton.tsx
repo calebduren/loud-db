@@ -28,24 +28,22 @@ export function LikeButton({ releaseId }: LikeButtonProps) {
   return (
     <button
       onClick={handleClick}
-      className={`release-card__like-button group ${
+      className={`release__like-button group ${
         isLiked
-          ? "text-[#F1977E] hover:text-[#E88468]"
-          : "text-white hover:text-white/80"
+          ? "release__like-button--liked"
+          : "release__like-button--not-liked"
       }`}
     >
       <HeartIcon
         liked={isLiked}
-        className={`transition-all duration-200 ${
+        className={`release__like-button__icon ${
           isLiked
-            ? "text-[#F1977E] group-hover:text-[#E88468]"
-            : "text-white opacity-30 group-hover:opacity-100 group-hover:text-white group-hover:scale-110"
+            ? "release__like-button__icon--liked group-hover:scale-90"
+            : "release__like-button__icon--not-liked group-hover:opacity-100 group-hover:text-white group-hover:scale-110"
         } ${isAnimating ? "animate-heart-like" : ""}`}
         onAnimationEnd={() => setIsAnimating(false)}
       />
-      <div className="flex justify-end">
-        {likesCount}
-      </div>
+      <div className="flex justify-end">{likesCount}</div>
     </button>
   );
 }

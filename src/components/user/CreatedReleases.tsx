@@ -126,6 +126,7 @@ export function CreatedReleases() {
           hasMore={hasMore}
           loadMore={() => loadMoreRef.current?.()}
           onSelect={setViewingRelease}
+          disableSorting={true}  // Disable sorting to maintain database order
         />
       </div>
 

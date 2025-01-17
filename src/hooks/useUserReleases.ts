@@ -5,8 +5,20 @@ import { useToast } from './useToast';
 import { usePermissions } from './usePermissions';
 import { fetchWithRetry } from '../lib/utils/fetchUtils';
 import { useInView } from 'react-intersection-observer';
+import { useReleaseSubscription } from './useReleaseSubscription';
 
 const PAGE_SIZE = 50;
+
+// Helper function to sort releases
+const sortReleases = (releases: Release[]) => {
+  return [...releases].sort((a, b) => {
+    // First sort by created_at
+    const dateCompare = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (dateCompare !== 0) return dateCompare;
+    // Then by id if dates are equal
+    return b.id - a.id;
+  });
+};
 
 export function useUserReleases(userId?: string) {
   const [releases, setReleases] = useState<Release[]>([]);
@@ -46,6 +58,7 @@ export function useUserReleases(userId?: string) {
           .select('*', { count: 'exact' })
           .eq('created_by', userId)
           .order('created_at', { ascending: false })
+          .order('id', { ascending: false })  // Secondary sort by id to ensure consistent order
           .range(currentLength, currentLength + PAGE_SIZE - 1)
       );
 
@@ -88,6 +101,14 @@ export function useUserReleases(userId?: string) {
       fetchReleases(true);
     }
   }, [inView, loading, hasMore, fetchReleases]);
+
+  // Subscribe to changes, but only refetch if it's a relevant change
+  useReleaseSubscription(() => {
+    // Only refetch if we're not already loading and have a valid user
+    if (!loading && userId && canManageReleases) {
+      fetchReleases();
+    }
+  });
 
   return {
     releases,

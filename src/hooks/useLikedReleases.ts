@@ -46,8 +46,8 @@ export function useLikedReleases() {
 
       console.log('Fetching liked releases for user:', user.id);
 
-      // First get the liked release IDs
-      const { data: likedIds } = await fetchWithRetry(() =>
+      // First get the liked release IDs with their liked timestamps
+      const { data: likedIds, error: likesError } = await fetchWithRetry(() =>
         supabase
           .from('release_likes')
           .select('release_id, created_at')
@@ -56,41 +56,52 @@ export function useLikedReleases() {
           .range(isLoadMore ? releases.length : 0, (isLoadMore ? releases.length : 0) + PAGE_SIZE - 1)
       );
 
-      console.log('Found liked IDs:', likedIds?.length);
+      if (likesError) throw likesError;
 
-      if (!likedIds?.length) {
+      if (!likedIds || likedIds.length === 0) {
+        setHasMore(false);
+        setLoading(false);
         if (!isLoadMore) {
           setReleases([]);
         }
-        setHasMore(false);
-        setLoading(false);
         return;
       }
 
-      // Then fetch the full release data
-      const { data: releasesData } = await fetchWithRetry(() =>
+      // Then get the full release data for those IDs
+      const { data: releasesData, error: releasesError } = await fetchWithRetry(() =>
         supabase
           .from('releases_view')
           .select('*')
-          .in('id', likedIds.map(row => row.release_id))
+          .in('id', likedIds.map(r => r.release_id))
       );
 
-      console.log('Fetched releases data:', releasesData?.length);
+      if (releasesError) throw releasesError;
 
-      if (releasesData) {
-        // Sort releases to match the order of likes
-        const releasesMap = new Map(releasesData.map(r => [r.id, r]));
-        const sortedReleases = likedIds
-          .map(like => releasesMap.get(like.release_id))
-          .filter((r): r is Release => r !== undefined);
-
-        if (isLoadMore) {
-          setReleases(prev => [...prev, ...sortedReleases]);
-        } else {
-          setReleases(sortedReleases);
-        }
+      if (!releasesData) {
+        throw new Error('No release data returned');
       }
 
+      // Create a map of release_id to created_at (like timestamp)
+      const likeTimestamps = new Map(likedIds.map(l => [l.release_id, l.created_at]));
+      
+      // Sort releases by their like timestamp
+      const sortedReleases = releasesData
+        .map(release => ({
+          ...release,
+          liked_at: likeTimestamps.get(release.id)
+        }))
+        .sort((a, b) => {
+          const aTime = new Date(a.liked_at || 0).getTime();
+          const bTime = new Date(b.liked_at || 0).getTime();
+          return bTime - aTime;
+        });
+
+      // Update state
+      if (isLoadMore) {
+        setReleases(prev => [...prev, ...sortedReleases]);
+      } else {
+        setReleases(sortedReleases);
+      }
       setHasMore(likedIds.length === PAGE_SIZE);
     } catch (error) {
       console.error('[useLikedReleases] Error fetching liked releases:', error);

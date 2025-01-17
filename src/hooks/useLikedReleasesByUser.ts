@@ -17,8 +17,9 @@ export function useLikedReleasesByUser(userId?: string) {
       try {
         const { data: likedIds } = await supabase
           .from('release_likes')
-          .select('release_id')
-          .eq('user_id', userId);
+          .select('release_id, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
 
         if (!likedIds?.length) {
           setReleases([]);
@@ -26,16 +27,10 @@ export function useLikedReleasesByUser(userId?: string) {
         }
 
         const { data: releases } = await supabase
-          .from('releases')
-          .select(`
-            *,
-            artists:release_artists(
-              position,
-              artist:artists(*)
-            )
-          `)
+          .from('releases_view')
+          .select('*')
           .in('id', likedIds.map(row => row.release_id))
-          .order('release_date', { ascending: false });
+          .order('created_at', { foreignTable: 'release_likes', ascending: false });
 
         if (releases) setReleases(releases);
       } catch (error) {
