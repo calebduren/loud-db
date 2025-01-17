@@ -392,7 +392,7 @@ export function ReleaseList({
     <div className="space-y-8">
       {showWeeklyGroups ? (
         groupReleasesByWeek(sortedReleases).map(({ weekRange, releases }) => (
-          <div key={weekRange.key} className="relative">
+          <div key={weekRange.key}>
             <div className="weekly-group-header">
               <div className="flex items-baseline gap-2 text-xl font-semibold">
                 {weekRange.label}
@@ -402,7 +402,7 @@ export function ReleaseList({
                 </span>
               </div>
             </div>
-            <div className="release-grid mt-6">
+            <div className="release-grid mt-3">
               {releases.map(renderRelease)}
             </div>
           </div>
