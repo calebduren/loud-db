@@ -20,13 +20,13 @@ interface BasicInfoTabProps {
   onArtistChange: (
     index: number,
     value: string,
-    availableArtists: typeof artistOptions
+    availableArtists: { id: string; name: string }[]
   ) => void;
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
 }
 
-const RELEASE_TYPES = ["Single", "EP", "LP", "Compilation"] as const;
+const RELEASE_TYPES = ["single", "ep", "lp", "compilation"] as const;
 
 export function BasicInfoTab({
   form,

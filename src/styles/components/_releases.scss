@@ -149,7 +149,7 @@
   }
 
   &__links {
-    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[14px];
+    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[10px];
     color: var(--color-accent);
   }
 
@@ -170,7 +170,7 @@
   }
 
   .release__like-button {
-    @apply flex h-full px-4 items-center justify-center gap-3 text-xs transition-colors;
+    @apply flex h-full px-[14px] items-center justify-center gap-3 text-xs transition-colors;
   }
 
   .release__like-button {

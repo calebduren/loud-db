@@ -12,11 +12,44 @@ import { validateArtists } from "../../../lib/releases/validation";
 import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useToast } from "../../../hooks/useToast";
 import { useAuth } from "../../../contexts/AuthContext";
+import { Loader2 } from "lucide-react";
+
+interface ReleaseTrack {
+  name: string;
+  duration_ms: number;
+  track_number: number;
+  credits: Array<{
+    name: string;
+    role: string;
+    id?: string;
+  }>;
+  id?: string;
+  preview_url?: string | null;
+}
+
+interface ReleaseFormData {
+  name: string;
+  release_type: "single" | "EP" | "LP" | "compilation";
+  cover_url: string;
+  genres: string[];
+  record_label: string;
+  track_count: number;
+  spotify_url: string;
+  apple_music_url: string;
+  release_date: string;
+  description: string;
+  tracks: ReleaseTrack[];
+}
 
 interface ReleaseFormProps {
   release?: Release;
   onSuccess?: (release: Release) => void;
   onClose?: () => void;
+}
+
+interface DuplicateError {
+  code: string;
+  message: string;
 }
 
 export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
@@ -38,17 +71,17 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
     addArtist,
     removeArtist,
   } = useArtistSelection(
-    release?.artists
-      .sort((a, b) => a.position - b.position)
-      .map((ra) => ({ id: ra.artist.id, name: ra.artist.name })) || [
-      { name: "" },
-    ]
+    release?.artists.map((ra) => ({
+      id: ra.artist.id,
+      name: ra.artist.name,
+      image_url: ra.artist.image_url,
+    })) || [{ name: "" }]
   );
 
   // Initialize form with release data if editing
   React.useEffect(() => {
     if (release) {
-      const formData = {
+      const formData: ReleaseFormData = {
         name: release.name,
         release_type: release.release_type,
         cover_url: release.cover_url || "",
@@ -61,50 +94,70 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           .toISOString()
           .split("T")[0],
         description: release.description || "",
-        tracks: release.tracks || [],
+        tracks: (release.tracks || []).map((track) => ({
+          name: track.name,
+          duration_ms: track.duration_ms || 0,
+          track_number: track.track_number,
+          credits:
+            track.track_credits?.map((credit) => ({
+              name: credit.name,
+              role: credit.role,
+              id: credit.id,
+            })) || [],
+          id: track.id,
+          preview_url: track.preview_url,
+        })),
       };
 
       form.reset(formData);
 
       setSelectedArtists(
-        release.artists
-          .sort((a, b) => a.position - b.position)
-          .map((ra) => ({ id: ra.artist.id, name: ra.artist.name }))
+        release.artists.map((ra) => ({
+          id: ra.artist.id,
+          name: ra.artist.name,
+          image_url: ra.artist.image_url,
+        }))
       );
     }
   }, [release, form]);
 
   const handleSpotifyImport = useCallback(
     (importedData: SpotifyReleaseData) => {
-      const formData = {
+      const formData: ReleaseFormData = {
         name: importedData.name,
-        artists: importedData.artists.map((a) => ({ name: a.name })),
         release_type: importedData.releaseType,
-        cover_url: importedData.coverUrl,
+        cover_url: importedData.coverUrl || "",
         genres: importedData.genres,
-        record_label: importedData.recordLabel,
+        record_label: importedData.recordLabel || "",
         track_count: importedData.trackCount,
-        spotify_url: importedData.spotify_url,
+        spotify_url: importedData.spotify_url || "",
         release_date: new Date(
           new Date(importedData.releaseDate).getTime() +
             new Date().getTimezoneOffset() * 60000
         )
           .toISOString()
           .split("T")[0],
-        tracks: importedData.tracks,
+        description: "",
+        tracks: importedData.tracks.map((track) => ({
+          ...track,
+          credits: [],
+        })),
+        apple_music_url: "",
       };
 
       form.reset(formData);
       setSelectedArtists(
         importedData.artists.map((artist) => ({
+          id: undefined,
           name: artist.name,
+          image_url: null,
         }))
       );
     },
     [form, setSelectedArtists]
   );
 
-  const handleFormSubmit = async (e: React.MouseEvent) => {
+  const handleFormSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -134,9 +187,12 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         const newRelease: Release = {
           id: release?.id || releaseId,
           ...values,
+          description: values.description || null,
           created_by: release?.created_by || user?.id || "",
           created_at: release?.created_at || new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          description_author_id:
+            release?.description_author_id || user?.id || null,
           artists: selectedArtists.map((a, index) => ({
             position: index,
             artist: {
@@ -164,7 +220,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
                 label: "View Release",
                 onClick: () => {
                   setTimeout(() => {
-                    const releaseModal = document.querySelector(
+                    const releaseModal = document.querySelector<HTMLElement>(
                       `[data-release-id="${releaseId}"]`
                     );
                     if (releaseModal) {
@@ -174,7 +230,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
                 },
               }
             : undefined,
-          duration: 5000,
         });
       }
     } catch (error) {
@@ -182,7 +237,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
       showToast({
         type: "error",
         message: "Failed to save release. Please try again.",
-        duration: 5000,
       });
     } finally {
       setIsSubmitting(false);
@@ -192,9 +246,8 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   return (
     <Form {...form}>
       <div className="space-y-6">
-        {/* Error Display */}
         {error?.code === "DUPLICATE_RELEASE" ? (
-          <DuplicateReleaseError error={error} />
+          <DuplicateReleaseError error={error as DuplicateError} />
         ) : (
           Object.keys(form.formState.errors).length > 0 && (
             <div className="text-red-500 text-sm space-y-1">
