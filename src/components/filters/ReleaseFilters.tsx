@@ -63,7 +63,7 @@ export function ReleaseFilters({
     genreFilterMode === "include";
 
   return (
-    <div className="flex gap-7">
+    <div className="flex gap-4">
       <FilterSection label="Filter by length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
