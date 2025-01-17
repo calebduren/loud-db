@@ -8,7 +8,6 @@ import { createRelease } from "../../lib/releases/createRelease";
 import { useAuth } from "../../contexts/AuthContext";
 import { SpotifyAlbum } from "../../lib/spotify/types/album";
 import { AppError } from "../../lib/errors/messages";
-import { uploadImageFromUrl } from "../../lib/storage/images";
 import { checkSpotifyDuplicate } from "../../lib/validation/releaseValidation";
 
 interface PlaylistImportModalProps {
@@ -106,42 +105,50 @@ const processBatch = async (
       }
 
       // Create the release
-      await retry(async () => {
-        const coverUrl = album.images?.[0]?.url || fullAlbum.coverUrl;
-        if (!coverUrl) {
-          console.warn(`No cover image found for album ${album.name}`);
-        }
+      await retry(
+        async () => {
+          const coverUrl = album.images?.[0]?.url || fullAlbum.coverUrl;
+          if (!coverUrl) {
+            console.warn(`No cover image found for album ${album.name}`);
+          }
 
-        // Determine release type based on track count
-        let releaseType: ReleaseType = 'LP';
-        const trackCount = fullAlbum.trackCount || fullAlbum.tracks?.length || 0;
-        if (trackCount <= 3) {
-          releaseType = 'single';
-        } else if (trackCount <= 6) {
-          releaseType = 'EP';
-        }
+          // Determine release type based on track count
+          let releaseType: ReleaseType = "LP";
+          const trackCount =
+            fullAlbum.trackCount || fullAlbum.tracks?.length || 0;
+          if (trackCount <= 3) {
+            releaseType = "single";
+          } else if (trackCount <= 6) {
+            releaseType = "EP";
+          }
 
-        await createRelease({
-          name: fullAlbum.name || album.name,
-          release_type: releaseType,
-          cover_url: coverUrl,
-          genres: fullAlbum.genres || [],
-          record_label: fullAlbum.recordLabel || album.label || 'Unknown',
-          track_count: trackCount,
-          spotify_url: album.external_urls.spotify,
-          release_date: fullAlbum.releaseDate || new Date().toISOString().split('T')[0],
-          created_by: user.id,
-          artists: (fullAlbum.artists || album.artists || []).map((artist) => ({
-            name: artist.name,
-          })),
-          tracks: fullAlbum.tracks.map((track) => ({
-            name: track.name,
-            duration_ms: track.duration_ms || 0,
-            track_number: track.track_number || 1,
-            preview_url: track.preview_url || null,
-          })),
-        });
-      }, 3, 1000);
+          await createRelease({
+            name: fullAlbum.name || album.name,
+            release_type: releaseType,
+            cover_url: coverUrl,
+            genres: fullAlbum.genres || [],
+            record_label: fullAlbum.recordLabel || album.label || "Unknown",
+            track_count: trackCount,
+            spotify_url: album.external_urls.spotify,
+            release_date:
+              fullAlbum.releaseDate || new Date().toISOString().split("T")[0],
+            created_by: user.id,
+            artists: (fullAlbum.artists || album.artists || []).map(
+              (artist) => ({
+                name: artist.name,
+              })
+            ),
+            tracks: fullAlbum.tracks.map((track) => ({
+              name: track.name,
+              duration_ms: track.duration_ms || 0,
+              track_number: track.track_number || 1,
+              preview_url: track.preview_url || null,
+            })),
+          });
+        },
+        3,
+        1000
+      );
 
       setProgress((prev) => ({
         ...prev,
@@ -377,7 +384,11 @@ export function PlaylistImportModal({
             </Button>
           ) : (
             <>
-              <Button variant="secondary" onClick={handleClose} disabled={loading}>
+              <Button
+                variant="secondary"
+                onClick={handleClose}
+                disabled={loading}
+              >
                 Cancel
               </Button>
               <Button onClick={handleImport} disabled={loading || !url.trim()}>
