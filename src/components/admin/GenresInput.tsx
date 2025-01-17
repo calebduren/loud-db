@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Check, ChevronDown } from "lucide-react";
+import { useAllGenres } from "@/hooks/admin/useAllGenres";
+import { cn } from "@/lib/utils";
 
 interface GenresInputProps {
   value: string[];
@@ -7,29 +9,45 @@ interface GenresInputProps {
 }
 
 export function GenresInput({ value, onChange }: GenresInputProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { genres: allGenres, loading } = useAllGenres();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
+  // Filter genres based on search query and already selected genres
+  const filteredGenres = allGenres
+    .filter(
+      (genre) =>
+        !value.includes(genre) &&
+        genre.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, 100); // Limit to 100 results for performance
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addGenre();
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
     }
-  };
 
-  const addGenre = () => {
-    const genre = inputValue.trim();
-    if (genre && !value.includes(genre)) {
-      onChange([...value, genre]);
-      setInputValue("");
-    }
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const removeGenre = (genreToRemove: string) => {
     onChange(value.filter((genre) => genre !== genreToRemove));
+  };
+
+  const addGenre = (genre: string) => {
+    if (!value.includes(genre)) {
+      onChange([...value, genre]);
+      setSearchQuery("");
+    }
   };
 
   return (
@@ -50,18 +68,54 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
             </button>
           </span>
         ))}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleInputKeyDown}
-          onBlur={addGenre}
-          placeholder={
-            value.length === 0 ? "Type a genre and press Enter or comma" : ""
-          }
-          className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-white placeholder-white/40 text-sm p-0.5"
-        />
+        <div className="flex-1">
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (!isOpen) setIsOpen(true);
+            }}
+            onFocus={() => setIsOpen(true)}
+            placeholder={value.length === 0 ? "Search genres..." : ""}
+            className="w-full bg-transparent border-none outline-none text-sm placeholder:text-white/40"
+          />
+        </div>
       </div>
+
+      {/* Dropdown */}
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className="absolute z-50 w-full mt-1 py-1 bg-zinc-900 border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
+        >
+          {loading ? (
+            <div className="px-2 py-1 text-sm text-white/60">Loading...</div>
+          ) : filteredGenres.length === 0 ? (
+            <div className="px-2 py-1 text-sm text-white/60">
+              {searchQuery ? "No matching genres" : "No genres available"}
+            </div>
+          ) : (
+            filteredGenres.map((genre) => (
+              <button
+                key={genre}
+                onClick={() => {
+                  addGenre(genre);
+                  setIsOpen(false);
+                }}
+                className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
+              >
+                <span>{genre}</span>
+                <Check
+                  size={14}
+                  className="opacity-0 group-hover:opacity-100 text-white/60"
+                />
+              </button>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

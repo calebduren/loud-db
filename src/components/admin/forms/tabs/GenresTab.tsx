@@ -1,8 +1,14 @@
-import React from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { FormValues } from '../releaseFormSchema';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { GenresInput } from '../../GenresInput';
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
+import { FormValues } from "../releaseFormSchema";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { GenresInput } from "../../GenresInput";
 
 interface GenresTabProps {
   form: UseFormReturn<FormValues>;
@@ -18,10 +24,7 @@ export function GenresTab({ form }: GenresTabProps) {
           <FormItem>
             <FormLabel>Genres</FormLabel>
             <FormControl>
-              <GenresInput
-                value={field.value}
-                onChange={field.onChange}
-              />
+              <GenresInput value={field.value} onChange={field.onChange} />
             </FormControl>
             <FormMessage />
           </FormItem>

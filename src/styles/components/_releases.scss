@@ -81,7 +81,7 @@
   }
 
   &__label {
-    @apply text-xs font-medium text-[--color-gray-400] text-mono mb-1;
+    @apply text-xs font-medium text-[--color-gray-400] font-mono mb-0.5;
   }
 
   // Title section
@@ -92,7 +92,11 @@
   }
 
   &__title {
-    @apply italic mt-2;
+    @apply italic;
+  }
+
+  &__title + &__artist {
+    @apply mt-2;
   }
 
   // Genre pills
@@ -130,9 +134,7 @@
     }
 
     &-label {
-      @apply w-16;
-      font-family: var(--font-geist-mono);
-      color: var(--color-text-secondary);
+      @apply w-16 font-mono text-[--color-gray-400];
     }
 
     &-value {
@@ -230,7 +232,7 @@
     }
 
     &--not-liked {
-      @apply bg-[--color-gray-800] text-white hover:text-white/80;
+      @apply bg-[--color-gray-800] text-white hover:text-white/80 hover:bg-[--color-gray-700];
     }
   }
 

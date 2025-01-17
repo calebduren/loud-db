@@ -5,10 +5,9 @@ import { Link } from "react-router-dom";
 
 interface ReleaseInfoProps {
   release: Release;
-  canEdit: boolean;
 }
 
-export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
+export function ReleaseInfo({ release }: ReleaseInfoProps) {
   return (
     <div className="space-y-6">
       {/* Release Info Grid */}
@@ -39,8 +38,8 @@ export function ReleaseInfo({ release, canEdit }: ReleaseInfoProps) {
       {/* Genres */}
       {release.genres.length > 0 && (
         <div>
-          <h3 className="release-card__label mb-2">Genres</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="release-card__label">Genres</h3>
+          <div className="flex flex-wrap gap-2 mt-2">
             {release.genres.map((genre) => (
               <div key={genre} className="release-card__genres-pill">
                 {genre}

@@ -16,7 +16,7 @@ export function TrackList({ tracks }: TrackListProps) {
   return (
     <div className="mt-8">
       <h3 className="release-card__label">Track List</h3>
-      <div className="space-y-3 mt-4">
+      <div className="space-y-3 mt-2">
         {sortedTracks.map((track) => (
           <div key={track.id} className="flex items-center gap-2">
             <span className="release-modal__track-number">

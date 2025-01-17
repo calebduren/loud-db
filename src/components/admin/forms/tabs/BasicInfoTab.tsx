@@ -18,17 +18,21 @@ import {
   SelectValue,
 } from "@/components/ui/filter-select";
 import { ImageUpload } from "../../ImageUpload";
-import { Plus, X } from "lucide-react";
 import { ArtistSearchInput } from "../ArtistSearchInput";
+
+interface Artist {
+  id?: string;
+  name: string;
+}
 
 interface BasicInfoTabProps {
   form: UseFormReturn<FormValues>;
-  selectedArtists: { id?: string; name: string }[];
-  artistOptions: { id: string; name: string }[];
+  selectedArtists: Artist[];
+  artistOptions: Artist[];
   onArtistChange: (
     index: number,
     value: string,
-    availableArtists: { id: string; name: string }[]
+    availableArtists: Artist[]
   ) => void;
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
@@ -86,10 +90,7 @@ export function BasicInfoTab({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Release Type</FormLabel>
-            <Select
-              value={field.value}
-              onValueChange={field.onChange}
-            >
+            <Select value={field.value} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />

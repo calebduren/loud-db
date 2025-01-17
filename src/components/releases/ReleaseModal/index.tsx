@@ -77,14 +77,14 @@ export function ReleaseModal({
               <div className="release-card__label">Title</div>
               <h2 className="release-card__title">{release.name}</h2>
             </div>
-            <ReleaseInfo release={release} canEdit={canEdit} />
+            <ReleaseInfo release={release} />
             <TrackList tracks={release.tracks || []} />
             {/* Admin Actions */}
             {(canEdit || canDelete) && (
               <div>
                 <div className="release-card__label">Actions</div>
                 <div
-                  className="flex gap-2"
+                  className="flex gap-2 mt-2"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {canEdit && onEdit && (
