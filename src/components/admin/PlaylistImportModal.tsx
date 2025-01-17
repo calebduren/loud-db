@@ -9,6 +9,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { SpotifyAlbum } from "../../lib/spotify/types/album";
 import { AppError } from "../../lib/errors/messages";
 import { checkSpotifyDuplicate } from "../../lib/validation/releaseValidation";
+import { ReleaseType } from "../../types/database";
 
 interface PlaylistImportModalProps {
   isOpen: boolean;
@@ -116,22 +117,22 @@ const processBatch = async (
           let releaseType: ReleaseType = "LP";
           const trackCount =
             fullAlbum.trackCount || fullAlbum.tracks?.length || 0;
-          if (trackCount <= 3) {
+          if (trackCount <= 4) {
             releaseType = "single";
           } else if (trackCount <= 6) {
             releaseType = "EP";
           }
 
           await createRelease({
-            name: fullAlbum.name || album.name,
+            name: fullAlbum.name ?? album.name ?? "",
             release_type: releaseType,
-            cover_url: coverUrl,
-            genres: fullAlbum.genres || [],
-            record_label: fullAlbum.recordLabel || album.label || "Unknown",
+            cover_url: coverUrl ?? "",
+            genres: fullAlbum.genres ?? [],
+            record_label: fullAlbum.recordLabel ?? album.label ?? "Unknown",
             track_count: trackCount,
-            spotify_url: album.external_urls.spotify,
+            spotify_url: album.external_urls.spotify ?? "",
             release_date:
-              fullAlbum.releaseDate || new Date().toISOString().split("T")[0],
+              fullAlbum.releaseDate ?? new Date().toISOString().split("T")[0],
             created_by: user.id,
             artists: (fullAlbum.artists || album.artists || []).map(
               (artist) => ({
@@ -269,10 +270,10 @@ export function PlaylistImportModal({
     // Only allow closing if not currently loading
     if (!loading) {
       if (progress.stage === "complete") {
-        // Only trigger onSuccess when explicitly closing after completion
+        // Only trigger onSuccess when explicitly completing
         onSuccess();
       }
-      onClose(e);
+      onClose();
     }
   };
 
