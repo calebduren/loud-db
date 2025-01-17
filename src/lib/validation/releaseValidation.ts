@@ -131,54 +131,25 @@ export async function validateNewRelease(
   }
 }
 
-export async function checkSpotifyDuplicate(
-  name: string,
-  artists: ArtistData[],
-  spotifyUrl?: string
-): Promise<{ isDuplicate: boolean; existingRelease?: Release }> {
-  // First, check for exact Spotify URL match if provided
-  if (spotifyUrl) {
-    const { data: releaseByUrl } = await supabase
-      .from('releases')
-      .select('*, artists!releases_artists ( artist:artists( * ) )')
-      .eq('spotify_url', spotifyUrl)
-      .single();
+export async function checkSpotifyDuplicate(spotifyUrl: string): Promise<boolean> {
+  if (!spotifyUrl) return false;
 
-    if (releaseByUrl) {
-      return { isDuplicate: true, existingRelease: releaseByUrl };
-    }
-  }
+  // Normalize the Spotify URL by removing query parameters and trailing slashes
+  const normalizedUrl = spotifyUrl.split('?')[0].replace(/\/$/, '');
 
-  // If no match by URL, check for similar name and artists
-  const normalizedName = normalizeString(name);
-  const normalizedArtistNames = artists.map(a => normalizeString(a.name));
-
+  // Check if a release with this Spotify URL already exists
   const { data: releases } = await supabase
     .from('releases')
-    .select('*, artists!releases_artists ( artist:artists( * ) )')
-    .textSearch('name', normalizedName, { config: 'english' });
+    .select('spotify_url')
+    .or(`spotify_url.eq.${normalizedUrl},spotify_url.eq.${spotifyUrl}`);
 
-  if (!releases) return { isDuplicate: false };
-
-  // Check each potential match
-  for (const release of releases) {
-    // Check if name is similar
-    if (!areSimilarStrings(normalizedName, normalizeString(release.name))) {
-      continue;
-    }
-
-    // Get artist names from the release
-    const releaseArtists = release.artists.map(ra => normalizeString(ra.artist.name));
-
-    // Check if the artists match (at least 50% of artists should match)
-    const matchingArtists = normalizedArtistNames.filter(artistName =>
-      releaseArtists.some(releaseArtist => areSimilarStrings(artistName, releaseArtist))
+  // Also check if any existing URLs match after normalization
+  if (releases && releases.length > 0) {
+    const normalizedExistingUrls = releases.map(r => 
+      r.spotify_url?.split('?')[0].replace(/\/$/, '')
     );
-
-    if (matchingArtists.length >= Math.min(normalizedArtistNames.length, releaseArtists.length) * 0.5) {
-      return { isDuplicate: true, existingRelease: release };
-    }
+    return normalizedExistingUrls.includes(normalizedUrl);
   }
 
-  return { isDuplicate: false };
+  return false;
 }

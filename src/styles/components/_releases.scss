@@ -115,8 +115,7 @@
 
     &-container {
       @apply w-full rounded-[3px_3px_8px_8px] bg-[--color-gray-700];
-      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.02),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.25);
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.02);
     }
   }
 
@@ -150,12 +149,12 @@
   }
 
   &__links {
-    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[10px];
+    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[12px];
     color: var(--color-accent);
   }
 
   &__link {
-    @apply flex items-center gap-1 text-sm whitespace-nowrap transition-opacity;
+    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-opacity;
     &:hover {
       opacity: 0.8;
     }
@@ -217,7 +216,7 @@
     }
 
     .btn {
-      @apply pointer-events-auto;
+      @apply pointer-events-auto text-sm;
     }
   }
 

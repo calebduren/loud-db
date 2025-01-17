@@ -144,7 +144,6 @@ export function ReleaseList({
   }, [releases]);
 
   const formatArtists = useCallback((release: Release) => {
-    console.log("Release artists:", release.artists);
     if (!release.artists?.length) return "";
     return release.artists.map((ra) => ra.artist.name).join(", ");
   }, []);

@@ -42,8 +42,10 @@ export function Modal({ isOpen, onClose, children, title, className }: ModalProp
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] overflow-y-auto" 
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50" 
       onClick={handleBackdropClick}
+      aria-modal="true"
+      role="dialog"
     >
       <div 
         className="flex min-h-full items-center justify-center p-4" 
