@@ -1,11 +1,15 @@
 @use "../components/pill";
 
+.filters-container {
+  @apply flex flex-col gap-4 xl:flex-row;
+}
+
 // Filter Section
 .filter-section {
-  @apply flex flex-col gap-2;
+  @apply flex flex-row justify-start items-center gap-4 xl:flex-col xl:justify-center xl:items-stretch xl:gap-2;
 
   &__label {
-    @apply flex items-baseline text-sm font-medium text-[--color-gray-400];
+    @apply w-[88px] xl:w-auto flex items-baseline text-sm font-medium text-[--color-gray-400];
   }
 
   &__content {
@@ -17,6 +21,10 @@
 .filter-button {
   @extend .pill !optional;
   @extend .pill--interactive !optional;
+}
+
+.filter-reset-button {
+  @apply hidden xl:flex xl:self-end;
 }
 
 // Genre Filter Dropdown

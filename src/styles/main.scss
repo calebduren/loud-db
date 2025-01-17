@@ -210,6 +210,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.layout {
+  @apply mt-12 sm:mt-0 sm:ml-60 relative z-0 p-10 lg:py-16 lg:pr-16;
+}
+
 // Typography styles
 h1,
 h2,

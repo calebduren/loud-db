@@ -63,8 +63,8 @@ export function ReleaseFilters({
     genreFilterMode === "include";
 
   return (
-    <div className="flex gap-4">
-      <FilterSection label="Filter by length">
+    <div className="filters-container">
+      <FilterSection label="Filter length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
@@ -80,7 +80,7 @@ export function ReleaseFilters({
         ))}
       </FilterSection>
 
-      <FilterSection label="Filter by genre" className="flex-1">
+      <FilterSection label="Filter genres" className="flex-1">
         <GenreFilterDropdown
           genres={availableGenres}
           selectedGenres={selectedGenres}
@@ -95,7 +95,7 @@ export function ReleaseFilters({
         onClick={handleReset}
         variant="secondary"
         disabled={isDefaultState}
-        className="self-end"
+        className="filter-reset-button"
       >
         Reset filters
       </Button>

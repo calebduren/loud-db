@@ -33,7 +33,7 @@ export function Layout({ children }: LayoutProps) {
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      <main className="mt-12 sm:mt-0 sm:ml-60 relative z-0 p-10">
+      <main className="layout">
         <div className="mx-auto">{children}</div>
       </main>
     </div>
