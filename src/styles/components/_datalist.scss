@@ -1,0 +1,41 @@
+/* Style the datalist dropdown */
+input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+/* Firefox */
+@-moz-document url-prefix() {
+  select {
+    appearance: none;
+    background-color: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: white;
+    padding: 8px 12px;
+  }
+  
+  option {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+  }
+  
+  option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Webkit browsers */
+input::-webkit-list-button {
+  display: none;
+}
+
+option {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 8px 12px;
+}
+
+option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

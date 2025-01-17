@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, Plus, X } from "lucide-react";
 import { cn } from "../../lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/filter-select";
 
 interface GenreFilterDropdownProps {
   genres: string[];
@@ -258,28 +265,18 @@ export function GenreFilterDropdown({
   return (
     <div className="genre-dropdown__container">
       <div className="genre-dropdown__mode">
-        <div className="genre-dropdown__mode-toggle">
-          <button
-            onClick={toggleFilterMode}
-            className={cn(
-              "genre-dropdown__mode-toggle-option",
-              filterMode === "include" &&
-                "genre-dropdown__mode-toggle-option--active"
-            )}
-          >
-            Include
-          </button>
-          <button
-            onClick={toggleFilterMode}
-            className={cn(
-              "genre-dropdown__mode-toggle-option",
-              filterMode === "exclude" &&
-                "genre-dropdown__mode-toggle-option--active"
-            )}
-          >
-            Exclude
-          </button>
-        </div>
+        <Select
+          value={filterMode}
+          onValueChange={(value: "include" | "exclude") => onFilterModeChange(value)}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Filter mode" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="include">Include</SelectItem>
+            <SelectItem value="exclude">Exclude</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="genre-dropdown__input" ref={dropdownRef}>

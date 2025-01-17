@@ -7,7 +7,7 @@
     @apply bg-white text-black hover:bg-white/[98%] border-[0.5px] border-white;
 
     &:disabled {
-      @apply bg-white/50 cursor-not-allowed;
+      @apply bg-white/50 border-transparent cursor-not-allowed;
     }
 
     &.loading {
@@ -19,7 +19,7 @@
     @apply bg-white/10 text-white border border-white/5 hover:border-white/10 hover:bg-white/[15%];
 
     &:disabled {
-      @apply text-white/50 border-white/5 cursor-not-allowed;
+      @apply text-white/50 border-transparent cursor-not-allowed;
     }
 
     &.loading {

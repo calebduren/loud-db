@@ -8,10 +8,18 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { FormInput } from "@/components/ui/form-input";
+import { FormTextarea } from "@/components/ui/form-textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/filter-select";
 import { ImageUpload } from "../../ImageUpload";
 import { Plus, X } from "lucide-react";
+import { ArtistSearchInput } from "../ArtistSearchInput";
 
 interface BasicInfoTabProps {
   form: UseFormReturn<FormValues>;
@@ -57,11 +65,15 @@ export function BasicInfoTab({
       <FormField
         control={form.control}
         name="name"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>Release Name</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Enter release name" />
+              <FormInput
+                placeholder="Enter release name"
+                error={fieldState.error?.message}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -74,79 +86,51 @@ export function BasicInfoTab({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Release Type</FormLabel>
-            <FormControl>
-              <select
-                {...field}
-                className="flex h-[34px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20"
-                required
-              >
-                <option value="" className="bg-[var(--color-gray-800)]">
-                  Select Type
-                </option>
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
                 {RELEASE_TYPES.map((type) => (
-                  <option
-                    key={type}
-                    value={type}
-                    className="bg-[var(--color-gray-800)]"
-                  >
-                    {type.toUpperCase()}
-                  </option>
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
                 ))}
-              </select>
-            </FormControl>
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      <div>
+      <div className="space-y-2">
         <FormLabel>Artists</FormLabel>
-        <div className="space-y-2">
-          {selectedArtists.map((artist, index) => (
-            <div key={index} className="flex gap-2">
-              <Input
-                value={artist.name}
-                onChange={(e) =>
-                  onArtistChange(index, e.target.value, artistOptions)
-                }
-                placeholder="Artist name"
-                list={`artists-${index}`}
-                required
-              />
-              <datalist id={`artists-${index}`}>
-                {artistOptions.map((a) => (
-                  <option key={a.id} value={a.name} />
-                ))}
-              </datalist>
-              {index > 0 && (
-                <button
-                  type="button"
-                  onClick={() => onRemoveArtist(index)}
-                  className="p-2 text-white/60 hover:text-white"
-                >
-                  <X size={14} strokeWidth={2} />
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={onAddArtist}
-            className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
-          >
-            <Plus className="w-4 h-4" /> Add Artist
-          </button>
-        </div>
+        <ArtistSearchInput
+          selectedArtists={selectedArtists}
+          artistOptions={artistOptions}
+          onArtistChange={onArtistChange}
+          onAddArtist={onAddArtist}
+          onRemoveArtist={onRemoveArtist}
+        />
       </div>
 
       <FormField
         control={form.control}
         name="release_date"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>Release Date</FormLabel>
             <FormControl>
-              <Input type="date" {...field} placeholder="Select Date" />
+              <FormInput
+                type="date"
+                error={fieldState.error?.message}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -156,11 +140,15 @@ export function BasicInfoTab({
       <FormField
         control={form.control}
         name="record_label"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>Record Label</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Optional" />
+              <FormInput
+                placeholder="Enter record label"
+                error={fieldState.error?.message}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -170,20 +158,16 @@ export function BasicInfoTab({
       <FormField
         control={form.control}
         name="description"
-        render={({ field, formState }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea
+              <FormTextarea
+                placeholder="Enter release description"
+                error={fieldState.error?.message}
                 {...field}
-                placeholder="Add a description (optional)"
-                rows={4}
-                value={field.value || ""}
               />
             </FormControl>
-            {formState.errors.description && (
-              <FormMessage>{formState.errors.description.message}</FormMessage>
-            )}
             <FormMessage />
           </FormItem>
         )}
