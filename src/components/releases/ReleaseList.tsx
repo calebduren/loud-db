@@ -41,26 +41,16 @@ const SkeletonCard = () => (
 
       <div className="release-card__content">
         <div className="release-card__type">
-          <div className="release-card__type-pill bg-white/5 animate-pulse">
-            <div className="h-5 w-16" />
-          </div>
+          <div className="release-card__type-pill bg-white/5 animate-pulse h-[23px] w-8"></div>
         </div>
         <div>
-          <div className="release-card__title">
-            <div className="h-5 w-48 bg-white/5 rounded animate-pulse mb-1" />
-            <div className="h-5 w-32 bg-white/5 rounded animate-pulse italic" />
-          </div>
+          <div className="release-card__artist h-6 w-48 bg-white/5 rounded-lg animate-pulse" />
+          <div className="release-card__title h-6 w-32 bg-white/5 rounded-lg animate-pulse" />
 
           <div className="release-card__genres">
-            <div className="release-card__genres-pill bg-white/5 animate-pulse">
-              <div className="h-4 w-20" />
-            </div>
-            <div className="release-card__genres-pill bg-white/5 animate-pulse">
-              <div className="h-4 w-24" />
-            </div>
-            <div className="release-card__genres-pill bg-white/5 animate-pulse">
-              <div className="h-4 w-16" />
-            </div>
+            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-16"></div>
+            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-20"></div>
+            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-8"></div>
           </div>
         </div>
       </div>
@@ -101,8 +91,8 @@ const SkeletonCard = () => (
 
 const SkeletonWeeklyGroup = () => (
   <div className="my-6">
-    <div className="mb-6">
-      <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
+    <div className="mb-3">
+      <div className="h-[28px] w-64 bg-white/5 rounded-lg animate-pulse" />
     </div>
     <div className="release-grid">
       {Array.from({ length: 9 }).map((_, i) => (

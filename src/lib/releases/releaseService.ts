@@ -2,156 +2,163 @@ import { supabase } from '../supabase';
 import { Release, ReleaseType } from '../../types/database';
 import { ArtistData, ReleaseFormData } from '../../types/forms';
 import { findOrCreateArtist } from '../artists/artistService';
-import { uploadImageFromUrl } from '../storage/images';
+import { processReleaseImage } from '../storage/imageUtils';
+import { logger } from '../utils/logger';
+import { 
+  ReleaseServiceError, 
+  ArtistValidationError, 
+  DatabaseError,
+  TrackValidationError 
+} from '../errors/releaseServiceErrors';
 
 export async function createOrUpdateRelease(
   data: ReleaseFormData & { created_by: string },
   artists: ArtistData[],
   existingRelease?: Release
 ): Promise<string> {
+  logger.info(
+    `${existingRelease ? 'Updating' : 'Creating'} release`,
+    { releaseName: data.name, artistCount: artists.length }
+  );
+
+  const { data: existingTransaction } = await supabase
+    .from('releases')
+    .select('id')
+    .eq('id', existingRelease?.id ?? '')
+    .single();
+
+  // Verify the release still exists if we're updating
+  if (existingRelease && !existingTransaction) {
+    logger.error('Release not found for update', undefined, { releaseId: existingRelease.id });
+    throw new DatabaseError('Release no longer exists');
+  }
+
   try {
     // Download and upload cover image if it's a URL
-    let coverUrl = data.cover_url;
-    if (coverUrl && coverUrl.startsWith('http')) {
-      const uploadedUrl = await uploadImageFromUrl(coverUrl, `${Math.random()}.jpg`);
-      if (uploadedUrl) {
-        coverUrl = uploadedUrl;
-      }
-    }
+    const coverUrl = data.cover_url 
+      ? await processReleaseImage(data.cover_url)
+      : null;
+    
+    logger.debug('Processed cover image', { originalUrl: data.cover_url, newUrl: coverUrl });
 
     // Process artists first
-    const artistIds = await Promise.all(
-      artists
-        .filter(artist => artist.name.trim())
-        .map(async artist => {
-          if (artist.id) return artist.id;
-          return await findOrCreateArtist(artist.name);
-        })
-    );
-
-    if (!artistIds.length) {
-      throw new Error('At least one valid artist is required');
+    const validArtists = artists.filter(artist => artist.name.trim());
+    if (!validArtists.length) {
+      logger.warn('No valid artists provided', { artists });
+      throw new ArtistValidationError('At least one valid artist is required');
     }
 
-    // Filter valid tracks
-    const validTracks = data.tracks?.filter(track => 
+    const artistIds = await Promise.all(
+      validArtists.map(async artist => {
+        if (artist.id) return artist.id;
+        return await findOrCreateArtist(artist.name);
+      })
+    );
+
+    logger.debug('Processed artists', { artistIds });
+
+    // Filter and validate tracks
+    const validTracks = (data.tracks ?? []).filter(track => 
       track.name.trim() && track.track_number > 0
-    ) || [];
+    );
+
+    if (data.tracks?.length && !validTracks.length) {
+      logger.warn('All provided tracks are invalid', { tracks: data.tracks });
+      throw new TrackValidationError('All provided tracks are invalid');
+    }
 
     // Prepare release data
     const releaseData = {
       name: data.name.trim(),
       release_type: data.release_type,
       cover_url: coverUrl,
-      genres: data.genres || [],
-      record_label: data.record_label?.trim(),
-      track_count: validTracks.length || data.track_count,
-      spotify_url: data.spotify_url?.trim(),
-      apple_music_url: data.apple_music_url?.trim(),
+      genres: data.genres ?? [],
+      record_label: data.record_label?.trim() ?? null,
+      track_count: validTracks.length || data.track_count || 0,
+      spotify_url: data.spotify_url?.trim() ?? null,
+      apple_music_url: data.apple_music_url?.trim() ?? null,
       release_date: data.release_date,
-      description: data.description?.trim() || null,
+      description: data.description?.trim() ?? null,
       description_author_id: data.description?.trim() ? data.created_by : null,
-      created_by: data.created_by
+      created_by: data.created_by,
+      updated_at: new Date().toISOString()
     };
 
     let releaseId = existingRelease?.id;
 
-    if (existingRelease) {
-      // Update existing release
-      const { error: releaseError } = await supabase
+    logger.info('Executing database transaction', { 
+      releaseId,
+      trackCount: validTracks.length,
+      artistCount: artistIds.length 
+    });
+
+    // Use a transaction for atomicity
+    const { error: txnError } = await supabase.rpc('update_release_transaction', {
+      p_release_id: releaseId,
+      p_release_data: releaseData,
+      p_artist_ids: artistIds,
+      p_tracks: validTracks.map(track => ({
+        name: track.name.trim(),
+        track_number: track.track_number,
+        duration_ms: track.duration_ms ?? 0,
+        preview_url: track.preview_url ?? null
+      })),
+      p_track_credits: validTracks
+        .filter(track => track.credits?.length)
+        .flatMap(track => 
+          track.credits?.map(credit => ({
+            track_number: track.track_number,
+            name: credit.name.trim(),
+            role: credit.role.trim()
+          })) ?? []
+        )
+    });
+
+    if (txnError) {
+      logger.error('Transaction failed', txnError);
+      throw new DatabaseError('Failed to update release', txnError);
+    }
+
+    // If this was a new release, get the ID
+    if (!releaseId) {
+      const { data: newRelease, error: fetchError } = await supabase
         .from('releases')
-        .update({
-          ...releaseData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingRelease.id);
-
-      if (releaseError) throw releaseError;
-
-      // Update artist relationships
-      await supabase
-        .from('release_artists')
-        .delete()
-        .eq('release_id', existingRelease.id);
-
-      // Delete existing tracks
-      await supabase
-        .from('tracks')
-        .delete()
-        .eq('release_id', existingRelease.id);
-    } else {
-      // Create new release
-      const { data: newRelease, error: releaseError } = await supabase
-        .from('releases')
-        .insert(releaseData)
         .select('id')
+        .eq('name', releaseData.name)
+        .eq('created_by', releaseData.created_by)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (releaseError) throw releaseError;
-      if (!newRelease) throw new Error('Failed to create release');
+      if (fetchError || !newRelease) {
+        logger.error('Failed to fetch new release ID', fetchError);
+        throw new DatabaseError('Failed to fetch new release ID');
+      }
 
       releaseId = newRelease.id;
     }
 
-    // Create artist relationships
-    await Promise.all(
-      artistIds.map((artistId, index) => 
-        supabase
-          .from('release_artists')
-          .insert({
-            release_id: releaseId,
-            artist_id: artistId,
-            position: index
-          })
-      )
-    );
-
-    // Create tracks
-    if (validTracks.length > 0) {
-      const { error: tracksError } = await supabase
-        .from('tracks')
-        .insert(
-          validTracks.map(track => ({
-            release_id: releaseId,
-            name: track.name,
-            track_number: track.track_number,
-            duration_ms: track.duration_ms || 0,
-            preview_url: track.preview_url
-          }))
-        );
-
-      if (tracksError) throw tracksError;
-
-      // Create track credits
-      const tracksWithCredits = validTracks.filter(track => track.credits?.length);
-      if (tracksWithCredits.length > 0) {
-        const { data: insertedTracks } = await supabase
-          .from('tracks')
-          .select('id, track_number')
-          .eq('release_id', releaseId);
-
-        if (insertedTracks) {
-          const credits = tracksWithCredits.flatMap(track => {
-            const insertedTrack = insertedTracks.find(t => t.track_number === track.track_number);
-            return track.credits?.map(credit => ({
-              track_id: insertedTrack!.id,
-              name: credit.name,
-              role: credit.role
-            })) || [];
-          });
-
-          if (credits.length > 0) {
-            await supabase
-              .from('track_credits')
-              .insert(credits);
-          }
-        }
-      }
-    }
+    logger.info('Successfully processed release', { 
+      releaseId,
+      name: releaseData.name,
+      trackCount: validTracks.length,
+      artistCount: artistIds.length
+    });
 
     return releaseId;
   } catch (error) {
-    console.error('Error in createOrUpdateRelease:', error);
-    throw error;
+    if (error instanceof ReleaseServiceError) {
+      throw error;
+    }
+    
+    logger.error('Unexpected error in createOrUpdateRelease', 
+      error instanceof Error ? error : undefined,
+      { releaseName: data.name }
+    );
+
+    throw new DatabaseError(
+      'An unexpected error occurred while saving the release',
+      error instanceof Error ? error : undefined
+    );
   }
 }
