@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { Tooltip } from "./tooltip";
 
 type ButtonBaseProps = {
-  variant?: "primary" | "secondary" | "destructive";
-  size?: "sm" | "lg" | "icon";
+  variant?: "primary" | "secondary" | "destructive" | "link";
+  size?: "sm" | "lg" | "icon" | "link";
   icon?: LucideIcon;
   iconPosition?: "left" | "right";
   loading?: boolean;

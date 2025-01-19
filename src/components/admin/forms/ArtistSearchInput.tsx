@@ -1,8 +1,7 @@
 import React from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, Plus } from "lucide-react";
 import { FormInput } from "@/components/ui/form-input";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface Artist {
   id?: string;
@@ -42,12 +41,12 @@ export function ArtistSearchInput({
     );
   };
 
-  const handleInputChange = (index: number, value: string) => {
+  const handleInputChange = (index: number, value: string, options: Artist[]) => {
     setInputStates((prev) => ({
       ...prev,
       [index]: { ...prev[index], value },
     }));
-    onArtistChange(index, value, artistOptions);
+    onArtistChange(index, value, options);
   };
 
   const handleFocus = (index: number) => {
@@ -78,7 +77,10 @@ export function ArtistSearchInput({
   return (
     <div className="space-y-2">
       {selectedArtists.map((artist, index) => {
-        const state = inputStates[index] || { focused: false, value: artist.name };
+        const state = inputStates[index] || {
+          focused: false,
+          value: artist.name,
+        };
         const filteredOptions = getFilteredOptions(state.value);
 
         return (
@@ -86,14 +88,14 @@ export function ArtistSearchInput({
             <div className="relative flex-1">
               <FormInput
                 value={artist.name}
-                onChange={(e) => handleInputChange(index, e.target.value)}
+                onChange={(e) => handleInputChange(index, e.target.value, artistOptions)}
                 onFocus={() => handleFocus(index)}
                 onBlur={() => handleBlur(index)}
                 placeholder="Enter artist name"
                 className="w-full pr-8"
               />
               <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
-              
+
               {state.focused && filteredOptions.length > 0 && (
                 <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 rounded-md border border-white/10 bg-[#1a1a1a] shadow-md py-1">
                   {filteredOptions.map((option) => (
@@ -113,11 +115,19 @@ export function ArtistSearchInput({
             </div>
 
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               type="button"
-              onClick={() => onRemoveArtist(index)}
-              className="h-[34px] w-[34px] shrink-0 hover:bg-white/10"
+              onClick={() => {
+                if (index === 0) {
+                  // For the first artist, clear the input instead of removing
+                  handleInputChange(0, "", artistOptions);
+                } else {
+                  onRemoveArtist(index);
+                }
+              }}
+              disabled={!artist.name.trim()} // Disable if no artist name entered
+              className="h-[34px] w-[34px] shrink-0 hover:bg-white/10 disabled:opacity-50"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -125,14 +135,8 @@ export function ArtistSearchInput({
         );
       })}
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={onAddArtist}
-        className="mt-2 text-sm hover:bg-white/10 hover:text-white"
-      >
-        Add Artist
+      <Button type="button" variant="link" size="link" onClick={onAddArtist}>
+        <Plus size={14} strokeWidth={1.5} /> Add Artist
       </Button>
     </div>
   );

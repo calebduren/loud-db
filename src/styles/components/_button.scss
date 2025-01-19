@@ -39,6 +39,10 @@
     }
   }
 
+  &--link {
+    @apply text-white hover:text-white/80 p-0;
+  }
+
   // Sizes
   &--sm {
     @apply px-2 h-[26px];
