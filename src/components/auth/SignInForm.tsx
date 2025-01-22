@@ -93,6 +93,7 @@ export function SignInForm() {
               <FormControl>
                 <Input
                   type="password"
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   {...field}
                 />
