@@ -5,19 +5,45 @@ export function getPasswordResetEmailHtml(resetLink: string) {
       <head>
         <meta charset="utf-8">
         <title>Reset Your Password</title>
+        <style>
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            color: #1a1a1a;
+          }
+          .container {
+            max-width: 580px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 30px;
+            font-size: 0.875rem;
+            color: #666;
+          }
+        </style>
       </head>
-      <body style="font-family: system-ui, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #000000;">Reset Your Password</h1>
-        <p>You requested to reset your password. Click the button below to create a new password:</p>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" 
-             style="background: #000000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-            Reset Password
-          </a>
-        </p>
-        <p>If you didn't request this, you can safely ignore this email.</p>
-        <p>This link will expire in 1 hour for security reasons.</p>
-        <p>The loud db team</p>
+      <body>
+        <div class="container">
+          <h1>Reset Your Password</h1>
+          <p>We received a request to reset your password. Click the button below to choose a new password:</p>
+          <a href="${resetLink}" class="button">Reset Password</a>
+          <p>If you didn't request this password reset, you can safely ignore this email.</p>
+          <div class="footer">
+            <p>This link will expire in 1 hour.</p>
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p>${resetLink}</p>
+          </div>
+        </div>
       </body>
     </html>
   `;

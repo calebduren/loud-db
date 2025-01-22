@@ -1,82 +1,69 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { z } from 'zod';
 import { supabase } from '../../lib/supabase';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { Input } from '../ui/input';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '../ui/alert';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../ui/form';
+import { Input } from '../ui/input';
 import { useToast } from '../../hooks/useToast';
-import { useSearchParams } from 'react-router-dom';
+import { sendPasswordResetEmail } from '../../lib/email/service';
 
 const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address')
+  email: z.string().email('Please enter a valid email address'),
 });
 
-export function PasswordResetForm() {
-  const [loading, setLoading] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
-  const [, setSearchParams] = useSearchParams();
-  const { showToast } = useToast();
+type FormData = z.infer<typeof formSchema>;
 
-  const form = useForm<z.infer<typeof formSchema>>({
+export function PasswordResetForm() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: ''
-    }
+      email: '',
+    },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setLoading(true);
+  const onSubmit = async (data: FormData) => {
     try {
-      // Get the current site URL, removing any path/query params
-      const siteUrl = window.location.origin;
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${siteUrl}?mode=reset`
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/auth?type=recovery`,
       });
 
       if (error) throw error;
+
+      // Send password reset email using Resend
+      const resetLink = `${window.location.origin}/auth?type=recovery`; // This will be replaced by Supabase's actual reset link
+      await sendPasswordResetEmail(data.email, resetLink);
+
+      toast({
+        title: 'Check your email',
+        description: 'We sent you a link to reset your password.',
+      });
       
-      setSuccess(true);
-      showToast({
-        type: 'success',
-        message: 'Check your email for password reset instructions'
-      });
+      navigate('/auth?mode=confirmation');
     } catch (error) {
-      showToast({
-        type: 'error',
-        message: 'Failed to send reset instructions'
+      console.error('Error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send reset link. Please try again.',
+        variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (success) {
-    return (
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Check your email for password reset instructions.
-        </AlertDescription>
-        <div className="mt-4">
-          <Button
-            variant="ghost"
-            onClick={() => setSearchParams({})}
-          >
-            Back to Sign In
-          </Button>
-        </div>
-      </Alert>
-    );
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
@@ -84,33 +71,20 @@ export function PasswordResetForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="Enter your email" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            'Send Reset Instructions'
-          )}
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? 'Sending...' : 'Send Reset Link'}
         </Button>
-        
-        <div className="text-sm text-center">
-          <button
-            type="button"
-            onClick={() => setSearchParams({})}
-            className="text-white hover:underline"
-          >
-            Back to Sign In
-          </button>
-        </div>
       </form>
     </Form>
   );

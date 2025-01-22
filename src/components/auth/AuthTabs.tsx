@@ -10,21 +10,12 @@ interface AuthTabsProps {
 }
 
 export function AuthTabs({ defaultTab = 'signin' }: AuthTabsProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode');
-  const token = searchParams.get('token');
   const type = searchParams.get('type');
 
-  const handleTabChange = (value: string) => {
-    if (value === 'reset') {
-      setSearchParams({ mode: 'reset' });
-    } else {
-      setSearchParams({});
-    }
-  };
-
-  // Determine which content to show based on mode
-  if (mode === 'reset' || (type === 'recovery' && token)) {
+  // Show password reset form if in reset mode or recovery
+  if (mode === 'reset' || type === 'recovery') {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Reset Password</h2>
@@ -34,16 +25,14 @@ export function AuthTabs({ defaultTab = 'signin' }: AuthTabsProps) {
   }
 
   return (
-    <Tabs defaultValue={defaultTab} className="w-full" onValueChange={handleTabChange}>
-      <TabsList className="grid w-full grid-cols-2 mb-6">
+    <Tabs defaultValue={defaultTab} className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="signin">Sign In</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
       </TabsList>
-      
       <TabsContent value="signin">
         <SignInForm />
       </TabsContent>
-      
       <TabsContent value="signup">
         <SignUpForm />
       </TabsContent>

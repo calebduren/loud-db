@@ -25,5 +25,6 @@ export async function sendPasswordResetEmail(email: string, resetLink: string) {
     });
   } catch (error) {
     console.error('Failed to send password reset email:', error);
+    throw error;
   }
 }
