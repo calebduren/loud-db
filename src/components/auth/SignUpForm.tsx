@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "../../lib/supabase";
 import { checkUsernameAvailable } from "../../lib/auth/validation";
+import { signUpSchema } from "../../lib/validation/passwordSchema";
 import {
   Form,
   FormControl,
@@ -20,7 +21,7 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { AuthContext } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
-const formSchema = z.object({
+const formSchema = signUpSchema.extend({
   username: z
     .string()
     .min(3, "Username must be at least 3 characters")
@@ -30,7 +31,6 @@ const formSchema = z.object({
       "Username can only contain letters, numbers, and underscores"
     ),
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
   inviteCode: z.string().min(1, "Invite code is required"),
 });
 

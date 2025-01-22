@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { usePasswordForm } from "../../../hooks/settings/usePasswordForm";
+import { passwordChangeSchema } from "../../../lib/validation/passwordSchema";
 import {
   Form,
   FormControl,
@@ -14,16 +15,11 @@ import {
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 
-const formSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
-});
-
 export function PasswordForm() {
   const { handleSubmit, saving, error, success } = usePasswordForm();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof passwordChangeSchema>>({
+    resolver: zodResolver(passwordChangeSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
