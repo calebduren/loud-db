@@ -8,11 +8,7 @@ interface TermsModalProps {
 
 export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Terms of Service"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title="Terms of Service">
       <div className="space-y-4 text-sm">
         <p>Last updated: January 5, 2025</p>
 
@@ -34,23 +30,27 @@ export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
         </ul>
 
         <h3 className="text-lg font-semibold">3. Content Guidelines</h3>
+        <p>Be kind.</p>
         <p>You agree not to upload or share content that:</p>
         <ul className="list-disc pl-6">
           <li>Infringes on intellectual property rights</li>
           <li>Contains harmful or malicious code</li>
           <li>Violates any applicable laws</li>
           <li>Contains hate speech or harassment</li>
+          <li>Violates any privacy or security measures</li>
+          <li>Is defamatory or libelous</li>
         </ul>
 
-        <h3 className="text-lg font-semibold">4. Music Licensing</h3>
+        <h3 className="text-lg font-semibold">4. Music Information</h3>
         <p>
-          All music shared through our platform must comply with copyright laws
-          and licensing requirements. Users must:
+          Loud is a music database for cataloging and discovering music. Users
+          must:
         </p>
         <ul className="list-disc pl-6">
-          <li>Own the rights to shared music</li>
-          <li>Have proper licensing for covers or remixes</li>
-          <li>Respect takedown requests from rights holders</li>
+          <li>Provide accurate information about releases and artists</li>
+          <li>Only submit metadata and factual information about music</li>
+          <li>Not upload or share copyrighted audio content</li>
+          <li>Respect takedown requests for any infringing content</li>
         </ul>
 
         <h3 className="text-lg font-semibold">5. Termination</h3>
@@ -73,9 +73,10 @@ export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
         <h3 className="text-lg font-semibold">7. Contact</h3>
         <p>
           Questions about these terms? Contact us at{" "}
-          <a href="mailto:legal@loud.fm" className="text-primary">
-            legal@loud.fm
+          <a href="mailto:legal@louddb.com" className="text-primary">
+            legal@louddb.com
           </a>
+          .
         </p>
       </div>
     </Modal>

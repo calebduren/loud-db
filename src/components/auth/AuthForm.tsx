@@ -13,7 +13,7 @@ export function AuthForm() {
         <Logo className="mx-auto mb-4 text-white" />
         <h1 className="text-2xl font-bold text-white">Loud</h1>
         <p className="text-white/80 font-medium text-sm">
-          A platform for discovering new music
+          The community for sharing and discovering new music.
         </p>
       </div>
       <div>

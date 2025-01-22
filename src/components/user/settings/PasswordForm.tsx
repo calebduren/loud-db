@@ -57,6 +57,10 @@ export function PasswordForm() {
                 <FormControl>
                   <Input {...field} type="password" />
                 </FormControl>
+                <p className="text-xs text-[--color-gray-400]">
+                  Password must be at least 8 characters and contain uppercase &
+                  lowercase letters, numbers, and special characters.
+                </p>
                 <FormMessage />
               </FormItem>
             )}

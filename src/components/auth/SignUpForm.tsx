@@ -5,14 +5,9 @@ import * as z from "zod";
 import { supabase } from "../../lib/supabase";
 import { checkUsernameAvailable } from "../../lib/auth/validation";
 import { signUpSchema } from "../../lib/validation/passwordSchema";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { TermsModal } from "../legal/TermsModal";
+import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +32,8 @@ const formSchema = signUpSchema.extend({
 export function SignUpForm() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [termsOpen, setTermsOpen] = React.useState(false);
+  const [privacyOpen, setPrivacyOpen] = React.useState(false);
   const navigate = useNavigate();
   const context = React.useContext(AuthContext);
   if (!context) throw new Error("AuthContext must be used within AuthProvider");
@@ -112,107 +109,118 @@ export function SignUpForm() {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Choose a username" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
-        />
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="Choose a username" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="inviteCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Invite Code</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your invite code" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <p className="text-xs text-[--color-gray-400]">
+                  Password must be at least 8 characters and contain uppercase &
+                  lowercase letters, numbers, and special characters.
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <p className="text-sm text-white/60">
-          By creating an account, you agree to our{" "}
-          <Link
-            to="/terms"
-            className="text-white hover:underline font-semibold"
+          <FormField
+            control={form.control}
+            name="inviteCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Invite Code</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your invite code" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <p className="text-sm text-white/60">
+            By creating an account, you agree to our{" "}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setTermsOpen(true);
+              }}
+              className="text-white hover:underline font-semibold"
+            >
+              Terms & Conditions
+            </button>{" "}
+            and{" "}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setPrivacyOpen(true);
+              }}
+              className="text-white hover:underline font-semibold"
+            >
+              Privacy Policy
+            </button>
+          </p>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || authLoading}
           >
-            Terms & Conditions
-          </Link>{" "}
-          and{" "}
-          <Link
-            to="/privacy"
-            className="text-white hover:underline font-semibold"
-          >
-            Privacy Policy
-          </Link>
-        </p>
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading || authLoading}
-        >
-          {loading || authLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating account...
-            </>
-          ) : (
-            "Create Account"
-          )}
-        </Button>
-      </form>
-    </Form>
+            {loading || authLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+              </>
+            ) : (
+              "Create Account"
+            )}
+          </Button>
+        </form>
+      </Form>
+      
+      {/* Modals */}
+      <TermsModal isOpen={termsOpen} onClose={() => setTermsOpen(false)} />
+      <PrivacyPolicyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+    </div>
   );
 }
