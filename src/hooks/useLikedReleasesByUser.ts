@@ -29,10 +29,14 @@ export function useLikedReleasesByUser(userId?: string) {
         const { data: releases } = await supabase
           .from('releases_view')
           .select('*')
-          .in('id', likedIds.map(row => row.release_id))
-          .order('created_at', { foreignTable: 'release_likes', ascending: false });
+          .in('id', likedIds.map(row => row.release_id));
 
-        if (releases) setReleases(releases);
+        if (releases) {
+          const orderedReleases = likedIds
+            .map(like => releases.find(release => release.id === like.release_id))
+            .filter((release): release is Release => release !== undefined);
+          setReleases(orderedReleases);
+        }
       } catch (error) {
         console.error('Error fetching liked releases:', error);
         setReleases([]);

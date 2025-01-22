@@ -1,9 +1,8 @@
 import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ProfileNav } from "./ProfileNav";
-import { AuthContext } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { ProfileHeader } from "./profile/ProfileHeader";
-import { ProfileStats } from "./profile/ProfileStats";
 import { ProfileHeaderSkeleton } from "./profile/ProfileHeaderSkeleton";
 import { ProfileStatsSkeleton } from "./profile/ProfileStatsSkeleton";
 import { useLikedReleasesByUser } from "../../hooks/useLikedReleasesByUser";
@@ -11,13 +10,16 @@ import { useUserReleases } from "../../hooks/useUserReleases";
 import { useProfile } from "../../hooks/useProfile";
 
 export function ProfileLayout() {
-  const { user, loading: authLoading } = React.useContext(AuthContext);
+  const auth = useAuth();
   const location = useLocation();
-  const { profile, loading: profileLoading } = useProfile(user?.id);
-  const { releases: likedReleases, loading: likesLoading } = useLikedReleasesByUser(user?.id);
-  const { count: releasesCount, loading: releasesLoading } = useUserReleases(user?.id);
+  const { profile, loading: profileLoading } = useProfile(auth?.user?.id);
+  const { releases: likedReleases, loading: likesLoading } =
+    useLikedReleasesByUser(auth?.user?.id);
+  const { count: releasesCount, loading: releasesLoading } = useUserReleases(
+    auth?.user?.id
+  );
 
-  if (authLoading) {
+  if (!auth) {
     return (
       <div className="space-y-8">
         <div className="space-y-6">
@@ -34,7 +36,7 @@ export function ProfileLayout() {
     );
   }
 
-  if (!user) {
+  if (!auth.user) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
@@ -44,7 +46,9 @@ export function ProfileLayout() {
   if (showError) {
     return (
       <div className="text-center py-12">
-        <p className="text-white/60">Something went wrong. Please try again later.</p>
+        <p className="text-white/60">
+          Something went wrong. Please try again later.
+        </p>
       </div>
     );
   }
@@ -55,15 +59,18 @@ export function ProfileLayout() {
         {profileLoading ? (
           <ProfileHeaderSkeleton />
         ) : (
-          profile && <ProfileHeader profile={profile} />
+          profile && (
+            <ProfileHeader
+              profile={profile}
+              releasesCount={releasesCount}
+              likesCount={likedReleases.length}
+            />
+          )
         )}
         {likesLoading || releasesLoading ? (
           <ProfileStatsSkeleton />
         ) : (
-          <ProfileStats 
-            releasesCount={releasesCount}
-            likesCount={likedReleases.length}
-          />
+          <></>
         )}
       </div>
       <div className="flex gap-8">

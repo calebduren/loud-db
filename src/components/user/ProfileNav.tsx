@@ -2,11 +2,13 @@ import React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { AuthContext } from "../../contexts/AuthContext";
 import { cn } from '../../lib/utils';
+import { useProfile } from "../../hooks/useProfile";
 
 export function ProfileNav() {
   const { username } = useParams();
-  const { user } = React.useContext(AuthContext);
-  const isOwnProfile = !username || user?.username === username;
+  const auth = React.useContext(AuthContext);
+  const { profile } = useProfile(auth?.user?.id);
+  const isOwnProfile = !username || profile?.username === username;
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(

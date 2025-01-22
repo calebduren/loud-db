@@ -19,8 +19,8 @@ export function ProfileHeader({
   releasesCount,
   likesCount,
 }: ProfileHeaderProps) {
-  const { user } = useContext(AuthContext);
-  const isOwnProfile = user?.id === profile.id;
+  const auth = useContext(AuthContext);
+  const isOwnProfile = auth?.user?.id === profile.id;
   const [preview, setPreview] = useState<string | null>(null);
   const { uploadPicture, loading } = useProfilePicture();
   const { showToast } = useToast();

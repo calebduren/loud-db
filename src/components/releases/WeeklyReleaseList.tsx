@@ -1,9 +1,12 @@
-import React from 'react';
-import { Release } from '../../types/database';
-import { ReleaseList } from './ReleaseList';
-import { groupReleasesByWeek, formatWeekHeader } from '../../lib/dates/weekGrouping';
-import { ReleaseSkeleton } from './ReleaseSkeleton';
-import { useReleaseSorting } from '../../hooks/useReleaseSorting';
+import React from "react";
+import { Release } from "../../types/database";
+import { ReleaseList } from "./ReleaseList";
+import {
+  groupReleasesByWeek,
+  formatWeekHeader,
+} from "../../lib/dates/weekGrouping";
+import { ReleaseSkeleton } from "./ReleaseSkeleton";
+import { useReleaseSorting } from "../../hooks/useReleaseSorting";
 
 interface WeeklyReleaseListProps {
   releases: Release[];
@@ -13,12 +16,12 @@ interface WeeklyReleaseListProps {
   onDelete?: () => void;
 }
 
-export function WeeklyReleaseList({ 
+export function WeeklyReleaseList({
   releases,
   loading,
   showActions,
   onEdit,
-  onDelete 
+  onDelete,
 }: WeeklyReleaseListProps) {
   const { sortReleases, loading: sortingLoading } = useReleaseSorting();
   const weekGroups = React.useMemo(() => {
@@ -47,7 +50,7 @@ export function WeeklyReleaseList({
 
   return (
     <div className="space-y-12">
-      {weekGroups.map(group => (
+      {weekGroups.map((group) => (
         <section key={group.weekStart.toISOString()} className="space-y-6">
           <h2 className="text-2xl font-bold mb-6">
             {formatWeekHeader(group.weekStart)}
