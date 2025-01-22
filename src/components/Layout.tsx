@@ -12,11 +12,7 @@ export function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!context?.user) {
-    return (
-      <div className="min-h-screen">
-        <div className="mx-auto">{children}</div>
-      </div>
-    );
+    return <div className="min-h-screen">{children}</div>;
   }
 
   return (
@@ -33,9 +29,7 @@ export function Layout({ children }: LayoutProps) {
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      <main className="layout">
-        <div className="mx-auto">{children}</div>
-      </main>
+      <main className="layout">{children}</main>
     </div>
   );
 }

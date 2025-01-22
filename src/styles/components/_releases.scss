@@ -11,7 +11,7 @@
 
 .release__like-button {
   &--liked {
-    @apply bg-[--color-loud] text-white;
+    @apply bg-[--color-gray-600] text-[--color-loud];
   }
 
   &--not-liked {
@@ -22,7 +22,7 @@
     @apply transition-all duration-200;
 
     &--liked {
-      @apply text-white;
+      @apply text-[--color-loud];
     }
 
     &--not-liked {
@@ -154,10 +154,7 @@
   }
 
   &__link {
-    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-opacity;
-    &:hover {
-      opacity: 0.8;
-    }
+    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-colors hover:text-[--color-loud-light];
   }
 
   &__divider {
@@ -226,7 +223,7 @@
     @extend .btn--lg !optional;
 
     &--liked {
-      @apply bg-[--color-loud] text-white hover:bg-[--color-loud-light];
+      @apply bg-[--color-gray-800] text-[--color-loud] hover:bg-[--color-gray-700];
     }
 
     &--not-liked {

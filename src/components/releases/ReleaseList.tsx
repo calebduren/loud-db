@@ -95,7 +95,7 @@ const SkeletonWeeklyGroup = () => (
       <div className="h-[28px] w-64 bg-white/5 rounded-lg animate-pulse" />
     </div>
     <div className="release-grid">
-      {Array.from({ length: 9 }).map((_, i) => (
+      {Array.from({ length: 21 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
     </div>

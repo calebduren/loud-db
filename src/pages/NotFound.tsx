@@ -8,27 +8,22 @@ export function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-center bg-background">
+    <div className="flex self-stretch flex-col items-center justify-center flex-1">
       <div className="max-w-md w-full px-6 text-center">
         <h1 className="mb-6">Page not found</h1>
-
-        <p className="text-muted-foreground mb-8">
+        <p>
           Hey there partner, looks like you&rsquo;ve wandered into uncharted
           territory. The page you&rsquo;re looking for doesn&rsquo;t exist or
           has been moved.
         </p>
 
-        <div className="space-y-4">
-          <Button onClick={() => navigate(user ? "/releases" : "/")}>
-            Back to {user ? "Releases" : "Home"}
-          </Button>
-
-          {!user && (
+        {!user && (
+          <div className="mt-6">
             <Button variant="secondary" onClick={() => navigate("/auth")}>
               Sign In
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

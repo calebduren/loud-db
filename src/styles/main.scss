@@ -162,9 +162,9 @@
   --color-gray-900: #1f1f1f;
 
   // Brand Colors
-  --color-loud: #fc4f63;
-  --color-loud-light: #f5b3a1;
-  --color-loud-dark: #e57b5c;
+  --color-loud: #cfff31;
+  --color-loud-light: #ecffae;
+  --color-loud-dark: #b8f000;
 
   // Semantic Colors
   --color-background: var(--color-black);
@@ -224,6 +224,15 @@ h6 {
   font-family: var(--font-innovator);
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;
+}
+
+.min-h-screen,
+.layout {
+  min-height: 100dvh !important;
+}
+
+.layout {
+  @apply flex flex-col;
 }
 
 h1 {
