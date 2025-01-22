@@ -16,6 +16,7 @@ import { InviteCodeManager } from "./components/admin/invites/InviteCodeManager"
 import { ComponentLibrary } from "./components/admin/ComponentLibrary";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { Terms } from "./pages/Terms";
+import { NotFound } from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const RESERVED_PATHS = ["u", "r", "admin", "privacy", "terms"];
@@ -94,6 +95,7 @@ function AppRoutes() {
             <Route path="/terms" element={<Terms />} />
           </>
         )}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );
