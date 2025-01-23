@@ -41,7 +41,11 @@ export function ArtistSearchInput({
     );
   };
 
-  const handleInputChange = (index: number, value: string, options: Artist[]) => {
+  const handleInputChange = (
+    index: number,
+    value: string,
+    options: Artist[]
+  ) => {
     setInputStates((prev) => ({
       ...prev,
       [index]: { ...prev[index], value },
@@ -88,7 +92,9 @@ export function ArtistSearchInput({
             <div className="relative flex-1">
               <FormInput
                 value={artist.name}
-                onChange={(e) => handleInputChange(index, e.target.value, artistOptions)}
+                onChange={(e) =>
+                  handleInputChange(index, e.target.value, artistOptions)
+                }
                 onFocus={() => handleFocus(index)}
                 onBlur={() => handleBlur(index)}
                 placeholder="Enter artist name"
@@ -127,7 +133,7 @@ export function ArtistSearchInput({
                 }
               }}
               disabled={!artist.name.trim()} // Disable if no artist name entered
-              className="h-[34px] w-[34px] shrink-0 hover:bg-white/10 disabled:opacity-50"
+              className="h-[--input-height] w-[34px] shrink-0 hover:bg-white/10 disabled:opacity-50"
             >
               <X className="h-4 w-4" />
             </Button>

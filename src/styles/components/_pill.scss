@@ -1,5 +1,5 @@
 .pill {
-  @apply h-[34px] flex items-center gap-1 px-3.5 text-sm font-medium transition-colors rounded-md text-nowrap;
+  @apply h-[--input-height] flex items-center gap-1 px-3.5 text-sm font-medium transition-colors rounded-md text-nowrap;
 
   // Default style (used in cards and modals)
   &--default {

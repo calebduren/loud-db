@@ -1,11 +1,11 @@
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import * as PopoverPrimitive from "@radix-ui/react-popover"
-import { cn } from "@/lib/utils"
-import { Command as CommandPrimitive } from "cmdk"
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { cn } from "@/lib/utils";
+import { Command as CommandPrimitive } from "cmdk";
 
-const Popover = PopoverPrimitive.Root
-const PopoverTrigger = PopoverPrimitive.Trigger
+const Popover = PopoverPrimitive.Root;
+const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
@@ -22,8 +22,8 @@ const PopoverContent = React.forwardRef<
       {...props}
     />
   </PopoverPrimitive.Portal>
-))
-PopoverContent.displayName = PopoverPrimitive.Content.displayName
+));
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -37,34 +37,33 @@ const Command = React.forwardRef<
     )}
     {...props}
   />
-))
-Command.displayName = CommandPrimitive.displayName
+));
+Command.displayName = CommandPrimitive.displayName;
 
 interface CommandInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: string
+  error?: string;
 }
 
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & CommandInputProps
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> &
+    CommandInputProps
 >(({ className, error, ...props }, ref) => (
   <div className="flex flex-col items-center">
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex h-[34px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-[--input-height] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         error && "border-red-500",
         className
       )}
       {...props}
     />
-    {error && (
-      <p className="mt-1 text-sm text-red-500">{error}</p>
-    )}
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
-))
-CommandInput.displayName = CommandPrimitive.Input.displayName
+));
+CommandInput.displayName = CommandPrimitive.Input.displayName;
 
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
@@ -75,8 +74,8 @@ const CommandList = React.forwardRef<
     className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
     {...props}
   />
-))
-CommandList.displayName = CommandPrimitive.List.displayName
+));
+CommandList.displayName = CommandPrimitive.List.displayName;
 
 const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
@@ -87,8 +86,8 @@ const CommandEmpty = React.forwardRef<
     className="py-2 text-center text-sm text-white/40"
     {...props}
   />
-))
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName
+));
+CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
 
 const CommandGroup = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
@@ -102,8 +101,8 @@ const CommandGroup = React.forwardRef<
     )}
     {...props}
   />
-))
-CommandGroup.displayName = CommandPrimitive.Group.displayName
+));
+CommandGroup.displayName = CommandPrimitive.Group.displayName;
 
 const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
@@ -117,8 +116,8 @@ const CommandItem = React.forwardRef<
     )}
     {...props}
   />
-))
-CommandItem.displayName = CommandPrimitive.Item.displayName
+));
+CommandItem.displayName = CommandPrimitive.Item.displayName;
 
 const CommandShortcut = ({
   className,
@@ -126,15 +125,12 @@ const CommandShortcut = ({
 }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn(
-        "ml-auto text-xs tracking-widest text-white/40",
-        className
-      )}
+      className={cn("ml-auto text-xs tracking-widest text-white/40", className)}
       {...props}
     />
-  )
-}
-CommandShortcut.displayName = "CommandShortcut"
+  );
+};
+CommandShortcut.displayName = "CommandShortcut";
 
 export {
   Command,
@@ -147,4 +143,4 @@ export {
   Popover,
   PopoverContent,
   PopoverTrigger,
-}
+};
