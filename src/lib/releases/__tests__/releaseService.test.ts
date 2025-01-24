@@ -44,10 +44,19 @@ describe('createOrUpdateRelease', () => {
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null })
+      upsert: vi.fn().mockReturnThis(),
+      single: vi.fn().mockImplementation(() => {
+        // By default, return null data and no error
+        return Promise.resolve({ data: null, error: null });
+      })
     };
-    mockSupabase.from.mockImplementation(() => mockQueryBuilder);
-    mockSupabase.rpc.mockResolvedValue({ data: null, error: null });
+
+    // Create a spy for the from() method
+    const fromSpy = vi.fn().mockReturnValue(mockQueryBuilder);
+    mockSupabase.from = fromSpy;
+
+    // Remove the rpc mock since we don't use it anymore
+    mockSupabase.rpc = undefined;
 
     // Mock Date.now() to return a consistent timestamp
     vi.setSystemTime(new Date('2025-01-17T16:28:28-08:00'));
@@ -74,33 +83,69 @@ describe('createOrUpdateRelease', () => {
 
   describe('Creating a new release', () => {
     it('should successfully create a new release', async () => {
-      // Mock initial check
+      // Mock successful upsert
       const mockQueryBuilder = mockSupabase.from();
-      mockQueryBuilder.single
+      
+      // Debug spy
+      const singleSpy = vi.fn()
         .mockResolvedValueOnce({ data: null, error: null }) // Initial check
-        .mockResolvedValueOnce({ data: { id: 'new-release-id' }, error: null }); // Fetch new ID
+        .mockResolvedValueOnce({ 
+          data: { id: 'new-release-id' }, 
+          error: null 
+        }); // Upsert response
+      
+      mockQueryBuilder.single = singleSpy;
 
-      // Mock successful transaction
-      mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null });
+      // Mock successful delete and insert operations
+      mockQueryBuilder.delete = vi.fn().mockReturnThis();
+      mockQueryBuilder.insert = vi.fn().mockReturnThis();
+      mockQueryBuilder.eq = vi.fn().mockReturnValue({ error: null });
+      
+      try {
+        const result = await createOrUpdateRelease(mockReleaseData, mockArtists);
 
-      const result = await createOrUpdateRelease(mockReleaseData, mockArtists);
-
-      expect(result).toBe('new-release-id');
-      expect(mockSupabase.rpc).toHaveBeenCalledWith(
-        'update_release_transaction',
-        {
-          p_release_id: undefined,
-          p_release_data: {
+        console.log('Single calls:', singleSpy.mock.calls);
+        console.log('Single results:', singleSpy.mock.results);
+        
+        expect(result).toBe('new-release-id');
+        expect(mockSupabase.from).toHaveBeenCalledWith('releases');
+        expect(mockQueryBuilder.upsert).toHaveBeenCalledWith(
+          expect.objectContaining({
             ...mockReleaseData,
             cover_url: 'processed-image-url',
             description_author_id: 'user-123',
             updated_at: '2025-01-18T00:28:28.000Z'
-          },
-          p_artist_ids: ['mock-artist-id', 'mock-artist-id'],
-          p_tracks: [],
-          p_track_credits: []
-        }
-      );
+          }),
+          expect.objectContaining({
+            onConflict: 'id',
+            returning: 'minimal'
+          })
+        );
+
+        // Verify artist relationships were created
+        expect(mockSupabase.from).toHaveBeenCalledWith('release_artists');
+        expect(mockQueryBuilder.insert).toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({
+              release_id: 'new-release-id',
+              artist_id: 'mock-artist-id',
+              position: 0
+            }),
+            expect.objectContaining({
+              release_id: 'new-release-id',
+              artist_id: 'mock-artist-id',
+              position: 1
+            })
+          ])
+        );
+      } catch (error) {
+        console.error('Test error:', error);
+        console.log('Single spy state:', {
+          calls: singleSpy.mock.calls,
+          results: singleSpy.mock.results
+        });
+        throw error;
+      }
     });
 
     it('should throw ArtistValidationError if no valid artists provided', async () => {
@@ -123,8 +168,6 @@ describe('createOrUpdateRelease', () => {
         .mockResolvedValueOnce({ data: null, error: null }) // Initial check
         .mockResolvedValueOnce({ data: { id: 'new-release-id' }, error: null }); // Fetch new ID
 
-      mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null });
-
       await createOrUpdateRelease(mockReleaseData, mockArtists);
 
       expect(processReleaseImage).toHaveBeenCalledWith(mockReleaseData.cover_url);
@@ -138,38 +181,81 @@ describe('createOrUpdateRelease', () => {
     } as Release;
 
     it('should successfully update an existing release', async () => {
-      // Mock release existence check
+      // Mock successful upsert and related operations
       const mockQueryBuilder = mockSupabase.from();
-      mockQueryBuilder.single.mockResolvedValueOnce({
-        data: { id: existingRelease.id },
-        error: null
-      });
+      
+      // Debug spy
+      const singleSpy = vi.fn()
+        .mockResolvedValueOnce({ data: { id: existingRelease.id }, error: null }) // Initial check
+        .mockResolvedValueOnce({ data: { id: existingRelease.id }, error: null }); // Upsert response
+      
+      mockQueryBuilder.single = singleSpy;
 
-      // Mock successful transaction
-      mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null });
+      // Mock successful delete and insert operations
+      const deleteSpy = vi.fn().mockReturnValue({ error: null });
+      const insertSpy = vi.fn().mockReturnValue({ error: null });
+      
+      mockQueryBuilder.delete = vi.fn().mockReturnThis();
+      mockQueryBuilder.insert = vi.fn().mockReturnThis();
+      mockQueryBuilder.eq = vi.fn().mockReturnValue({ error: null });
+      
+      try {
+        const result = await createOrUpdateRelease(
+          mockReleaseData,
+          mockArtists,
+          existingRelease
+        );
 
-      const result = await createOrUpdateRelease(
-        mockReleaseData,
-        mockArtists,
-        existingRelease
-      );
-
-      expect(result).toBe(existingRelease.id);
-      expect(mockSupabase.rpc).toHaveBeenCalledWith(
-        'update_release_transaction',
-        {
-          p_release_id: existingRelease.id,
-          p_release_data: {
+        console.log('Single calls:', singleSpy.mock.calls);
+        console.log('Single results:', singleSpy.mock.results);
+        
+        expect(result).toBe(existingRelease.id);
+        
+        // Verify release upsert
+        expect(mockSupabase.from).toHaveBeenCalledWith('releases');
+        expect(mockQueryBuilder.upsert).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: existingRelease.id,
             ...mockReleaseData,
             cover_url: 'processed-image-url',
             description_author_id: 'user-123',
             updated_at: '2025-01-18T00:28:28.000Z'
-          },
-          p_artist_ids: ['mock-artist-id', 'mock-artist-id'],
-          p_tracks: [],
-          p_track_credits: []
-        }
-      );
+          }),
+          expect.objectContaining({
+            onConflict: 'id',
+            returning: 'minimal'
+          })
+        );
+
+        // Verify existing relationships were deleted
+        expect(mockSupabase.from).toHaveBeenCalledWith('release_artists');
+        expect(mockQueryBuilder.delete).toHaveBeenCalled();
+        expect(mockQueryBuilder.eq).toHaveBeenCalledWith('release_id', existingRelease.id);
+
+        // Verify new relationships were created
+        expect(mockSupabase.from).toHaveBeenCalledWith('release_artists');
+        expect(mockQueryBuilder.insert).toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({
+              release_id: existingRelease.id,
+              artist_id: 'mock-artist-id',
+              position: 0
+            }),
+            expect.objectContaining({
+              release_id: existingRelease.id,
+              artist_id: 'mock-artist-id',
+              position: 1
+            })
+          ])
+        );
+      } catch (error) {
+        console.error('Test error:', error);
+        console.log('Single spy state:', {
+          calls: singleSpy.mock.calls,
+          results: singleSpy.mock.results
+        });
+        throw error;
+      }
     });
 
     it('should throw if release no longer exists', async () => {
