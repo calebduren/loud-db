@@ -92,60 +92,122 @@ export async function createOrUpdateRelease(
       artistCount: artistIds.length 
     });
 
-    // Use a transaction for atomicity
-    const { error: txnError } = await supabase.rpc('update_release_transaction', {
-      p_release_id: releaseId,
-      p_release_data: releaseData,
-      p_artist_ids: artistIds,
-      p_tracks: validTracks.map(track => ({
-        name: track.name.trim(),
-        track_number: track.track_number,
-        duration_ms: track.duration_ms ?? 0,
-        preview_url: track.preview_url ?? null
-      })),
-      p_track_credits: validTracks
-        .filter(track => track.credits?.length)
-        .flatMap(track => 
-          track.credits?.map(credit => ({
-            track_number: track.track_number,
-            name: credit.name.trim(),
-            role: credit.role.trim()
-          })) ?? []
-        )
-    });
+    // Start with the release upsert and get the ID back
+    const { data: upsertReleaseData, error: txnError } = await supabase.from('releases')
+      .upsert({
+        id: releaseId,
+        name: releaseData.name,
+        release_type: releaseData.release_type,
+        cover_url: releaseData.cover_url,
+        genres: releaseData.genres,
+        record_label: releaseData.record_label,
+        track_count: releaseData.track_count,
+        spotify_url: releaseData.spotify_url,
+        apple_music_url: releaseData.apple_music_url,
+        release_date: releaseData.release_date,
+        description: releaseData.description,
+        description_author_id: releaseData.description_author_id,
+        created_by: releaseData.created_by,
+        updated_at: releaseData.updated_at
+      }, {
+        onConflict: 'id',
+        returning: 'minimal'
+      })
+      .select('id')
+      .single();
 
     if (txnError) {
-      logger.error('Transaction failed', txnError);
+      logger.error('Failed to upsert release', txnError);
       throw new DatabaseError('Failed to update release', txnError);
     }
 
-    // If this was a new release, get the ID
-    if (!releaseId) {
-      const { data: newRelease, error: fetchError } = await supabase
-        .from('releases')
-        .select('id')
-        .eq('name', releaseData.name)
-        .eq('created_by', releaseData.created_by)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+    // Get the release ID (either new or existing)
+    const finalReleaseId = upsertReleaseData.id;
 
-      if (fetchError || !newRelease) {
-        logger.error('Failed to fetch new release ID', fetchError);
-        throw new DatabaseError('Failed to fetch new release ID');
+    // Delete existing relationships and tracks if updating
+    if (releaseId) {
+      const { error: deleteArtistsError } = await supabase
+        .from('release_artists')
+        .delete()
+        .eq('release_id', finalReleaseId);
+
+      if (deleteArtistsError) {
+        logger.error('Failed to delete existing artists', deleteArtistsError);
+        throw new DatabaseError('Failed to update release', deleteArtistsError);
       }
 
-      releaseId = newRelease.id;
+      const { error: deleteTracksError } = await supabase
+        .from('tracks')
+        .delete()
+        .eq('release_id', finalReleaseId);
+
+      if (deleteTracksError) {
+        logger.error('Failed to delete existing tracks', deleteTracksError);
+        throw new DatabaseError('Failed to update release', deleteTracksError);
+      }
+    }
+
+    // Insert artist relationships
+    const { error: artistError } = await supabase
+      .from('release_artists')
+      .insert(
+        artistIds.map((artistId, index) => ({
+          release_id: finalReleaseId,
+          artist_id: artistId,
+          position: index
+        }))
+      );
+
+    if (artistError) {
+      logger.error('Failed to insert artists', artistError);
+      throw new DatabaseError('Failed to update release', artistError);
+    }
+
+    // Insert tracks and their credits
+    for (const track of validTracks) {
+      const { data: trackData, error: trackError } = await supabase
+        .from('tracks')
+        .insert({
+          release_id: finalReleaseId,
+          name: track.name.trim(),
+          track_number: track.track_number,
+          duration_ms: track.duration_ms ?? 0,
+          preview_url: track.preview_url ?? null
+        })
+        .select()
+        .single();
+
+      if (trackError) {
+        logger.error('Failed to insert track', trackError);
+        throw new DatabaseError('Failed to update release', trackError);
+      }
+
+      if (track.credits?.length) {
+        const { error: creditError } = await supabase
+          .from('track_credits')
+          .insert(
+            track.credits.map(credit => ({
+              track_id: trackData.id,
+              name: credit.name.trim(),
+              role: credit.role.trim()
+            }))
+          );
+
+        if (creditError) {
+          logger.error('Failed to insert track credits', creditError);
+          throw new DatabaseError('Failed to update release', creditError);
+        }
+      }
     }
 
     logger.info('Successfully processed release', { 
-      releaseId,
+      releaseId: finalReleaseId,
       name: releaseData.name,
       trackCount: validTracks.length,
       artistCount: artistIds.length
     });
 
-    return releaseId;
+    return finalReleaseId;
   } catch (error) {
     if (error instanceof ReleaseServiceError) {
       throw error;

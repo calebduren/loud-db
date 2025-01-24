@@ -1,3 +1,8 @@
+-- Drop existing function and types if they exist
+DROP FUNCTION IF EXISTS public.create_or_update_release_transaction;
+DROP TYPE IF EXISTS public.track_input;
+DROP TYPE IF EXISTS public.track_credit_input;
+
 -- Create custom types for our parameters
 CREATE TYPE public.track_input AS (
     name text,
@@ -13,12 +18,11 @@ CREATE TYPE public.track_credit_input AS (
 );
 
 -- Create the stored procedure
-CREATE OR REPLACE FUNCTION public.update_release_transaction(
-    p_release_id uuid,
-    p_release_data jsonb,
+CREATE OR REPLACE FUNCTION public.create_or_update_release_transaction(
     p_artist_ids uuid[],
-    p_tracks track_input[],
-    p_track_credits track_credit_input[]
+    p_release_data jsonb,
+    p_track_credits track_credit_input[],
+    p_tracks track_input[]
 ) RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -34,7 +38,7 @@ BEGIN
     -- Start a transaction
     BEGIN
         -- Insert or update the release
-        IF p_release_id IS NULL THEN
+        IF (p_release_data->>'id')::uuid IS NULL THEN
             -- Insert new release
             INSERT INTO public.releases (
                 name,
@@ -67,7 +71,7 @@ BEGIN
                 (p_release_data->>'updated_at')::timestamp
             RETURNING id INTO v_new_release_id;
 
-            p_release_id := v_new_release_id;
+            p_release_data := jsonb_set(p_release_data, '{id}', to_jsonb(v_new_release_id));
         ELSE
             -- Update existing release
             UPDATE public.releases
@@ -84,18 +88,18 @@ BEGIN
                 description = (p_release_data->>'description')::text,
                 description_author_id = (p_release_data->>'description_author_id')::uuid,
                 updated_at = (p_release_data->>'updated_at')::timestamp
-            WHERE id = p_release_id;
+            WHERE id = (p_release_data->>'id')::uuid;
 
             -- Delete existing relationships and tracks
-            DELETE FROM public.release_artists WHERE release_id = p_release_id;
-            DELETE FROM public.tracks WHERE release_id = p_release_id;
+            DELETE FROM public.release_artists WHERE release_id = (p_release_data->>'id')::uuid;
+            DELETE FROM public.tracks WHERE release_id = (p_release_data->>'id')::uuid;
         END IF;
 
         -- Insert artist relationships
         FOR i IN 1..array_length(p_artist_ids, 1)
         LOOP
             INSERT INTO public.release_artists (release_id, artist_id, position)
-            VALUES (p_release_id, p_artist_ids[i], i - 1);
+            VALUES ((p_release_data->>'id')::uuid, p_artist_ids[i], i - 1);
         END LOOP;
 
         -- Insert tracks
@@ -110,7 +114,7 @@ BEGIN
                     preview_url
                 )
                 VALUES (
-                    p_release_id,
+                    (p_release_data->>'id')::uuid,
                     v_track.name,
                     v_track.track_number,
                     v_track.duration_ms,
@@ -145,7 +149,7 @@ END;
 $$;
 
 -- Grant execute permission to authenticated users
-GRANT EXECUTE ON FUNCTION public.update_release_transaction TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_or_update_release_transaction TO authenticated;
 
 -- Add comment for documentation
-COMMENT ON FUNCTION public.update_release_transaction IS 'Handles atomic creation or update of a release, including artists, tracks, and credits';
+COMMENT ON FUNCTION public.create_or_update_release_transaction IS 'Handles atomic creation or update of a release, including artists, tracks, and credits';

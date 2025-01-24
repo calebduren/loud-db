@@ -74,7 +74,7 @@
   }
 
   &--icon {
-    @apply w-12 h-12;
+    @apply w-[--input-height] h-[--input-height];
   }
 
   // Loading state
