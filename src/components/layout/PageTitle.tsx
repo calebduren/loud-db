@@ -3,6 +3,10 @@ import { Button } from "../ui/button";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { PlaylistImportModal } from "../admin/PlaylistImportModal";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { supabase } from "../../lib/supabase";
+import { importFromReddit } from "../../api/reddit";
 
 interface PageTitleProps {
   title: string;
@@ -22,9 +26,42 @@ export const PageTitle = ({
   const { isAdmin, canManageReleases } = usePermissions();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = React.useState(false);
+  const [isImporting, setIsImporting] = React.useState(false);
 
   const canShowAddRelease = showAddRelease && (isAdmin || canManageReleases);
   const canShowImportPlaylist = showImportPlaylist && isAdmin;
+
+  const handleRedditImport = async () => {
+    try {
+      setIsImporting(true);
+      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error('You must be logged in to import albums');
+        return;
+      }
+
+      const result = await importFromReddit(session.user.id);
+      
+      if (result.success) {
+        toast.success(
+          `Successfully imported ${result.importedCount} albums${
+            result.failedCount > 0 ? ` (${result.failedCount} failed)` : ''
+          }`
+        );
+      } else {
+        toast.error(`Import failed: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error('Failed to import from Reddit');
+      console.error('Reddit import error:', error);
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between mb-8">
@@ -38,6 +75,22 @@ export const PageTitle = ({
       </div>
       <div className="flex flex-col sm:flex-row gap-3 order-first sm:order-last">
         {actions}
+        {isAdmin && (
+          <Button
+            variant="outline"
+            onClick={handleRedditImport}
+            disabled={isImporting}
+          >
+            {isImporting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Importing...
+              </>
+            ) : (
+              'Import from Reddit'
+            )}
+          </Button>
+        )}
         {canShowAddRelease && (
           <>
             <Button
@@ -49,17 +102,13 @@ export const PageTitle = ({
             <ReleaseFormModal
               isOpen={isCreateModalOpen}
               onClose={() => setIsCreateModalOpen(false)}
-              onSuccess={() => {
-                setIsCreateModalOpen(false);
-                window.location.reload();
-              }}
             />
           </>
         )}
         {canShowImportPlaylist && (
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               onClick={() => setIsPlaylistModalOpen(true)}
             >
               Import Playlist
@@ -67,10 +116,6 @@ export const PageTitle = ({
             <PlaylistImportModal
               isOpen={isPlaylistModalOpen}
               onClose={() => setIsPlaylistModalOpen(false)}
-              onSuccess={() => {
-                setIsPlaylistModalOpen(false);
-                window.location.reload();
-              }}
             />
           </>
         )}

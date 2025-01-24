@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { Sidebar } from "./layout/Sidebar";
 import { Menu } from "lucide-react";
+import { Toaster } from "sonner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,7 +13,12 @@ export function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!context?.user) {
-    return <div className="min-h-screen">{children}</div>;
+    return (
+      <div className="min-h-screen">
+        {children}
+        <Toaster richColors position="top-right" />
+      </div>
+    );
   }
 
   return (
@@ -30,6 +36,7 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       <main className="layout">{children}</main>
+      <Toaster richColors position="top-right" />
     </div>
   );
 }

@@ -26,11 +26,12 @@ CREATE OR REPLACE FUNCTION public.create_or_update_release_transaction(
     p_release_data jsonb,
     p_track_credits track_credit_input[],
     p_tracks track_input[]
-) RETURNS void
+) RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
+    v_release_id uuid;
     v_track record;
     v_credit record;
     v_artist_id uuid;
@@ -45,101 +46,92 @@ BEGIN
             release_type,
             cover_url,
             genres,
-            record_label,
-            track_count,
             spotify_url,
-            apple_music_url,
             release_date,
-            description,
-            description_author_id,
+            track_count,
             created_by,
             updated_at
         ) VALUES (
             (p_release_data->>'name')::text,
             (p_release_data->>'release_type')::text,
             (p_release_data->>'cover_url')::text,
-            (p_release_data->>'genres')::text[],
-            (p_release_data->>'record_label')::text,
-            (p_release_data->>'track_count')::integer,
+            COALESCE((p_release_data->>'genres')::jsonb, '[]'::jsonb),
             (p_release_data->>'spotify_url')::text,
-            (p_release_data->>'apple_music_url')::text,
             (p_release_data->>'release_date')::date,
-            (p_release_data->>'description')::text,
-            (p_release_data->>'description_author_id')::uuid,
+            (p_release_data->>'track_count')::integer,
             (p_release_data->>'created_by')::uuid,
-            (p_release_data->>'updated_at')::timestamp
+            COALESCE((p_release_data->>'updated_at')::timestamp, now())
         )
-        RETURNING id INTO v_track_id;
-
-        -- Set the ID in release_data
-        p_release_data := jsonb_set(p_release_data, '{id}', to_jsonb(v_track_id));
+        RETURNING id INTO v_release_id;
     ELSE
         -- Update existing release
         UPDATE public.releases SET
             name = (p_release_data->>'name')::text,
             release_type = (p_release_data->>'release_type')::text,
             cover_url = (p_release_data->>'cover_url')::text,
-            genres = (p_release_data->>'genres')::text[],
-            record_label = (p_release_data->>'record_label')::text,
-            track_count = (p_release_data->>'track_count')::integer,
+            genres = COALESCE((p_release_data->>'genres')::jsonb, '[]'::jsonb),
             spotify_url = (p_release_data->>'spotify_url')::text,
-            apple_music_url = (p_release_data->>'apple_music_url')::text,
             release_date = (p_release_data->>'release_date')::date,
-            description = (p_release_data->>'description')::text,
-            description_author_id = (p_release_data->>'description_author_id')::uuid,
-            updated_at = (p_release_data->>'updated_at')::timestamp
-        WHERE id = (p_release_data->>'id')::uuid;
+            track_count = (p_release_data->>'track_count')::integer,
+            updated_at = COALESCE((p_release_data->>'updated_at')::timestamp, now())
+        WHERE id = (p_release_data->>'id')::uuid
+        RETURNING id INTO v_release_id;
 
         -- Delete existing relationships and tracks
-        DELETE FROM public.release_artists WHERE release_id = (p_release_data->>'id')::uuid;
-        DELETE FROM public.tracks WHERE release_id = (p_release_data->>'id')::uuid;
+        DELETE FROM public.release_artists WHERE release_id = v_release_id;
+        DELETE FROM public.tracks WHERE release_id = v_release_id;
     END IF;
 
-    -- Insert artist relationships
-    FOR i IN 1..array_length(p_artist_ids, 1)
-    LOOP
-        INSERT INTO public.release_artists (release_id, artist_id, position)
-        VALUES ((p_release_data->>'id')::uuid, p_artist_ids[i], i - 1);
-    END LOOP;
+    -- Insert artist relationships if any exist
+    IF p_artist_ids IS NOT NULL AND array_length(p_artist_ids, 1) > 0 THEN
+        FOR i IN 1..array_length(p_artist_ids, 1)
+        LOOP
+            INSERT INTO public.release_artists (release_id, artist_id, position)
+            VALUES (v_release_id, p_artist_ids[i], i - 1);
+        END LOOP;
+    END IF;
 
     -- Insert tracks
-    FOR v_track IN SELECT * FROM unnest(p_tracks)
-    LOOP
-        INSERT INTO public.tracks (
-            release_id,
-            name,
-            track_number,
-            duration_ms,
-            preview_url
-        )
-        VALUES (
-            (p_release_data->>'id')::uuid,
-            v_track.name,
-            v_track.track_number,
-            v_track.duration_ms,
-            v_track.preview_url
-        )
-        RETURNING id INTO v_track_id;
-
-        -- Insert track credits if any exist for this track
-        FOR v_credit IN 
-            SELECT * FROM unnest(p_track_credits) 
-            WHERE track_number = v_track.track_number
+    IF p_tracks IS NOT NULL AND array_length(p_tracks, 1) > 0 THEN
+        FOR v_track IN SELECT * FROM unnest(p_tracks)
         LOOP
-            INSERT INTO public.track_credits (
-                track_id,
+            INSERT INTO public.tracks (
+                release_id,
                 name,
-                role
-            ) VALUES (
-                v_track_id,
-                v_credit.name,
-                v_credit.role
-            );
-        END LOOP;
-    END LOOP;
+                track_number,
+                duration_ms,
+                preview_url
+            )
+            VALUES (
+                v_release_id,
+                v_track.name,
+                v_track.track_number,
+                v_track.duration_ms,
+                v_track.preview_url
+            )
+            RETURNING id INTO v_track_id;
 
-EXCEPTION WHEN OTHERS THEN
-    RAISE;
+            -- Insert track credits if any exist for this track
+            IF p_track_credits IS NOT NULL THEN
+                FOR v_credit IN 
+                    SELECT * FROM unnest(p_track_credits) 
+                    WHERE track_number = v_track.track_number
+                LOOP
+                    INSERT INTO public.track_credits (
+                        track_id,
+                        name,
+                        role
+                    ) VALUES (
+                        v_track_id,
+                        v_credit.name,
+                        v_credit.role
+                    );
+                END LOOP;
+            END IF;
+        END LOOP;
+    END IF;
+
+    RETURN v_release_id;
 END;
 $$;
 
