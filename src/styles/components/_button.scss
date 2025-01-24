@@ -73,6 +73,10 @@
     @apply bg-white/10 text-white border border-white/5 hover:border-white/10 hover:bg-white/[15%] backdrop-blur;
   }
 
+  &--icon {
+    @apply w-12 h-12;
+  }
+
   // Loading state
   &.loading {
     @apply relative cursor-wait;

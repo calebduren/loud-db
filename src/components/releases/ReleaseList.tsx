@@ -319,8 +319,7 @@ export function ReleaseList({
                         onClick={(e) => e.stopPropagation()}
                         className="release-card__link"
                       >
-                        Spotify{" "}
-                        <ExternalLinkArrow className="text-[--color-loud]" />
+                        Spotify <ExternalLinkArrow />
                       </a>
                     )}
                     {release.apple_music_url && (
@@ -331,8 +330,7 @@ export function ReleaseList({
                         onClick={(e) => e.stopPropagation()}
                         className="release-card__link"
                       >
-                        Apple Music{" "}
-                        <ExternalLinkArrow className="text-[--color-loud]" />
+                        Apple Music <ExternalLinkArrow />
                       </a>
                     )}
                   </div>

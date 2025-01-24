@@ -49,7 +49,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] overflow-y-auto bg-[--color-background]"
+      className="fixed inset-0 z-[9999] overflow-y-auto"
       onClick={handleBackdropClick}
       aria-modal="true"
       role="dialog"

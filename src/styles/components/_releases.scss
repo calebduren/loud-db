@@ -150,11 +150,10 @@
 
   &__links {
     @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[12px];
-    color: var(--color-accent);
   }
 
   &__link {
-    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-colors hover:text-[--color-loud-light];
+    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-colors hover:text-[--color-loud];
   }
 
   &__divider {
