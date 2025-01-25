@@ -4,6 +4,7 @@ import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/Badge"; // Import the Badge component
 import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
 import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
@@ -266,6 +267,11 @@ export function ReleaseList({
               <div className="release-card__type-pill">
                 {formatReleaseType(release.release_type) || "Album"}
               </div>
+              {release.isRecommended && (
+                <Badge variant="recommended" className="ml-2">
+                  Recommended for you
+                </Badge>
+              )}
             </div>
             <div>
               <h2 className="release-card__artist">{formatArtists(release)}</h2>

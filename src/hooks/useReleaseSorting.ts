@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { Release } from "../types/database";
 import { useGenrePreferences } from "./settings/useGenrePreferences";
 import { useGenreGroups } from "./useGenreGroups";
@@ -10,47 +10,91 @@ function calculateReleaseScore(
   preferences: Record<string, number>,
   genreGroups: Record<string, string[]>,
   genrePreferences: Map<string, number>
-): { score: number; details: string[] } {
+): { score: number; details: string[]; isRecommended: boolean } {
   if (!release?.genres?.length) {
-    return { score: -Infinity, details: ["No genres"] };
+    return { score: -Infinity, details: ["No genres"], isRecommended: false };
   }
+
+  console.log("\n=== Scoring Release ===");
+  console.log("Release:", release.name);
+  console.log("Genres:", release.genres);
 
   let score = 0;
   let maxPreferenceScore = -1;
-  let hasOnlyZeroStars = true;
+  let hasAnyZeroStars = false;
+  let hasAnyRatedGenres = false;
   const details: string[] = [];
+  let hasLikedArtist = false;
+  let zeroStarGenres: string[] = [];
+  let ratedGenres: string[] = [];
 
-  // First pass: Find the highest preference score and check if we have any non-zero ratings
+  // Check if any artists are in liked releases
+  for (const { artist } of release.artists) {
+    if (genrePreferences.has(`artist:${artist.id}`)) {
+      hasLikedArtist = true;
+      const artistBonus = 1000000; // Large bonus for liked artists
+      score += artistBonus;
+      details.push(`Liked artist bonus for ${artist.name}: +${artistBonus}`);
+    }
+  }
+
+  // First pass: Find the highest preference score and check for zero-star ratings
   for (const genre of release.genres) {
     let genreMaxScore = -1;
     let genreHasRating = false;
+    let matchedGroups: string[] = [];
 
     // Check all genre groups this genre belongs to
     for (const [groupName, groupGenres] of Object.entries(genreGroups)) {
+      // Use exact matching since we're using the genre_mappings table
       if (groupGenres.includes(genre)) {
         genreHasRating = true;
+        matchedGroups.push(groupName);
         const preferenceScore = preferences[groupName] || 0;
+        if (preferenceScore === 0) {
+          hasAnyZeroStars = true;
+          zeroStarGenres.push(`${genre} (in ${groupName})`);
+        } else if (preferenceScore > 0) {
+          hasAnyRatedGenres = true;
+          ratedGenres.push(`${genre} (${preferenceScore} stars in ${groupName})`);
+        }
         genreMaxScore = Math.max(genreMaxScore, preferenceScore);
       }
     }
 
-    // If this genre has any rating and its max score is > 0, we don't have only zero stars
-    if (genreHasRating && genreMaxScore > 0) {
-      hasOnlyZeroStars = false;
-    }
+    console.log(`Genre "${genre}":`, {
+      matchedGroups,
+      maxScore: genreMaxScore,
+      hasRating: genreHasRating
+    });
 
     maxPreferenceScore = Math.max(maxPreferenceScore, genreMaxScore);
   }
 
-  // If all rated genres are 0 stars, give a very low score (but above no-genre releases)
-  if (hasOnlyZeroStars) {
-    return { score: -1, details: ["All genres rated 0 stars or unrated"] };
+  console.log("Zero-star genres:", zeroStarGenres);
+  console.log("Rated genres:", ratedGenres);
+
+  // If any genre has a 0-star rating, severely penalize the score
+  if (hasAnyZeroStars) {
+    const zeroPenalty = -10000000;
+    score += zeroPenalty;
+    details.push(`Zero-star genre penalty: ${zeroPenalty} (${zeroStarGenres.join(", ")})`);
+    return { score, details, isRecommended: false };
+  }
+
+  // If no genres are rated at all, give a low base score
+  if (!hasAnyRatedGenres && !hasLikedArtist) {
+    const unratedScore = -5000000;
+    score += unratedScore;
+    details.push(`No rated genres penalty: ${unratedScore}`);
+    return { score, details, isRecommended: false };
   }
 
   // Base score from highest preference (ensures 5-star genres are always above 4-star, etc.)
   if (maxPreferenceScore > 0) {
-    score = maxPreferenceScore * 1000000;
-    details.push(`Base score from ${maxPreferenceScore}-star genre: ${score}`);
+    const baseScore = maxPreferenceScore * 100000; // Reduced multiplier
+    score += baseScore;
+    details.push(`Base score from ${maxPreferenceScore}-star genre: ${baseScore}`);
   }
 
   // Second pass: Add bonus points for each genre
@@ -87,86 +131,98 @@ function calculateReleaseScore(
             0
           )}% weight): +${genreBonus.toFixed(1)}`
         );
-      } else if (group.score === 0) {
-        // Penalty for 0-star ratings, but don't let it override higher ratings
-        const penalty = -1000 * diminishingMultiplier;
-        score += penalty;
-        details.push(
-          `0-star penalty for ${genre} in ${group.groupName} (${(
-            diminishingMultiplier * 100
-          ).toFixed(0)}% weight): ${penalty.toFixed(1)}`
-        );
       }
     });
   }
 
-  // Small recency bonus
+  // Small recency bonus (won't override genre preferences)
   if (release.release_date) {
     const daysOld =
       (Date.now() - new Date(release.release_date).getTime()) /
       (1000 * 60 * 60 * 24);
-    const recencyBonus = Math.max(0, 100 - daysOld);
+    const recencyBonus = Math.max(0, 10); // Small fixed bonus for recent releases
     score += recencyBonus;
     details.push(`Recency bonus: +${recencyBonus.toFixed(2)}`);
   }
 
-  return { score, details };
+  console.log("Final score:", score);
+  console.log("Details:", details);
+
+  return {
+    score,
+    details,
+    isRecommended: hasLikedArtist || (!hasAnyZeroStars && hasAnyRatedGenres && score > 1000000)
+  };
 }
 
 export function useReleaseSorting() {
-  const { preferences, loading: preferencesLoading } = useGenrePreferences();
-  const { genreGroups, loading: groupsLoading } = useGenreGroups();
+  const { preferences } = useGenrePreferences();
+  const { genreGroups } = useGenreGroups();
   const { releases: likedReleases } = useLikedReleases();
 
-  // Create genre preferences map once
+  // Create a map of genre preferences from liked releases
   const genrePreferences = useMemo(() => {
-    const map = new Map<string, number>();
-    likedReleases?.forEach((release) => {
-      release.genres?.forEach((genre) => {
-        map.set(genre, (map.get(genre) || 0) + 1);
+    const prefs = new Map<string, number>();
+    
+    // Guard against undefined likedReleases
+    if (!likedReleases) return prefs;
+    
+    likedReleases.forEach(release => {
+      // Add artist preferences
+      release.artists?.forEach(({ artist }) => {
+        prefs.set(`artist:${artist.id}`, (prefs.get(`artist:${artist.id}`) || 0) + 1);
+      });
+      
+      // Add genre preferences
+      release.genres?.forEach(genre => {
+        prefs.set(genre, (prefs.get(genre) || 0) + 1);
       });
     });
-    return map;
+    
+    return prefs;
   }, [likedReleases]);
 
-  // Create sort function that uses the current state
-  const sortReleases = useMemo(() => {
-    return (releases: Release[]) => {
-      if (!releases?.length) return releases || [];
-      if (preferencesLoading || groupsLoading) return releases;
+  const sortReleases = useCallback(
+    (releases: Release[]) => {
+      if (!releases?.length) return [];
+      
+      // Calculate scores for all releases
+      const scoredReleases = releases.map(release => ({
+        release,
+        ...calculateReleaseScore(release, preferences || {}, genreGroups || {}, genrePreferences)
+      }));
 
-      // Calculate scores once for all releases
-      const scores = new Map<string, number>();
-      const details = new Map<string, string[]>();
+      // Calculate the score threshold for top 0.5% (much more selective)
+      const validScores = scoredReleases
+        .map(r => r.score)
+        .filter(score => score > -Infinity && score >= 0);
+      const recommendationThreshold = validScores.length > 0
+        ? validScores[Math.floor(validScores.length * 0.995)] // Changed from 0.98 to 0.995
+        : 0;
 
-      releases.forEach((release) => {
-        const result = calculateReleaseScore(
-          release,
-          preferences || {},
-          genreGroups || {},
-          genrePreferences
-        );
-        scores.set(release.id, result.score);
-        details.set(release.id, result.details);
+      // Only recommend if score is REALLY high or has multiple liked artists
+      scoredReleases.forEach(scored => {
+        const hasMultipleLikedArtists = scored.release.artists?.filter(
+          ({ artist }) => genrePreferences.has(`artist:${artist.id}`)
+        ).length >= 2;
+
+        scored.isRecommended = 
+          hasMultipleLikedArtists || // Has 2+ liked artists
+          scored.score >= recommendationThreshold; // In top 0.5%
       });
 
-      // Sort based on pre-calculated scores
-      return [...releases].sort((a, b) => {
-        const scoreA = scores.get(a.id) ?? -Infinity;
-        const scoreB = scores.get(b.id) ?? -Infinity;
-        return scoreB - scoreA;
-      });
-    };
-  }, [
-    preferences,
-    genreGroups,
-    genrePreferences,
-    preferencesLoading,
-    groupsLoading,
-  ]);
+      // Sort by score
+      return scoredReleases
+        .sort((a, b) => b.score - a.score)
+        .map(({ release, score, details, isRecommended }) => ({
+          ...release,
+          _score: score,
+          _scoreDetails: details,
+          isRecommended
+        }));
+    },
+    [preferences, genreGroups, genrePreferences]
+  );
 
-  return {
-    sortReleases,
-    loading: preferencesLoading || groupsLoading,
-  };
+  return { sortReleases };
 }

@@ -29,13 +29,16 @@ export interface Release {
     id: string;
     username: string;
   } | null;
-  artists: Array<{
+  artists: {
     artist: {
       id: string;
       name: string;
       image_url?: string | null;
     };
-  }>;
+  }[];
+  isRecommended?: boolean;
+  _score?: number;
+  _scoreDetails?: string[];
   tracks?: Track[];
 }
 
