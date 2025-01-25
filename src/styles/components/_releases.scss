@@ -78,7 +78,7 @@
   }
 
   &__label {
-    @apply text-xs font-medium text-[--color-gray-400] font-mono mb-0.5;
+    @apply text-xs font-medium text-[--color-gray-400] mb-0.5;
   }
 
   // Title section
@@ -129,7 +129,7 @@
     }
 
     &-label {
-      @apply w-16 font-mono text-[--color-gray-400];
+      @apply w-16 text-[--color-gray-400];
     }
 
     &-value {
@@ -182,7 +182,7 @@
   @apply rounded-xl overflow-hidden;
 
   &__grid {
-    @apply grid grid-cols-[640px_1fr] h-full;
+    @apply lg:grid lg:grid-cols-[640px_1fr] lg:h-full bg-[--color-background];
   }
 
   &__left {
@@ -190,7 +190,7 @@
   }
 
   &__right {
-    @apply relative flex flex-col h-full overflow-hidden;
+    @apply relative flex flex-col lg:h-full lg:overflow-hidden;
   }
 
   &__cover {
@@ -202,10 +202,10 @@
   }
 
   &__bottom-actions {
-    @apply flex absolute bottom-0 left-0 right-0 overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent z-10 pointer-events-none;
+    @apply flex lg:absolute bottom-0 left-0 right-0 overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent z-10 pointer-events-none;
 
     .release-card__links {
-      @apply px-10 pt-24 pb-10 flex justify-between;
+      @apply px-10 lg:pt-24 pb-10 flex justify-between;
     }
 
     .btn {

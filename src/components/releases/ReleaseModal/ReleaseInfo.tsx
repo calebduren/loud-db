@@ -41,7 +41,7 @@ export function ReleaseInfo({ release }: ReleaseInfoProps) {
           <h3 className="release-card__label">Genres</h3>
           <div className="flex flex-wrap gap-2 mt-2">
             {release.genres.map((genre) => (
-              <div key={genre} className="release-card__genres-pill">
+              <div key={genre} className="pill pill--genre">
                 {genre}
               </div>
             ))}

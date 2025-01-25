@@ -34,7 +34,6 @@ export function Layout({ children }: LayoutProps) {
       <div className={`sidebar ${isSidebarOpen ? "sidebar--open" : ""}`}>
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
-
       <main className="layout">{children}</main>
       <Toaster richColors position="top-right" />
     </div>

@@ -1,5 +1,5 @@
 .sidebar {
-  @apply w-52 h-screen fixed left-0 top-0 z-[500] p-8 pt-24 sm:pt-10 lg:pt-16 lg:pb-16 lg:pl-16 text-white flex flex-col bg-[var(--color-background)] border-r border-[0.5px] border-white/10 sm:border-none;
+  @apply w-52 h-screen fixed left-0 top-0 z-0 p-8 pt-24 sm:pt-10 lg:pt-16 lg:pb-16 lg:pl-16 text-white flex flex-col bg-[var(--color-background)] border-r border-[0.5px] border-white/10 sm:border-none;
   @apply transition-transform duration-200 ease-in-out;
 
   // Hide on small screens by default

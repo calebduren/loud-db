@@ -64,7 +64,7 @@ export function Modal({
             "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
             title
               ? "max-w-2xl"
-              : "max-w-[1280px] h-[640px] max-h-[calc(100dvh-32px)]",
+              : "max-w-[1280px] lg:h-[640px] lg:max-h-[calc(100dvh-32px)]",
             className
           )}
           onClick={(e) => e.stopPropagation()}

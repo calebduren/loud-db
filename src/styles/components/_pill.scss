@@ -1,5 +1,5 @@
 .pill {
-  @apply text-[12px] flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[6px] px-1.5 py-0.5;
+  @apply text-[12px] inline-flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[6px] px-1.5 py-0.5;
 
   &--release-type {
     @apply bg-black/40 text-white border-[0.5px] border-white/10 backdrop-blur;

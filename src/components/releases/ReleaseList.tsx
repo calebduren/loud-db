@@ -268,9 +268,7 @@ export function ReleaseList({
                 {formatReleaseType(release.release_type) || "Album"}
               </div>
               {release.isRecommended && (
-                <Badge variant="recommended" className="ml-2">
-                  Recommended
-                </Badge>
+                <Badge variant="recommended">Recommended</Badge>
               )}
             </div>
             <div>
