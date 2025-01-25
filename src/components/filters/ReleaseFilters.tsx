@@ -68,8 +68,9 @@ export function ReleaseFilters({
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
-              className={cn("pill pill--interactive", {
-                "pill--selected": selectedTypes.includes(option.value),
+              className={cn("btn btn--lg", {
+                "btn--primary": selectedTypes.includes(option.value),
+                "btn--outline": !selectedTypes.includes(option.value),
               })}
               onClick={() => onTypeChange(option.value)}
             >

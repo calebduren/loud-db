@@ -14,11 +14,10 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium",
+        "pill",
         {
-          "bg-white/10 text-white": variant === "default",
-          "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white":
-            variant === "recommended",
+          "pill--default": variant === "default",
+          "pill--recommended": variant === "recommended",
         },
         className
       )}

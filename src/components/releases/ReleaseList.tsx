@@ -42,16 +42,16 @@ const SkeletonCard = () => (
 
       <div className="release-card__content">
         <div className="release-card__type">
-          <div className="release-card__type-pill bg-white/5 animate-pulse h-[23px] w-8"></div>
+          <div className="pill pill--release-type bg-white/5 animate-pulse h-[25px] w-8"></div>
         </div>
         <div>
           <div className="release-card__artist h-6 w-48 bg-white/5 rounded-lg animate-pulse" />
           <div className="release-card__title h-6 w-32 bg-white/5 rounded-lg animate-pulse" />
 
           <div className="release-card__genres">
-            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-16"></div>
-            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-20"></div>
-            <div className="release-card__genres-pill bg-white/5 animate-pulse h-[23px] w-8"></div>
+            <div className="pill pill--genre bg-white/5 animate-pulse h-[25px] w-16"></div>
+            <div className="pill pill--genre bg-white/5 animate-pulse h-[25px] w-20"></div>
+            <div className="pill pill--genre bg-white/5 animate-pulse h-[25px] w-8"></div>
           </div>
         </div>
       </div>
@@ -264,12 +264,12 @@ export function ReleaseList({
 
           <div className="release-card__content">
             <div className="release-card__type">
-              <div className="release-card__type-pill">
+              <div className="pill pill--release-type">
                 {formatReleaseType(release.release_type) || "Album"}
               </div>
               {release.isRecommended && (
                 <Badge variant="recommended" className="ml-2">
-                  Recommended for you
+                  Recommended
                 </Badge>
               )}
             </div>
@@ -280,7 +280,7 @@ export function ReleaseList({
               {release.genres?.length > 0 && (
                 <div className="release-card__genres">
                   {release.genres.slice(0, 3).map((genre) => (
-                    <div key={genre} className="release-card__genres-pill">
+                    <div key={genre} className="pill pill--genre">
                       {genre}
                     </div>
                   ))}
@@ -388,13 +388,11 @@ export function ReleaseList({
         groupReleasesByWeek(sortedReleases).map(({ weekRange, releases }) => (
           <div key={weekRange.key}>
             <div className="weekly-group-header">
-              <div className="flex items-baseline gap-2 text-xl font-semibold">
-                {weekRange.label}
-                <span className="text-base font-normal text-white/60 ml-1">
-                  {releases.length}{" "}
-                  {releases.length === 1 ? "release" : "releases"}
-                </span>
-              </div>
+              {weekRange.label}
+              <span className="text-base font-normal text-white/60 ml-1">
+                {releases.length}{" "}
+                {releases.length === 1 ? "release" : "releases"}
+              </span>
             </div>
             <div className="release-grid mt-3">
               {releases.map(renderRelease)}

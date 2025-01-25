@@ -6,7 +6,7 @@
 }
 
 .weekly-group-header {
-  @apply z-[11];
+  @apply z-[11] flex flex-col md:flex-row items-baseline md:gap-2 text-xl font-semibold;
 }
 
 .release__like-button {
@@ -35,7 +35,6 @@
   @apply relative cursor-pointer overflow-hidden rounded-[12px] w-full flex flex-col;
   background-color: var(--color-card-background);
   border: 1px solid var(--color-border);
-  // box-shadow: 0px 12px 20px 0px rgba(0, 0, 0, 0.4);
 
   // Cover section
   &__cover {
@@ -71,12 +70,10 @@
 
   // Type pill
   &__type {
-    @apply flex items-center gap-2 text-[12px] font-medium;
+    @apply flex items-center justify-between gap-2;
 
     &-pill {
       @apply rounded-[6px] px-1.5 py-0.5 backdrop-blur;
-      background-color: var(--color-pill-background);
-      border: 1px solid var(--color-pill-border);
     }
   }
 

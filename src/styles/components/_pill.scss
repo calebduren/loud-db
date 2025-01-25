@@ -1,5 +1,13 @@
 .pill {
-  @apply h-[--input-height] flex items-center gap-1 px-3.5 text-sm font-medium transition-colors rounded-md text-nowrap;
+  @apply text-[12px] flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[6px] px-1.5 py-0.5;
+
+  &--release-type {
+    @apply bg-black/40 text-white border-[0.5px] border-white/10 backdrop-blur;
+  }
+
+  &--genre {
+    @apply bg-white/20 text-white border-[0.5px] border-white/10 backdrop-blur;
+  }
 
   // Default style (used in cards and modals)
   &--default {
@@ -8,6 +16,10 @@
     &:hover {
       @apply bg-[--color-gray-700] text-white;
     }
+  }
+
+  &--recommended {
+    @apply bg-[--color-loud] text-black;
   }
 
   // Interactive style (used in filters)
