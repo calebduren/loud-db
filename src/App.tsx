@@ -14,6 +14,7 @@ import { UserManagement } from "./components/admin/users/UserManagement";
 import { GenreMappingManager } from "./components/admin/genres/GenreMappingManager";
 import { InviteCodeManager } from "./components/admin/invites/InviteCodeManager";
 import { ComponentLibrary } from "./components/admin/ComponentLibrary";
+import { NoGenresReleases } from "./components/admin/NoGenresReleases";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { Terms } from "./pages/Terms";
 import { NotFound } from "./pages/NotFound";
@@ -76,6 +77,7 @@ function AppRoutes() {
               <Route index element={<Navigate to="users" replace />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="genres" element={<GenreMappingManager />} />
+              <Route path="no-genres" element={<NoGenresReleases />} />
               <Route path="invites" element={<InviteCodeManager />} />
               <Route path="components" element={<ComponentLibrary />} />
             </Route>

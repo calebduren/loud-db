@@ -34,30 +34,30 @@ export const PageTitle = ({
   const handleRedditImport = async () => {
     try {
       setIsImporting(true);
-      
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       if (!session) {
-        toast.error('You must be logged in to import albums');
+        toast.error("You must be logged in to import albums");
         return;
       }
 
       const result = await importFromReddit(session.user.id);
-      
+
       if (result.success) {
         toast.success(
           `Successfully imported ${result.importedCount} albums${
-            result.failedCount > 0 ? ` (${result.failedCount} failed)` : ''
+            result.failedCount > 0 ? ` (${result.failedCount} failed)` : ""
           }`
         );
       } else {
         toast.error(`Import failed: ${result.error}`);
       }
     } catch (error) {
-      toast.error('Failed to import from Reddit');
-      console.error('Reddit import error:', error);
+      toast.error("Failed to import from Reddit");
+      console.error("Reddit import error:", error);
     } finally {
       setIsImporting(false);
     }
@@ -77,7 +77,7 @@ export const PageTitle = ({
         {actions}
         {isAdmin && (
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleRedditImport}
             disabled={isImporting}
           >
@@ -87,9 +87,23 @@ export const PageTitle = ({
                 Importing...
               </>
             ) : (
-              'Import from Reddit'
+              "Scrape Reddit"
             )}
           </Button>
+        )}
+        {canShowImportPlaylist && (
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setIsPlaylistModalOpen(true)}
+            >
+              Import Playlist
+            </Button>
+            <PlaylistImportModal
+              isOpen={isPlaylistModalOpen}
+              onClose={() => setIsPlaylistModalOpen(false)}
+            />
+          </>
         )}
         {canShowAddRelease && (
           <>
@@ -102,20 +116,6 @@ export const PageTitle = ({
             <ReleaseFormModal
               isOpen={isCreateModalOpen}
               onClose={() => setIsCreateModalOpen(false)}
-            />
-          </>
-        )}
-        {canShowImportPlaylist && (
-          <>
-            <Button
-              variant="outline"
-              onClick={() => setIsPlaylistModalOpen(true)}
-            >
-              Import Playlist
-            </Button>
-            <PlaylistImportModal
-              isOpen={isPlaylistModalOpen}
-              onClose={() => setIsPlaylistModalOpen(false)}
             />
           </>
         )}

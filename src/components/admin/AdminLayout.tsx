@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { usePermissions } from "../../hooks/usePermissions";
 import { LoadingSpinner } from "../LoadingSpinner";
+import { AdminNav } from "./AdminNav";
 
 export function AdminLayout() {
   const { isAdmin, loading } = usePermissions();
@@ -23,7 +24,10 @@ export function AdminLayout() {
 
   return (
     <div className="space-y-8">
-      <Outlet />
+      <AdminNav />
+      <div className="container mx-auto px-4">
+        <Outlet />
+      </div>
     </div>
   );
 }

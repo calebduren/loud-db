@@ -29,3 +29,6 @@ dist-ssr
 supabase/.branches
 supabase/.temp
 supabase/.env
+
+# Local Netlify folder
+.netlify
