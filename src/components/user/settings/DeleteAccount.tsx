@@ -12,7 +12,7 @@ export function DeleteAccount() {
       </h2>
 
       <div className="space-y-6">
-        <p className="text-white/60">
+        <p className="text-white/60 text-sm">
           This action cannot be undone. This will permanently delete your
           account and remove your data from our servers.
         </p>

@@ -7,7 +7,14 @@ import { checkUsernameAvailable } from "../../lib/auth/validation";
 import { signUpSchema } from "../../lib/validation/passwordSchema";
 import { TermsModal } from "../legal/TermsModal";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -157,8 +164,7 @@ export function SignUpForm() {
                   <Input type="password" {...field} />
                 </FormControl>
                 <p className="text-xs text-[--color-gray-400]">
-                  Password must be at least 8 characters and contain uppercase &
-                  lowercase letters, numbers, and special characters.
+                  Password must be at least 16 characters
                 </p>
                 <FormMessage />
               </FormItem>
@@ -209,7 +215,8 @@ export function SignUpForm() {
           >
             {loading || authLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating
+                Account...
               </>
             ) : (
               "Create Account"
@@ -217,10 +224,13 @@ export function SignUpForm() {
           </Button>
         </form>
       </Form>
-      
+
       {/* Modals */}
       <TermsModal isOpen={termsOpen} onClose={() => setTermsOpen(false)} />
-      <PrivacyPolicyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      <PrivacyPolicyModal
+        isOpen={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+      />
     </div>
   );
 }
