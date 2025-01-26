@@ -27,50 +27,71 @@ export function useReleaseSorting() {
     (releases: Release[]) => {
       if (!releases?.length) return [];
       
+      console.log('Preferences:', preferences);
+      console.log('Spotify artist scores:', preferences.spotifyArtistScores);
+      
       // Calculate scores for all releases
       const scoredReleases = releases.map(release => {
         const score = scoreRelease(release, preferences);
-        const hasLikedArtist = release.artists?.some(
-          ({ artist }) => preferences.artistScores[artist.id] > 0 || 
-                         (preferences.spotifyArtistScores?.[artist.id] || 0) > 0.8
+        const hasTopArtist = release.artists?.some(
+          ({ artist }) => {
+            const spotifyScore = preferences.spotifyArtistScores?.[artist.id] || 0;
+            // Lowered threshold from 0.9 to 0.7 (top 30% instead of top 10%)
+            const isTopArtist = spotifyScore > 0.7;
+            console.log(`Artist "${artist.name}" score:`, spotifyScore, 'isTop:', isTopArtist);
+            return isTopArtist;
+          }
         );
         
+        console.log(`Release "${release.name}":`, {
+          score,
+          hasTopArtist,
+          artists: release.artists?.map(({ artist }) => artist.name)
+        });
+
         return {
           release,
           score,
-          hasLikedArtist
+          hasTopArtist
         };
       });
 
-      // Calculate the score threshold for top 0.5%
+      // Calculate the score threshold for top 2% (increased from 0.1%)
       const validScores = scoredReleases
         .map(r => r.score)
-        .filter(score => score > -Infinity && score >= 0);
+        .filter(score => score > -Infinity && score >= 0)
+        .sort((a, b) => b - a);
+      
       const recommendationThreshold = validScores.length > 0
-        ? validScores[Math.floor(validScores.length * 0.995)]
+        ? validScores[Math.floor(validScores.length * 0.02)] // Top 2%
         : 0;
 
-      // Mark releases as recommended if they meet criteria
-      scoredReleases.forEach(scored => {
-        const hasMultipleLikedArtists = scored.release.artists?.filter(
-          ({ artist }) => 
-            preferences.artistScores[artist.id] > 0 || 
-            (preferences.spotifyArtistScores?.[artist.id] || 0) > 0.8
-        ).length >= 2;
+      console.log('Valid scores:', validScores);
+      console.log('Recommendation threshold:', recommendationThreshold);
 
-        scored.isRecommended = 
-          hasMultipleLikedArtists || // Has 2+ liked artists
-          scored.score >= recommendationThreshold; // In top 0.5%
+      // Mark releases as recommended if they meet criteria
+      const recommendedReleases = scoredReleases.map(scored => {
+        const isRecommended = 
+          scored.hasTopArtist || // Has a top artist (with higher threshold)
+          scored.score >= recommendationThreshold; // In top 2%
+        
+        if (isRecommended) {
+          console.log(`Recommended "${scored.release.name}" because:`, {
+            hasTopArtist: scored.hasTopArtist,
+            score: scored.score,
+            threshold: recommendationThreshold
+          });
+        }
+
+        return {
+          ...scored.release,
+          _score: scored.score,
+          isRecommended
+        };
       });
 
       // Sort by score
-      return scoredReleases
-        .sort((a, b) => b.score - a.score)
-        .map(({ release, score, isRecommended }) => ({
-          ...release,
-          _score: score,
-          isRecommended
-        }));
+      return recommendedReleases.sort((a, b) => (b._score || 0) - (a._score || 0));
     },
     [preferences]
   );

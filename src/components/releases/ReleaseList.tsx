@@ -206,7 +206,7 @@ export function ReleaseList({
     (releases: Release[]) => {
       const groups = new Map<string, Release[]>();
 
-      // Use already sorted releases instead of sorting again
+      // Use already sorted releases
       releases.forEach((release) => {
         const weekKey = getWeekKey(new Date(release.release_date));
         const group = groups.get(weekKey) || [];
@@ -218,7 +218,7 @@ export function ReleaseList({
         .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
         .map(([key, releases]) => ({
           weekRange: getWeekRange(new Date(key)),
-          releases, // No need to sort again since input is already sorted
+          releases, // Releases are already sorted with recommendation info
         }));
     },
     [getWeekKey, getWeekRange]
@@ -267,8 +267,8 @@ export function ReleaseList({
               <div className="pill pill--release-type">
                 {formatReleaseType(release.release_type) || "Album"}
               </div>
-              {release.isRecommended && (
-                <Badge variant="recommended">Recommended</Badge>
+              {release.isRecommended === true && (
+                <Badge variant="recommended">Top Rec</Badge>
               )}
             </div>
             <div>

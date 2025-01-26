@@ -84,20 +84,20 @@
   // Title section
   &__title,
   &__artist {
-    @apply text-[24px] font-semibold leading-[1.02];
+    @apply text-[24px] font-semibold leading-[1.02] tracking-tight;
   }
 
   &__title {
-    @apply italic;
+    @apply italic line-clamp-3;
   }
 
   &__artist + &__title {
-    @apply mt-3;
+    @apply mt-2.5;
   }
 
   // Genre pills
   &__genres {
-    @apply flex flex-wrap gap-2 mt-[14px];
+    @apply flex flex-wrap gap-2 mt-[16px];
 
     &-pill {
       @apply rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium backdrop-blur;
