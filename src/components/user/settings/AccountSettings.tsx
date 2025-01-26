@@ -4,6 +4,7 @@ import { EmailForm } from "./EmailForm";
 import { PasswordForm } from "./PasswordForm";
 import { DeleteAccount } from "./DeleteAccount";
 import { PageTitle } from "../../layout/PageTitle";
+import { SpotifyConnection } from "./SpotifyConnection";
 
 export function AccountSettings() {
   return (
@@ -17,6 +18,7 @@ export function AccountSettings() {
         <ProfileForm />
         <EmailForm />
         <PasswordForm />
+        <SpotifyConnection />
         <DeleteAccount />
       </div>
     </div>
