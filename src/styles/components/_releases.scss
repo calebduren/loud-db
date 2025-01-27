@@ -179,7 +179,7 @@
 }
 
 .release-modal {
-  @apply rounded-xl overflow-hidden max-w-[400px] lg:max-w-none;
+  @apply rounded-xl overflow-hidden max-w-[400px] lg:max-w-[1280px];
 
   &__grid {
     @apply lg:grid lg:grid-cols-[640px_1fr] lg:h-full bg-[--color-background];

@@ -134,21 +134,44 @@ export async function validateNewRelease(
 export async function checkSpotifyDuplicate(spotifyUrl: string): Promise<boolean> {
   if (!spotifyUrl) return false;
 
-  // Normalize the Spotify URL by removing query parameters and trailing slashes
-  const normalizedUrl = spotifyUrl.split('?')[0].replace(/\/$/, '');
+  // Extract the album ID from the Spotify URL
+  const albumId = spotifyUrl.split('/album/')[1]?.split(/[?/#]/)[0];
+  if (!albumId) return false;
 
-  // Check if a release with this Spotify URL already exists
+  // Check for existing releases with this album ID or URL
   const { data: releases } = await supabase
     .from('releases')
-    .select('spotify_url')
-    .or(`spotify_url.eq.${normalizedUrl},spotify_url.eq.${spotifyUrl}`);
+    .select('spotify_url, name, artists:release_artists(artist:artists(name))')
+    .or(`spotify_url.ilike.%${albumId}%,spotify_url.eq.${spotifyUrl}`);
 
-  // Also check if any existing URLs match after normalization
-  if (releases && releases.length > 0) {
-    const normalizedExistingUrls = releases.map(r => 
-      r.spotify_url?.split('?')[0].replace(/\/$/, '')
-    );
-    return normalizedExistingUrls.includes(normalizedUrl);
+  if (!releases || releases.length === 0) return false;
+
+  // Check each potential duplicate
+  for (const release of releases) {
+    // If we have an exact URL match (ignoring query params)
+    const normalizedExistingUrl = release.spotify_url?.split('?')[0].replace(/\/$/, '');
+    const normalizedNewUrl = spotifyUrl.split('?')[0].replace(/\/$/, '');
+    
+    if (normalizedExistingUrl === normalizedNewUrl) {
+      return true;
+    }
+
+    // If we have a matching album ID
+    if (release.spotify_url?.includes(`/album/${albumId}`)) {
+      return true;
+    }
+
+    // Extract artist names from the release
+    const artistNames = release.artists?.map((ra: any) => ra.artist?.name).filter(Boolean) || [];
+    
+    // If we find a release with very similar name and artists, consider it a duplicate
+    const existingArtistString = artistNames.sort().join(', ').toLowerCase();
+    const newArtistString = artistNames.sort().join(', ').toLowerCase();
+    
+    if (areSimilarStrings(normalizeString(release.name), normalizeString(release.name)) &&
+        areSimilarStrings(existingArtistString, newArtistString)) {
+      return true;
+    }
   }
 
   return false;

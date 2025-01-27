@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase";
 import { createRelease } from "../lib/releases/createRelease";
 import { checkSpotifyDuplicate } from "../lib/validation/releaseValidation";
 import { ReleaseType } from "../types/database";
+import { uploadImageFromUrl } from "../lib/storage/images";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -260,11 +261,24 @@ async function processBatch(
         }
       }
 
+      // Upload cover image to Supabase storage
+      let coverUrl = "";
+      if (response.images?.[0]?.url) {
+        try {
+          const path = `${albumId}.${response.images[0].url.split('.').pop()?.split('?')[0]}`;
+          coverUrl = await uploadImageFromUrl(response.images[0].url, path);
+        } catch (error) {
+          console.error("Error uploading cover image:", error);
+          // Fallback to Spotify CDN URL if upload fails
+          coverUrl = response.images[0].url;
+        }
+      }
+
       // Create the release
       await createRelease({
         name: response.name,
         release_type: releaseType,
-        cover_url: response.images[0]?.url || "",
+        cover_url: coverUrl,
         genres: genres,
         record_label: response.label || "Unknown",
         track_count: response.tracks.total,
