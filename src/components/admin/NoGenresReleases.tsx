@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Release } from '../../types/database';
 import { useToast } from '../../hooks/useToast';
-import { Button } from '../ui/Button';
-import { Checkbox } from '../ui/Checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 interface NoGenresRelease extends Release {
   selected?: boolean;
