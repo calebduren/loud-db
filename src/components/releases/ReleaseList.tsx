@@ -9,6 +9,7 @@ import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
 import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
 import { formatDate } from "../../lib/utils/dateUtils";
+import { Tooltip } from "../ui/Tooltip"; // Import the Tooltip component
 
 interface WeekGroup {
   weekRange: {
@@ -268,7 +269,13 @@ export function ReleaseList({
                 {formatReleaseType(release.release_type) || "Album"}
               </div>
               {release.isRecommended === true && (
-                <Badge variant="recommended">Top Rec</Badge>
+                <Tooltip
+                  text={release.recommendationReason || 'Recommended for you'}
+                  position="bottom"
+                  align="right"
+                >
+                  <Badge variant="recommended">Top Rec</Badge>
+                </Tooltip>
               )}
             </div>
             <div>

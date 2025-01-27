@@ -38,6 +38,7 @@ export interface Release {
   }[];
   isRecommended?: boolean;
   _score?: number;
+  recommendationReason?: string;
   _scoreDetails?: string[];
   tracks?: Track[];
 }
