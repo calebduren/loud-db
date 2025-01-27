@@ -14,7 +14,7 @@ export function AccountSettings() {
         subtitle="Manage your account details and preferences"
       />
 
-      <div className="max-w-2xl space-y-8">
+      <div className="container--narrow">
         <ProfileForm />
         <EmailForm />
         <PasswordForm />

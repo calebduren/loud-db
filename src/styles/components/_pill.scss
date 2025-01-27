@@ -18,6 +18,10 @@
     }
   }
 
+  &--outline {
+    @apply bg-transparent text-white border-[0.5px] border-white/20;
+  }
+
   &--recommended {
     @apply bg-[--color-loud] text-black;
   }

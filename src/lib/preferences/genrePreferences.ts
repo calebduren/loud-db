@@ -25,7 +25,7 @@ export async function upsertUserPreference(
       {
         user_id: userId,
         genre_group_id: groupId,
-        weight
+        weight // Store exact decimal value now that we use float
       },
       {
         onConflict: 'user_id,genre_group_id',
