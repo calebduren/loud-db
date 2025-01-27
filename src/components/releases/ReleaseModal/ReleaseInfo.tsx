@@ -9,7 +9,7 @@ interface ReleaseInfoProps {
 
 export function ReleaseInfo({ release }: ReleaseInfoProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Release Info Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div>

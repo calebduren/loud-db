@@ -6,7 +6,7 @@ import { PlaylistImportModal } from "../admin/PlaylistImportModal";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
-import { importFromReddit } from "../../api/reddit";
+import { importFromReddit, ImportProgress } from "../../api/reddit";
 
 interface PageTitleProps {
   title: string;
@@ -44,19 +44,28 @@ export const PageTitle = ({
         return;
       }
 
-      const result = await importFromReddit(session.user.id);
+      const result: ImportProgress = await importFromReddit(session.user.id);
 
-      if (result.success) {
-        toast.success(
-          `Successfully imported ${result.importedCount} albums${
-            result.failedCount > 0 ? ` (${result.failedCount} failed)` : ""
-          }`
-        );
+      if (result) {
+        const successCount = result.created.length;
+        const failCount = result.errors.length;
+        const skippedCount = result.skipped.length;
+        
+        if (successCount > 0) {
+          toast.success(
+            `Successfully imported ${successCount} albums${
+              failCount > 0 ? ` (${failCount} failed, ${skippedCount} skipped)` : ""
+            }`
+          );
+        } else {
+          toast.error("No new albums were imported");
+        }
       } else {
-        toast.error(`Import failed: ${result.error}`);
+        toast.error("Import failed: Could not complete the import process");
       }
-    } catch (error) {
-      toast.error("Failed to import from Reddit");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast.error(`Failed to import from Reddit: ${errorMessage}`);
       console.error("Reddit import error:", error);
     } finally {
       setIsImporting(false);

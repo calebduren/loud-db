@@ -179,7 +179,7 @@
 }
 
 .release-modal {
-  @apply rounded-xl overflow-hidden;
+  @apply rounded-xl overflow-hidden max-w-[400px] lg:max-w-none;
 
   &__grid {
     @apply lg:grid lg:grid-cols-[640px_1fr] lg:h-full bg-[--color-background];
@@ -205,7 +205,7 @@
     @apply flex lg:absolute bottom-0 left-0 right-0 overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent z-10 pointer-events-none;
 
     .release-card__links {
-      @apply px-10 lg:pt-24 pb-10 flex justify-between;
+      @apply p-6 lg:px-10 lg:pt-24 lg:pb-10 flex justify-between;
     }
 
     .btn {
@@ -232,6 +232,6 @@
   }
 
   &__scrollable {
-    @apply flex-1 overflow-y-auto px-10 pt-10 pb-32 space-y-6;
+    @apply flex-1 overflow-y-auto p-6 lg:px-10 lg:pt-10 lg:pb-32 space-y-4 lg:space-y-6;
   }
 }
