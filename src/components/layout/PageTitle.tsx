@@ -75,22 +75,6 @@ export const PageTitle = ({
       </div>
       <div className="flex flex-col sm:flex-row gap-3 order-first sm:order-last">
         {actions}
-        {isAdmin && (
-          <Button
-            variant="secondary"
-            onClick={handleRedditImport}
-            disabled={isImporting}
-          >
-            {isImporting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Importing...
-              </>
-            ) : (
-              "Scrape Reddit"
-            )}
-          </Button>
-        )}
         {canShowImportPlaylist && (
           <>
             <Button
@@ -98,6 +82,20 @@ export const PageTitle = ({
               onClick={() => setIsPlaylistModalOpen(true)}
             >
               Import Playlist
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleRedditImport}
+              disabled={isImporting}
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Importing...
+                </>
+              ) : (
+                "Scrape Reddit"
+              )}
             </Button>
             <PlaylistImportModal
               isOpen={isPlaylistModalOpen}
