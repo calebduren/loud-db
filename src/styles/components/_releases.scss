@@ -84,11 +84,11 @@
   // Title section
   &__title,
   &__artist {
-    @apply text-[24px] font-semibold leading-[1.02] tracking-tight;
+    @apply text-[24px] font-semibold leading-[1.02] tracking-tight text-balance line-clamp-3;
   }
 
   &__title {
-    @apply italic line-clamp-3;
+    @apply italic;
   }
 
   &__artist + &__title {
