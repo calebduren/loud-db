@@ -100,6 +100,7 @@ export const PageTitle = ({
             <PlaylistImportModal
               isOpen={isPlaylistModalOpen}
               onClose={() => setIsPlaylistModalOpen(false)}
+              onSuccess={() => setIsPlaylistModalOpen(false)}
             />
           </>
         )}
