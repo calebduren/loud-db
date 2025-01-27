@@ -81,8 +81,8 @@ export function ProfileForm() {
               </div>
             )}
 
-            <Button type="submit" disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
+            <Button type="submit" disabled={saving || !form.formState.isDirty}>
+              {saving ? "Saving..." : "Save"}
             </Button>
           </form>
         </Form>

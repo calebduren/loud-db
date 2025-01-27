@@ -40,6 +40,9 @@ function AppRoutes() {
   return (
     <Layout>
       <Routes>
+        {/* Auth Routes - these need to be accessible even when not signed in */}
+        <Route path="/account" element={user ? <AccountSettings /> : <WelcomeScreen />} />
+        
         {!user ? (
           <Route path="*" element={<WelcomeScreen />} />
         ) : (
@@ -56,7 +59,6 @@ function AppRoutes() {
               <Route path="submissions" element={<CreatedReleases />} />
             </Route>
             <Route path="/preferences" element={<PreferenceSettings />} />
-            <Route path="/account" element={<AccountSettings />} />
 
             {/* Public Profile Routes */}
             <Route

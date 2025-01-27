@@ -1,10 +1,10 @@
-import { spotifyApi } from './api';
+import { getSpotifyApi } from './api';
 import { SpotifyArtistDetails } from './types';
 import { normalizeGenre } from '../utils/genreUtils';
 
 export async function getArtistDetails(artistId: string): Promise<SpotifyArtistDetails | null> {
   try {
-    const artist = await spotifyApi.getArtist(artistId);
+    const artist = await getSpotifyApi().getArtist(artistId);
     if (!artist) return null;
 
     // Initialize the artist details with normalized genres
@@ -15,7 +15,7 @@ export async function getArtistDetails(artistId: string): Promise<SpotifyArtistD
     };
 
     try {
-      const topTracks = await spotifyApi.getArtistTopTracks(artistId, 'US');
+      const topTracks = await getSpotifyApi().getArtistTopTracks(artistId, 'US');
       if (topTracks?.tracks) {
         details.topTracks = topTracks.tracks.slice(0, 5).map(track => ({
           name: track.name,
@@ -27,7 +27,7 @@ export async function getArtistDetails(artistId: string): Promise<SpotifyArtistD
     }
 
     try {
-      const related = await spotifyApi.getArtistRelatedArtists(artistId);
+      const related = await getSpotifyApi().getArtistRelatedArtists(artistId);
       if (related?.artists) {
         details.relatedArtists = related.artists
           .slice(0, 5)

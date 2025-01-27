@@ -67,8 +67,8 @@ export function EmailForm() {
             </div>
           )}
 
-          <Button type="submit" loading={saving} disabled={saving}>
-            Update Email
+          <Button type="submit" disabled={saving || !form.formState.isDirty}>
+            {saving ? "Saving..." : "Save"}
           </Button>
         </form>
       </Form>

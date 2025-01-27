@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { spotifyApi } from '../lib/spotify/api';
+import { getSpotifyApi } from '../lib/spotify/api';
 import { SpotifyArtistDetails } from '../lib/spotify/types';
 import { normalizeGenre } from '../lib/utils/genreUtils';
 import { refreshTokenIfNeeded } from '../lib/spotify/auth';
@@ -36,7 +36,7 @@ export function useRelatedArtists(artistNames: string[]) {
           .replace(/[^\w\s]/g, '') // Remove special characters
           .trim();
 
-        const searchResult = await spotifyApi.searchArtists(searchQuery, { 
+        const searchResult = await getSpotifyApi().searchArtists(searchQuery, { 
           limit: 3 // Get top 3 matches
         });
 
@@ -49,7 +49,7 @@ export function useRelatedArtists(artistNames: string[]) {
           await checkRateLimit('related');
           
           try {
-            const related = await spotifyApi.getArtistRelatedArtists(bestMatch.id);
+            const related = await getSpotifyApi().getArtistRelatedArtists(bestMatch.id);
             
             if (related?.artists) {
               const formattedArtists = related.artists

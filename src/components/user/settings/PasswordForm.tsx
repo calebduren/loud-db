@@ -72,8 +72,8 @@ export function PasswordForm() {
             </div>
           )}
 
-          <Button type="submit" disabled={saving}>
-            {saving ? "Updating..." : "Update Password"}
+          <Button type="submit" disabled={saving || !form.formState.isDirty}>
+            {saving ? "Saving..." : "Save"}
           </Button>
         </form>
       </Form>

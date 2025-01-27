@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import { spotifyApi } from './api';
+import { spotifyApi, initializeApi } from './api';
 import { handleError } from '../utils/errorHandling';
 
 const SPOTIFY_CONFIG = {
@@ -33,7 +33,7 @@ export async function getSpotifyToken(): Promise<string> {
     // Check if token needs refresh
     const expiresAt = new Date(connection.expires_at);
     if (expiresAt > new Date()) {
-      spotifyApi.setAccessToken(connection.access_token);
+      initializeApi(connection.access_token);
       return connection.access_token;
     }
 
@@ -73,7 +73,7 @@ export async function getSpotifyToken(): Promise<string> {
     if (updateError) throw updateError;
 
     // Update API client
-    spotifyApi.setAccessToken(data.access_token);
+    initializeApi(data.access_token);
     return data.access_token;
   } catch (error) {
     handleError(error, 'Failed to get Spotify token');
@@ -156,7 +156,7 @@ export async function handleSpotifyCallback(code: string, state: string) {
   if (error) throw error;
   
   // Initialize API client
-  spotifyApi.setAccessToken(data.access_token);
+  initializeApi(data.access_token);
   return true;
 }
 
@@ -164,7 +164,7 @@ export async function refreshTokenIfNeeded(): Promise<void> {
   try {
     const token = await getSpotifyToken();
     if (token) {
-      spotifyApi.setAccessToken(token);
+      initializeApi(token);
     }
   } catch (error) {
     console.error('Error refreshing token:', error);

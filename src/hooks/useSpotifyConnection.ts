@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "./useToast";
-import { useRetry } from "./useRetry";
 import { initializeApi } from "../lib/spotify/api";
 
 interface SpotifyConnection {
@@ -11,6 +10,7 @@ interface SpotifyConnection {
   spotify_id: string;
   access_token: string;
   refresh_token: string;
+  expires_at: string;
   created_at: string;
 }
 
@@ -25,93 +25,102 @@ export function useSpotifyConnection() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { executeWithRetry } = useRetry();
 
-  const checkConnection = async () => {
+  // Add refreshToken function
+  const refreshToken = async (connection: SpotifyConnection) => {
     try {
+      const response = await fetch("https://accounts.spotify.com/api/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Basic ${btoa(`${import.meta.env.VITE_SPOTIFY_CLIENT_ID}:${import.meta.env.VITE_SPOTIFY_CLIENT_SECRET}`)}`,
+        },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          refresh_token: connection.refresh_token,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to refresh token: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Calculate new expiration (default to 1 hour if not provided)
+      const newExpiresAt = new Date();
+      newExpiresAt.setSeconds(newExpiresAt.getSeconds() + (data.expires_in || 3600));
+
+      // Update the connection with new tokens
+      const { error: updateError } = await supabase
+        .from('spotify_connections')
+        .update({
+          access_token: data.access_token,
+          expires_at: newExpiresAt.toISOString(),
+          ...(data.refresh_token && { refresh_token: data.refresh_token }),
+        })
+        .eq('user_id', connection.user_id);
+
+      if (updateError) throw updateError;
+
+      return data.access_token;
+    } catch (error) {
+      console.error("[Spotify] Error refreshing token:", error);
+      throw error;
+    }
+  };
+
+  // Check if we're already connected
+  useEffect(() => {
+    async function checkConnection() {
       if (!user) {
         setIsConnected(false);
         setLoading(false);
         return;
       }
 
-      const { data: connection, error } = await executeWithRetry<{
-        data: SpotifyConnection | null;
-        error: any;
-      }>(() =>
-        supabase
-          .from<SpotifyConnection>('spotify_connections')
+      try {
+        const { data: connection, error } = await supabase
+          .from('spotify_connections')
           .select("*")
           .eq("user_id", user.id)
-          .maybeSingle()
-          .then(result => result)
-      );
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (connection?.access_token) {
-        // Try to validate the token
-        try {
-          const response = await fetch("https://api.spotify.com/v1/me", {
-            headers: {
-              Authorization: `Bearer ${connection.access_token}`,
-            },
-          });
-          
-          if (!response.ok) {
-            // Token might be expired, try to refresh
-            const { data: session } = await supabase.auth.refreshSession();
-            if (session?.session?.provider_token) {
-              // Update the connection with new token
-              const { error: updateError } = await supabase
-                .from('spotify_connections')
-                .update({
-                  access_token: session.session.provider_token,
-                  refresh_token: session.session.provider_refresh_token,
-                })
-                .eq("user_id", user.id);
-                
-              if (!updateError) {
-                initializeApi(session.session.provider_token);
+        if (connection?.access_token) {
+          // Initialize with current token
+          initializeApi(connection.access_token, async (error) => {
+            // If we get a 401, try to refresh the token
+            if (error?.status === 401) {
+              try {
+                const newToken = await refreshToken(connection);
+                initializeApi(newToken);
                 setIsConnected(true);
-                return;
+              } catch (refreshError) {
+                console.error("[Spotify] Failed to refresh token:", refreshError);
+                await disconnect();
               }
             }
-            // If refresh failed, disconnect
-            await disconnect();
-            return;
-          }
-          
-          initializeApi(connection.access_token);
+          });
           setIsConnected(true);
-        } catch (error) {
-          console.error("Error validating token:", error);
-          await disconnect();
+        } else {
+          initializeApi("");
+          setIsConnected(false);
         }
-      } else {
-        initializeApi("");
+      } catch (error) {
+        console.error("[Spotify] Error checking connection:", error);
         setIsConnected(false);
+        initializeApi("");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error checking Spotify connection:", error);
-      setIsConnected(false);
-      initializeApi("");
-      showToast({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to check Spotify connection",
-      });
-    } finally {
-      setLoading(false);
     }
-  };
 
-  useEffect(() => {
     checkConnection();
-  }, [user]);
+  }, [user?.id]);
 
+  // Handle Spotify connection
   const connect = async () => {
     if (!user) {
       showToast({
@@ -123,231 +132,138 @@ export function useSpotifyConnection() {
 
     try {
       setLoading(true);
-      console.log("Starting Spotify OAuth flow...");
-      
-      // Start OAuth flow with PKCE
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "spotify",
         options: {
-          redirectTo: `${window.location.origin}/preferences`,
+          redirectTo: `${window.location.origin}/account`,
           scopes: SPOTIFY_SCOPES,
+          skipBrowserRedirect: false,
         },
       });
 
-      console.log("OAuth response:", { 
-        hasData: !!data,
-        hasUrl: !!data?.url,
-        error: error || 'none',
-      });
-
-      if (error) {
-        console.error("Supabase OAuth error:", error);
-        throw error;
-      }
-      
-      if (!data?.url) {
-        console.error("No OAuth URL returned from Supabase");
-        throw new Error("No OAuth URL returned");
-      }
-
-      console.log("Redirecting to Spotify OAuth URL:", data.url);
-      window.location.href = data.url;
+      if (error) throw error;
     } catch (error) {
-      console.error("Error connecting to Spotify:", error);
+      console.error("[Spotify] Error connecting:", error);
+      setLoading(false);
       showToast({
         type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to connect to Spotify",
+        message: "Failed to connect to Spotify",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Handle disconnection
   const disconnect = async () => {
     if (!user) return;
 
     try {
       setLoading(true);
-
-      // First clear our local connection record
-      const { error: deleteError } = await supabase
-        .from<SpotifyConnection>('spotify_connections')
+      const { error } = await supabase
+        .from('spotify_connections')
         .delete()
         .eq("user_id", user.id);
 
-      if (deleteError) {
-        console.error("Error deleting existing connection:", deleteError);
-      }
+      if (error) throw error;
 
-      // Clear the Spotify API instance and state
       initializeApi("");
       setIsConnected(false);
-
-      // Try to sign out of Spotify (but don't throw if it fails)
-      try {
-        await supabase.auth.signOut();
-      } catch (signOutError) {
-        console.warn(
-          "Failed to sign out of Spotify, but connection was removed:",
-          signOutError
-        );
-      }
-
       showToast({
         type: "success",
-        message: "Successfully disconnected Spotify",
+        message: "Successfully disconnected from Spotify",
       });
     } catch (error) {
-      console.error("Error disconnecting Spotify:", error);
+      console.error("[Spotify] Error disconnecting:", error);
       showToast({
         type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to disconnect Spotify",
+        message: "Failed to disconnect from Spotify",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle OAuth response
+  // Handle auth state changes
   useEffect(() => {
-    let isHandlingSession = false;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("[Spotify] Auth state changed:", event);
+      console.log("[Spotify] Has provider token:", !!session?.provider_token);
+      console.log("[Spotify] Has refresh token:", !!session?.provider_refresh_token);
+      console.log("[Spotify] Session:", session);
 
-    const handleSpotifySession = async () => {
-      console.log("Checking for Spotify callback...", {
-        pathname: window.location.pathname,
-        search: window.location.search,
-        isHandlingSession,
-        hasUser: !!user
-      });
-
-      if (isHandlingSession || !user) {
-        console.log("Skipping session handling:", { isHandlingSession, hasUser: !!user });
-        return;
-      }
-
-      try {
-        // Get URL parameters
-        const searchParams = new URLSearchParams(window.location.search);
-        const code = searchParams.get('code');
-        const error = searchParams.get('error');
-        
-        console.log("URL Parameters:", {
-          code: code ? "present" : "missing",
-          error: error || "none",
-          allParams: Object.fromEntries(searchParams.entries())
-        });
-
-        // Only proceed if we have a code
-        if (!code) {
-          console.log("No code present, skipping callback handling");
-          return;
-        }
-
-        console.log("Starting Spotify callback handling...");
-        isHandlingSession = true;
-
-        // Get the session directly - Supabase will handle the code exchange internally
-        console.log("Getting session...");
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        console.log("Session result:", { 
-          hasSession: !!session,
-          hasProviderToken: !!session?.provider_token,
-          error: sessionError || 'none'
-        });
-
-        if (sessionError) {
-          throw sessionError;
-        }
-
-        if (!session?.provider_token) {
-          throw new Error("No provider token in session");
-        }
-
-        // Delete any existing connections first
-        console.log("Deleting existing connections...");
-        await supabase
-          .from('spotify_connections')
-          .delete()
-          .eq("user_id", user.id);
-
-        // Get Spotify user info
-        console.log("Fetching Spotify user info...");
-        const response = await fetch("https://api.spotify.com/v1/me", {
-          headers: {
-            Authorization: `Bearer ${session.provider_token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Spotify API error:", errorText);
-          throw new Error("Failed to fetch Spotify user info");
-        }
-
-        const spotifyUser = await response.json();
-        console.log("Got Spotify user info:", spotifyUser);
-
-        // Create new connection
-        console.log("Creating new connection...");
-        const { error: insertError } = await supabase
-          .from('spotify_connections')
-          .insert({
-            user_id: user.id,
-            spotify_id: spotifyUser.id,
-            access_token: session.provider_token,
-            refresh_token: session.provider_refresh_token,
+      if (event === 'INITIAL_SESSION' && session?.provider_token) {
+        try {
+          console.log("[Spotify] Processing initial session with token");
+          
+          // Get Spotify user info
+          const response = await fetch("https://api.spotify.com/v1/me", {
+            headers: {
+              Authorization: `Bearer ${session.provider_token}`,
+            },
           });
 
-        if (insertError) {
-          console.error("Error inserting connection:", insertError);
-          throw insertError;
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("[Spotify] Profile fetch error:", errorText);
+            throw new Error(`Failed to fetch Spotify profile: ${response.statusText}`);
+          }
+
+          const spotifyUser = await response.json();
+          console.log("[Spotify] Got user profile:", spotifyUser);
+
+          // Calculate token expiration (default to 1 hour if not provided)
+          const expiresAt = new Date();
+          expiresAt.setHours(expiresAt.getHours() + 1);
+
+          // Delete any existing connections first
+          await supabase
+            .from('spotify_connections')
+            .delete()
+            .eq('user_id', session.user.id);
+
+          // Create connection record with upsert
+          const { error: insertError } = await supabase
+            .from('spotify_connections')
+            .upsert({
+              user_id: session.user.id,
+              spotify_id: spotifyUser.id,
+              access_token: session.provider_token,
+              refresh_token: session.provider_refresh_token || null,
+              expires_at: expiresAt.toISOString(),
+            }, {
+              onConflict: 'user_id',
+              ignoreDuplicates: false
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("[Spotify] Insert error:", insertError);
+            throw insertError;
+          }
+
+          console.log("[Spotify] Connection record created");
+          initializeApi(session.provider_token);
+          setIsConnected(true);
+          showToast({
+            type: "success",
+            message: "Successfully connected to Spotify!",
+          });
+        } catch (error) {
+          console.error("[Spotify] Connection error:", error);
+          showToast({
+            type: "error",
+            message: error instanceof Error ? error.message : "Failed to connect to Spotify",
+          });
+        } finally {
+          setLoading(false);
         }
-
-        console.log("Successfully connected Spotify!");
-        initializeApi(session.provider_token);
-        setIsConnected(true);
-        showToast({
-          type: "success",
-          message: "Successfully connected to Spotify",
-        });
-
-        // Clear the URL parameters after successful connection
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } catch (error) {
-        console.error("Error handling Spotify connection:", error);
-        // Clean up on error
-        await supabase
-          .from('spotify_connections')
-          .delete()
-          .eq("user_id", user.id);
-        initializeApi("");
-        setIsConnected(false);
-        showToast({
-          type: "error",
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to handle Spotify connection",
-        });
-      } finally {
-        isHandlingSession = false;
       }
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
+  }, []);
 
-    handleSpotifySession();
-  }, [user, window.location.search]);
-
-  return {
-    isConnected,
-    loading,
-    connect,
-    disconnect,
-  };
+  return { isConnected, loading, connect, disconnect };
 }
