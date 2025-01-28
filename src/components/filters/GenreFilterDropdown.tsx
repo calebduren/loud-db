@@ -267,7 +267,9 @@ export function GenreFilterDropdown({
       <div className="genre-dropdown__mode">
         <Select
           value={filterMode}
-          onValueChange={(value: "include" | "exclude") => onFilterModeChange(value)}
+          onValueChange={(value: "include" | "exclude") =>
+            onFilterModeChange(value)
+          }
         >
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Filter mode" />
@@ -305,7 +307,7 @@ export function GenreFilterDropdown({
                       onClick={(e) => handleRemoveGenre(genre, e)}
                       className="p-0.5 hover:bg-white/20 rounded-full transition-colors"
                     >
-                      <X size={14} strokeWidth={2} />
+                      <X size={14} strokeWidth={1.5} />
                     </button>
                   </div>
                 ))}
