@@ -10,9 +10,9 @@ import { useArtists } from "../../../hooks/useArtists";
 import { SpotifyReleaseData } from "../../../lib/spotify/types";
 import { validateArtists } from "../../../lib/releases/validation";
 import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
-import { useToast } from "../../../hooks/useToast";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ReleaseTrack {
   name: string;
@@ -63,7 +63,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
     reset,
   } = useReleaseForm(release);
   const { artists } = useArtists();
-  const { showToast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -227,35 +226,16 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         // Update UI optimistically
         onSuccess?.(newRelease);
 
-        // Show toast last
-        showToast({
-          type: "success",
-          message: release
+        // Show success toast
+        toast.success(
+          release
             ? "Release updated successfully"
-            : "Release created successfully",
-          action: !release
-            ? {
-                label: "View Release",
-                onClick: () => {
-                  setTimeout(() => {
-                    const releaseModal = document.querySelector<HTMLElement>(
-                      `[data-release-id="${releaseId}"]`
-                    );
-                    if (releaseModal) {
-                      releaseModal.dispatchEvent(new MouseEvent("click"));
-                    }
-                  }, 100);
-                },
-              }
-            : undefined,
-        });
+            : "Release created successfully"
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      showToast({
-        type: "error",
-        message: "Failed to save release. Please try again.",
-      });
+      toast.error("Failed to save release. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
