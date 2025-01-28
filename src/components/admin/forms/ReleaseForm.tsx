@@ -13,6 +13,7 @@ import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "../../../lib/supabase";
 
 interface ReleaseTrack {
   name: string;
@@ -194,44 +195,54 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
 
       const releaseId = await originalHandleSubmit(values, selectedArtists);
       if (releaseId) {
-        // Create the release object, preserving existing ID if updating
-        const newRelease: Release = {
-          id: release?.id || releaseId,
-          ...values,
-          description: values.description || null,
-          created_by: release?.created_by || user?.id || "",
-          created_at: release?.created_at || new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          description_author_id:
-            release?.description_author_id || user?.id || null,
-          artists: selectedArtists.map((a, index) => ({
-            position: index,
-            artist: {
-              id: a.id || "",
-              name: a.name,
-            },
-          })),
-          tracks: values.tracks.map((track) => ({
-            ...track,
-            id: track.id || crypto.randomUUID(),
-            release_id: release?.id || releaseId,
+        try {
+          // Close modal first
+          handleClose();
+
+          // Create a basic release object for immediate UI update
+          const basicRelease: Release = {
+            id: releaseId,
+            ...values,
+            description: values.description || null,
+            created_by: user?.id || "",
             created_at: new Date().toISOString(),
-            preview_url: track.preview_url || null,
-          })),
-        };
+            updated_at: new Date().toISOString(),
+            description_author_id: user?.id || null,
+            artists: selectedArtists.map((a, index) => ({
+              position: index,
+              artist: {
+                id: a.id || "",
+                name: a.name,
+              },
+            })),
+            tracks: values.tracks.map((track) => ({
+              ...track,
+              id: track.id || crypto.randomUUID(),
+              release_id: releaseId,
+              created_at: new Date().toISOString(),
+              preview_url: track.preview_url || null,
+            })),
+          };
 
-        // Close modal first
-        handleClose();
+          // Update UI immediately with basic data
+          onSuccess?.(basicRelease);
 
-        // Update UI optimistically
-        onSuccess?.(newRelease);
+          // Show success toast
+          toast.success(
+            release
+              ? "Release updated successfully"
+              : "Release created successfully"
+          );
 
-        // Show success toast
-        toast.success(
-          release
-            ? "Release updated successfully"
-            : "Release created successfully"
-        );
+          // Let the database become consistent before triggering any refreshes
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          // Trigger a background refresh of the releases list
+          window.dispatchEvent(new CustomEvent("refreshReleases"));
+        } catch (error) {
+          console.error("Error in release form submission:", error);
+          toast.error("There was an error saving the release");
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);

@@ -28,6 +28,12 @@ class Cache {
   ): Promise<T> {
     const { ttl = this.TTL, force = false } = options;
     
+    // If force is true, delete the existing cache entry
+    if (force) {
+      this.cache.delete(key);
+      this.pendingRequests.delete(key);
+    }
+
     // Check if there's a pending request for this key
     const pendingRequest = this.pendingRequests.get(key);
     if (pendingRequest && !force) {
@@ -57,6 +63,11 @@ class Cache {
 
     this.pendingRequests.set(key, request);
     return request;
+  }
+
+  delete(key: string): void {
+    this.cache.delete(key);
+    this.pendingRequests.delete(key);
   }
 
   invalidate(key: string): void {

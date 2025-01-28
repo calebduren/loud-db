@@ -43,13 +43,16 @@ export function useReleases({
   );
 
   const fetchReleases = useCallback(
-    async (start = 0, loadMore = false) => {
+    async (start = 0, loadMore = false, options: { force?: boolean } = {}) => {
       const cacheKey = `releases:${JSON.stringify(queryParams)}:${start}`;
 
       try {
         const data = await cache.get(
           cacheKey,
           async () => {
+            // Add a delay before fetching to allow database to become consistent
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             let query = supabase.from("releases").select(
               `
             id,
@@ -68,8 +71,10 @@ export function useReleases({
             description,
             description_author_id,
             description_author:profiles!releases_description_author_id_fkey(id, username),
-            artists:release_artists!release_id(
-              artist:artists!artist_id(
+            artists:release_artists(
+              position,
+              artist:artists(
+                id,
                 name
               )
             ),
@@ -78,7 +83,8 @@ export function useReleases({
               name,
               track_number,
               duration_ms,
-              preview_url
+              preview_url,
+              created_at
             )
           `,
               { count: "exact" }
@@ -124,6 +130,10 @@ export function useReleases({
           { ttl: 5 * 60 * 1000 }
         ); // Cache for 5 minutes
 
+        if (options.force) {
+          await cache.delete(cacheKey);
+        }
+
         const sortedReleases = sortReleases(data.releases);
         
         if (!loadMore) {
@@ -163,10 +173,54 @@ export function useReleases({
     [queryParams, showToast, sortReleases]
   );
 
+  const invalidateCache = useCallback(() => {
+    // Invalidate all release caches by deleting any key that starts with "releases:"
+    const keys = cache.keys();
+    keys.forEach(key => {
+      if (key.startsWith('releases:')) {
+        cache.delete(key);
+      }
+    });
+  }, []);
+
+  const addReleaseOptimistically = useCallback((release: Release) => {
+    // Invalidate all release caches
+    invalidateCache();
+    
+    setReleases(prev => {
+      // Add the new release at the top and remove any duplicates
+      const withoutDuplicate = prev.filter(r => r.id !== release.id);
+      return [release, ...withoutDuplicate];
+    });
+    setTotalCount(prev => prev + 1);
+  }, [invalidateCache]);
+
+  const updateReleaseOptimistically = useCallback((release: Release) => {
+    // Invalidate all release caches
+    invalidateCache();
+    
+    setReleases(prev => 
+      prev.map(r => r.id === release.id ? release : r)
+    );
+  }, [invalidateCache]);
+
   // Initial load
   useEffect(() => {
-    setLoading(true);
-    fetchReleases(0, false);
+    const init = async () => {
+      setLoading(true);
+      // Add a delay before the initial fetch
+      await new Promise(resolve => setTimeout(resolve, 500));
+      fetchReleases(0, false, { force: true });
+    };
+    init();
+
+    // Listen for refresh events
+    const handleRefresh = () => {
+      fetchReleases(0, false, { force: true });
+    };
+
+    window.addEventListener('refreshReleases', handleRefresh);
+    return () => window.removeEventListener('refreshReleases', handleRefresh);
   }, [fetchReleases]);
 
   const loadMore = useCallback(() => {
@@ -189,19 +243,11 @@ export function useReleases({
     }
   }, [hasMore, loading, loadMore]);
 
-  const addReleaseOptimistically = useCallback((release: Release) => {
-    setReleases(prev => [release, ...prev]);
-  }, []);
-
-  const updateReleaseOptimistically = useCallback((release: Release) => {
-    setReleases(prev => 
-      prev.map(r => r.id === release.id ? release : r)
-    );
-  }, []);
-
+  // Expose cache invalidation for manual refreshes
   const backgroundRefetch = useCallback(async () => {
-    await fetchReleases(0, false);
-  }, [fetchReleases]);
+    invalidateCache();
+    await fetchReleases(0, false, { force: true });
+  }, [fetchReleases, invalidateCache]);
 
   return {
     releases,

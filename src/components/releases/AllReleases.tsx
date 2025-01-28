@@ -50,13 +50,11 @@ export function AllReleases() {
   useReleaseSubscription(backgroundRefetch);
 
   const handleCreateSuccess = useCallback(
-    async (release: Release) => {
-      console.log("AllReleases - handleCreateSuccess called");
+    (release: Release) => {
       addReleaseOptimistically(release);
       setIsCreateModalOpen(false);
-      backgroundRefetch();
     },
-    [addReleaseOptimistically, backgroundRefetch]
+    [addReleaseOptimistically]
   );
 
   const handleEditSuccess = useCallback(
@@ -222,8 +220,8 @@ export function AllReleases() {
         <>
           <ReleaseFormModal
             isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
             onSuccess={handleCreateSuccess}
-            onClose={handleCloseCreate}
           />
 
           {editingRelease && (
