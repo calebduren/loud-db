@@ -77,8 +77,7 @@ export function useReleaseForm(release?: Release) {
       apple_music_url: '',
       release_date: new Date().toISOString().split('T')[0],
       description: '',
-      tracks: [],
-      related_artists: []
+      tracks: []
     });
   }, [form]);
 
@@ -110,8 +109,7 @@ export function useReleaseForm(release?: Release) {
           setError(validation.error);
           showToast({
             type: 'error',
-            message: validation.error.message,
-            duration: 5000
+            message: validation.error.message
           });
         }
         return false;
@@ -137,8 +135,7 @@ export function useReleaseForm(release?: Release) {
       console.error('Error saving release:', error);
       showToast({
         type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to save release',
-        duration: 5000
+        message: error instanceof Error ? error.message : 'Failed to save release'
       });
       return false;
     } finally {
