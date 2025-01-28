@@ -1,11 +1,10 @@
 import React from "react";
 import { Release } from "../../types/database";
-import { ReleaseList } from "./ReleaseList";
+import ReleaseList from "./ReleaseList";
 import {
   groupReleasesByWeek,
   formatWeekHeader,
 } from "../../lib/dates/weekGrouping";
-import { ReleaseSkeleton } from "./ReleaseSkeleton";
 import { useReleaseSorting } from "../../hooks/useReleaseSorting";
 
 interface WeeklyReleaseListProps {
@@ -36,12 +35,7 @@ export function WeeklyReleaseList({
       <div className="space-y-12">
         {[...Array(3)].map((_, i) => (
           <section key={i}>
-            <div className="h-8 bg-white/10 rounded w-48 mb-6 animate-pulse" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, j) => (
-                <ReleaseSkeleton key={j} />
-              ))}
-            </div>
+            <ReleaseList.Skeleton key={i} />
           </section>
         ))}
       </div>

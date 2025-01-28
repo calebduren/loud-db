@@ -9,7 +9,7 @@ import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
 import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
 import { formatDate } from "../../lib/utils/dateUtils";
-import { Tooltip } from "../ui/Tooltip"; // Import the Tooltip component
+import { Tooltip } from "../ui/tooltip"; // Import the Tooltip component
 
 interface WeekGroup {
   weekRange: {
@@ -270,7 +270,7 @@ export function ReleaseList({
               </div>
               {release.isRecommended === true && (
                 <Tooltip
-                  text={release.recommendationReason || 'Recommended for you'}
+                  text={release.recommendationReason || "Recommended for you"}
                   position="bottom"
                   align="right"
                 >
@@ -426,3 +426,7 @@ export function ReleaseList({
     </div>
   );
 }
+
+ReleaseList.Skeleton = SkeletonCard;
+
+export default ReleaseList;

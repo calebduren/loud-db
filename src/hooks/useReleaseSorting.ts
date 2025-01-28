@@ -150,5 +150,8 @@ export function useReleaseSorting() {
     [preferences]
   );
 
-  return { sortReleases };
+  return {
+    sortReleases,
+    loading: spotifyLoading
+  };
 }
