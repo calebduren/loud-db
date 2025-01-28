@@ -21,11 +21,31 @@ export function useReleaseSorting() {
 
   // Calculate user preferences combining liked releases and Spotify history
   const preferences = useMemo(() => {
-    return calculateUserPreferences(
+    const prefs = calculateUserPreferences(
       likedReleases || [],
       isConnected && !spotifyLoading ? { topArtists, topTracks } : undefined
     );
-  }, [likedReleases, isConnected, spotifyLoading, topArtists, topTracks]);
+
+    // Add genre preferences from user settings
+    Object.entries(genrePreferences).forEach(([group, weight]) => {
+      // Get all genres in this group
+      const genres = genreGroups[group] || [];
+      genres.forEach((genre) => {
+        // Add weighted preference for each genre in the group
+        prefs.genreScores[genre] = (prefs.genreScores[genre] || 0) + weight;
+      });
+    });
+
+    return prefs;
+  }, [
+    likedReleases,
+    isConnected,
+    spotifyLoading,
+    topArtists,
+    topTracks,
+    genrePreferences,
+    genreGroups,
+  ]);
 
   const sortReleases = useCallback(
     (releases: Release[]) => {
@@ -89,8 +109,10 @@ export function useReleaseSorting() {
           // Get all artists that contribute to the recommendation
           const topArtists = scored.release.artists
             ?.filter(
-              (artist) =>
-                preferences.spotifyArtistScores?.[artist.artist.id] > 0
+              ({ artist }) => {
+                const score = preferences.spotifyArtistScores?.[artist.id];
+                return score !== undefined && score > 0;
+              }
             )
             .map((artist) => ({
               name: artist.artist.name,
@@ -152,6 +174,6 @@ export function useReleaseSorting() {
 
   return {
     sortReleases,
-    loading: spotifyLoading
+    loading: spotifyLoading,
   };
 }
