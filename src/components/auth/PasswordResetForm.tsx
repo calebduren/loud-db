@@ -1,10 +1,10 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabase } from '../../lib/supabase';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/button';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabase } from "../../lib/supabase";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -12,24 +12,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form';
-import { Input } from '../ui/input';
-import { useToast } from '../../hooks/useToast';
-import { sendPasswordResetEmail } from '../../lib/email/service';
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { useToast } from "../../hooks/useToast";
+import { sendPasswordResetEmail } from "../../lib/email/service";
 
 const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email("Please enter a valid email address"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export function PasswordResetForm() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { showToast } = useToast();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
@@ -45,18 +45,18 @@ export function PasswordResetForm() {
       const resetLink = `${window.location.origin}/auth?type=recovery`; // This will be replaced by Supabase's actual reset link
       await sendPasswordResetEmail(data.email, resetLink);
 
-      toast({
-        title: 'Check your email',
-        description: 'We sent you a link to reset your password.',
+      showToast({
+        message:
+          "Check your email - we sent you a link to reset your password.",
+        type: "success",
       });
-      
-      navigate('/auth?mode=confirmation');
+
+      navigate("/auth?mode=confirmation");
     } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to send reset link. Please try again.',
-        variant: 'destructive',
+      console.error("Error:", error);
+      showToast({
+        message: "Failed to send reset link. Please try again.",
+        type: "error",
       });
     }
   };
@@ -82,8 +82,12 @@ export function PasswordResetForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Sending...' : 'Send Reset Link'}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? "Sending..." : "Send Reset Link"}
         </Button>
       </form>
     </Form>

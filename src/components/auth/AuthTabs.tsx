@@ -26,10 +26,12 @@ export function AuthTabs({ defaultTab = "signin" }: AuthTabsProps) {
 
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-5">
-        <TabsTrigger value="signin">Sign In</TabsTrigger>
-        <TabsTrigger value="signup">Sign Up</TabsTrigger>
-      </TabsList>
+      <div className="flex items-center justify-center mb-8">
+        <TabsList>
+          <TabsTrigger value="signin">Sign In</TabsTrigger>
+          <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        </TabsList>
+      </div>
       <TabsContent value="signin">
         <SignInForm />
       </TabsContent>

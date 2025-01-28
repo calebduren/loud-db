@@ -118,7 +118,7 @@ export function SignUpForm() {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -159,13 +159,15 @@ export function SignUpForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <div>
+                  <FormLabel>Password</FormLabel>
+                  <p className="text-xs text-[--color-gray-400] m-0 p-0">
+                    Password must be at least 16 characters
+                  </p>
+                </div>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
-                <p className="text-xs text-[--color-gray-400]">
-                  Password must be at least 16 characters
-                </p>
                 <FormMessage />
               </FormItem>
             )}

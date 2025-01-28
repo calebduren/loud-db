@@ -10,15 +10,13 @@ export function AuthForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <Logo className="mx-auto mb-4 text-white" />
-        <h1 className="text-2xl font-bold text-white">Loud</h1>
-        <p className="text-white/80 font-medium text-sm">
-          The community for sharing and discovering new music.
+        <Logo className="w-[20px] mb-6 mx-auto text-white" />
+        <h1 className="text-3xl font-bold text-white">Loud</h1>
+        <p className="text-[--color-gray-300] font-medium text-balance">
+          The new music database
         </p>
       </div>
-      <div>
-        <AuthTabs defaultTab={mode === "reset" ? "reset" : "signin"} />
-      </div>
+      <AuthTabs defaultTab={mode === "reset" ? "reset" : "signin"} />
     </div>
   );
 }

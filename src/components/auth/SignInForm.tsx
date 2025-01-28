@@ -62,7 +62,7 @@ export function SignInForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -89,7 +89,18 @@ export function SignInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={() => {
+                    setSearchParams({ mode: "reset" }, { replace: true });
+                  }}
+                >
+                  Forgot your password?
+                </Button>
+              </div>
               <FormControl>
                 <Input
                   type="password"
@@ -113,18 +124,6 @@ export function SignInForm() {
             "Sign In"
           )}
         </Button>
-
-        <div className="text-sm text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setSearchParams({ mode: "reset" }, { replace: true });
-            }}
-            className="text-white hover:underline font-semibold"
-          >
-            Forgot your password?
-          </button>
-        </div>
       </form>
     </Form>
   );

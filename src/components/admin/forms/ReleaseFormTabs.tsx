@@ -29,23 +29,23 @@ export function ReleaseFormTabs({
   onRemoveArtist,
 }: ReleaseFormTabsProps) {
   return (
-    <Tabs defaultValue="basic" className="space-y-6">
-      <TabsList onClick={(e) => e.stopPropagation()}>
-        <TabsTrigger value="basic" className="flex items-center gap-2">
-          Basic Info
+    <Tabs defaultValue="basic" className="tabs">
+      <TabsList onClick={(e) => e.stopPropagation()} className="tabs__list">
+        <TabsTrigger value="basic" className="tabs__trigger">
+          <span className="tabs__trigger-icon">Basic Info</span>
         </TabsTrigger>
-        <TabsTrigger value="tracks" className="flex items-center gap-2">
-          Tracks
+        <TabsTrigger value="tracks" className="tabs__trigger">
+          <span className="tabs__trigger-icon">Tracks</span>
         </TabsTrigger>
-        <TabsTrigger value="genres" className="flex items-center gap-2">
-          Genres
+        <TabsTrigger value="genres" className="tabs__trigger">
+          <span className="tabs__trigger-icon">Genres</span>
         </TabsTrigger>
-        <TabsTrigger value="links" className="flex items-center gap-2">
-          Links
+        <TabsTrigger value="links" className="tabs__trigger">
+          <span className="tabs__trigger-icon">Links</span>
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="basic">
+      <TabsContent value="basic" className="tabs__content">
         <BasicInfoTab
           form={form}
           selectedArtists={selectedArtists}
@@ -56,15 +56,15 @@ export function ReleaseFormTabs({
         />
       </TabsContent>
 
-      <TabsContent value="tracks">
+      <TabsContent value="tracks" className="tabs__content">
         <TracksTab form={form} />
       </TabsContent>
 
-      <TabsContent value="genres">
+      <TabsContent value="genres" className="tabs__content">
         <GenresTab form={form} />
       </TabsContent>
 
-      <TabsContent value="links">
+      <TabsContent value="links" className="tabs__content">
         <LinksTab form={form} />
       </TabsContent>
     </Tabs>
