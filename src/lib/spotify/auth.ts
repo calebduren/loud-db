@@ -5,7 +5,7 @@ import { handleError } from '../utils/errorHandling';
 const SPOTIFY_CONFIG = {
   clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
   clientSecret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
-  redirectUri: `${window.location.origin}/settings`,
+  redirectUri: `${window.location.origin}/account`,
   scopes: [
     'user-read-private',
     'user-read-email',
