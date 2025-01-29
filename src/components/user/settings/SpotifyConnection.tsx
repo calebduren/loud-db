@@ -1,15 +1,14 @@
 import React from "react";
 import { useSpotifyConnection } from "../../../hooks/useSpotifyConnection";
 import { Button } from "../../ui/button";
+import { ArrowRight } from "lucide-react";
 
 export function SpotifyConnection() {
   const { isConnected, loading, connect, disconnect } = useSpotifyConnection();
 
   return (
     <div className="card">
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        Connect to Spotify
-      </h2>
+      <h2 className="card__title">Connect to Spotify</h2>
 
       <div className="space-y-6">
         <p className="text-white/60 text-sm">
@@ -17,12 +16,16 @@ export function SpotifyConnection() {
           recommendations based on your listening history.
         </p>
 
-        <Button 
-          variant="primary" 
+        <Button
+          variant="primary"
           onClick={isConnected ? disconnect : connect}
           disabled={loading}
         >
-          {loading ? "Loading..." : isConnected ? "Disconnect Spotify" : "Connect Spotify"}
+          {loading
+            ? "Loading..."
+            : isConnected
+            ? "Disconnect Spotify"
+            : "Connect Spotify"}
         </Button>
       </div>
     </div>

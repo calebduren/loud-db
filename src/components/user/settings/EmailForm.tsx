@@ -36,9 +36,7 @@ export function EmailForm() {
   }, [email, form]);
   return (
     <div className="card">
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        Email Settings
-      </h2>
+      <h2 className="card__title">Email Settings</h2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">

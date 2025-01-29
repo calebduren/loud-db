@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "./useToast";
@@ -23,8 +23,10 @@ const SPOTIFY_SCOPES = [
 export function useSpotifyConnection() {
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { showToast } = useToast();
+  const hasShownToastRef = useRef(false);
 
   // Add refreshToken function
   const refreshToken = async (connection: SpotifyConnection) => {
@@ -70,47 +72,39 @@ export function useSpotifyConnection() {
     }
   };
 
-  // Check if we're already connected
-  useEffect(() => {
-    async function checkConnection() {
-      if (!user) {
-        setIsConnected(false);
-        setLoading(false);
-        return;
-      }
+  // Track if we're intentionally disconnecting
+  const disconnectingRef = useRef(false);
 
+  // Check connection status on mount and after auth changes
+  useEffect(() => {
+    if (!user || disconnectingRef.current) return;
+
+    async function checkConnection() {
       try {
-        const { data: connection, error } = await supabase
+        setLoading(true);
+        const { data: connection } = await supabase
           .from('spotify_connections')
           .select("*")
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (error) throw error;
+        console.log("[Spotify] Checking connection:", { connection });
 
-        if (connection?.access_token) {
-          // Initialize with current token
-          initializeApi(connection.access_token, async (error) => {
-            // If we get a 401, try to refresh the token
-            if (error?.status === 401) {
-              try {
-                const newToken = await refreshToken(connection);
-                initializeApi(newToken);
-                setIsConnected(true);
-              } catch (refreshError) {
-                console.error("[Spotify] Failed to refresh token:", refreshError);
-                await disconnect();
-              }
-            }
-          });
-          setIsConnected(true);
-        } else {
-          initializeApi("");
+        if (!connection) {
+          console.log("[Spotify] No connection found, clearing state");
           setIsConnected(false);
+          hasShownToastRef.current = false;
+          initializeApi("");
+        } else {
+          console.log("[Spotify] Connection found, initializing");
+          setIsConnected(true);
+          hasShownToastRef.current = true;
+          initializeApi(connection.access_token);
         }
       } catch (error) {
         console.error("[Spotify] Error checking connection:", error);
         setIsConnected(false);
+        hasShownToastRef.current = false;
         initializeApi("");
       } finally {
         setLoading(false);
@@ -118,7 +112,7 @@ export function useSpotifyConnection() {
     }
 
     checkConnection();
-  }, [user?.id]);
+  }, [user]);
 
   // Handle Spotify connection
   const connect = async () => {
@@ -157,16 +151,31 @@ export function useSpotifyConnection() {
     if (!user) return;
 
     try {
+      console.log("[Spotify] Starting disconnect");
       setLoading(true);
+      disconnectingRef.current = true;
+
+      // Delete our connection record
       const { error } = await supabase
         .from('spotify_connections')
         .delete()
         .eq("user_id", user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Spotify] Error deleting connection:", error);
+        throw error;
+      }
 
+      console.log("[Spotify] Connection deleted, clearing state");
+      
+      // Clear local state
       initializeApi("");
       setIsConnected(false);
+      hasShownToastRef.current = false;
+
+      // Sign out of Spotify provider
+      await supabase.auth.signOut();
+
       showToast({
         type: "success",
         message: "Successfully disconnected from Spotify",
@@ -179,83 +188,99 @@ export function useSpotifyConnection() {
       });
     } finally {
       setLoading(false);
+      disconnectingRef.current = false;
     }
   };
 
   // Handle auth state changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("[Spotify] Auth state changed:", event);
-      console.log("[Spotify] Has provider token:", !!session?.provider_token);
-      console.log("[Spotify] Has refresh token:", !!session?.provider_refresh_token);
-      console.log("[Spotify] Session:", session);
+      console.log("[Spotify] Auth state change:", { event, hasToken: !!session?.provider_token });
+      
+      // Only handle initial session and sign in events
+      if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN') {
+        return;
+      }
 
-      if (event === 'INITIAL_SESSION' && session?.provider_token) {
-        try {
-          console.log("[Spotify] Processing initial session with token");
-          
-          // Get Spotify user info
-          const response = await fetch("https://api.spotify.com/v1/me", {
-            headers: {
-              Authorization: `Bearer ${session.provider_token}`,
-            },
-          });
+      // Skip if no token or if we're disconnecting
+      if (!session?.provider_token || disconnectingRef.current) {
+        return;
+      }
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error("[Spotify] Profile fetch error:", errorText);
-            throw new Error(`Failed to fetch Spotify profile: ${response.statusText}`);
-          }
+      try {
+        // Check Spotify API first
+        const response = await fetch("https://api.spotify.com/v1/me", {
+          headers: { Authorization: `Bearer ${session.provider_token}` },
+        });
 
-          const spotifyUser = await response.json();
-          console.log("[Spotify] Got user profile:", spotifyUser);
+        // If unauthorized, clear connection
+        if (response.status === 401) {
+          console.log("[Spotify] Unauthorized, clearing state");
+          setIsConnected(false);
+          hasShownToastRef.current = false;
+          initializeApi("");
+          return;
+        }
 
-          // Calculate token expiration (default to 1 hour if not provided)
-          const expiresAt = new Date();
-          expiresAt.setHours(expiresAt.getHours() + 1);
+        if (!response.ok) throw new Error(`Failed to fetch profile: ${response.statusText}`);
 
-          // Delete any existing connections first
-          await supabase
+        const spotifyUser = await response.json();
+        const expiresAt = new Date(Date.now() + 3600000).toISOString();
+
+        // Check if we have a connection in the database
+        const { data: connection } = await supabase
+          .from('spotify_connections')
+          .select("*")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        console.log("[Spotify] Current connection:", { connection });
+
+        if (connection) {
+          // Update existing connection
+          const { error: updateError } = await supabase
             .from('spotify_connections')
-            .delete()
-            .eq('user_id', session.user.id);
+            .update({
+              access_token: session.provider_token,
+              refresh_token: session.provider_refresh_token || null,
+              expires_at: expiresAt,
+            })
+            .eq("user_id", session.user.id);
 
-          // Create connection record with upsert
+          if (updateError) throw updateError;
+        } else {
+          // Create new connection
           const { error: insertError } = await supabase
             .from('spotify_connections')
-            .upsert({
+            .insert({
               user_id: session.user.id,
               spotify_id: spotifyUser.id,
               access_token: session.provider_token,
               refresh_token: session.provider_refresh_token || null,
-              expires_at: expiresAt.toISOString(),
-            }, {
-              onConflict: 'user_id',
-              ignoreDuplicates: false
+              expires_at: expiresAt,
             })
             .select()
             .single();
 
-          if (insertError) {
-            console.error("[Spotify] Insert error:", insertError);
-            throw insertError;
-          }
+          if (insertError) throw insertError;
 
-          console.log("[Spotify] Connection record created");
-          initializeApi(session.provider_token);
-          setIsConnected(true);
           showToast({
             type: "success",
             message: "Successfully connected to Spotify!",
           });
-        } catch (error) {
-          console.error("[Spotify] Connection error:", error);
+        }
+
+        // Update local state after database is updated
+        initializeApi(session.provider_token);
+        setIsConnected(true);
+        hasShownToastRef.current = true;
+      } catch (error) {
+        console.error("[Spotify] Connection error:", error);
+        if (!isConnected) {
           showToast({
             type: "error",
-            message: error instanceof Error ? error.message : "Failed to connect to Spotify",
+            message: "Failed to connect to Spotify",
           });
-        } finally {
-          setLoading(false);
         }
       }
     });
@@ -263,7 +288,7 @@ export function useSpotifyConnection() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isConnected, showToast]);
 
   return { isConnected, loading, connect, disconnect };
 }

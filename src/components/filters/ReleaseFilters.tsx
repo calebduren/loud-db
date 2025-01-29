@@ -70,7 +70,7 @@ export function ReleaseFilters({
             <button
               className={cn("btn btn--lg", {
                 "btn--primary": selectedTypes.includes(option.value),
-                "btn--outline": !selectedTypes.includes(option.value),
+                "btn--secondary": !selectedTypes.includes(option.value),
               })}
               onClick={() => onTypeChange(option.value)}
             >

@@ -3,4 +3,8 @@
 
 .card {
   @apply bg-[--color-gray-800] rounded-xl p-6 border-[0.5px] border-[--color-gray-700];
+
+  &__title {
+    @apply text-xl font-semibold mb-2 flex items-center gap-2;
+  }
 }

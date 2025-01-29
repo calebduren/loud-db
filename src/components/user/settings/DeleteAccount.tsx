@@ -7,9 +7,7 @@ export function DeleteAccount() {
 
   return (
     <div className="card border-red-500/20">
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-red-500">
-        Delete Account
-      </h2>
+      <h2 className="card__title text-red-500">Delete Account</h2>
 
       <div className="space-y-6">
         <p className="text-white/60 text-sm">

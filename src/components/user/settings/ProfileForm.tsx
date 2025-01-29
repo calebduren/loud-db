@@ -48,11 +48,9 @@ export function ProfileForm() {
 
   return (
     <div className="card">
-      <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-        Profile Settings
-      </h2>
+      <h2 className="card__title">Profile Settings</h2>
 
-      <div className="space-y-8">
+      <div className="space-y-2">
         <ProfilePictureUpload />
 
         <Form {...form}>

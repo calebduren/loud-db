@@ -39,7 +39,7 @@ export function ProfilePictureUpload() {
   if (!profile) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-4">
       <div className="relative w-32">
         <div className="relative w-20 h-20">
           <AvatarUpload
@@ -62,9 +62,8 @@ export function ProfilePictureUpload() {
         )}
       </div>
 
-      <div className="text-xs text-white/80 font-medium">
-        <p>Max {MAX_IMAGE_SIZE_MB}MB</p>
-        <p>PNG, JPG/JPEG</p>
+      <div className="text-xs text-[--color-gray-400] font-medium">
+        <p>{MAX_IMAGE_SIZE_MB}MB maximum. PNG and JPG accepted.</p>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
