@@ -13,7 +13,6 @@ import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "../../../lib/supabase";
 
 interface ReleaseTrack {
   name: string;
@@ -66,6 +65,13 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   const { artists } = useArtists();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Format artists data to match artistOptions type
+  const formattedArtistOptions =
+    artists?.map((artist) => ({
+      id: artist.id,
+      name: artist.name,
+    })) || [];
 
   const {
     selectedArtists,
@@ -277,7 +283,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         <ReleaseFormTabs
           form={form}
           selectedArtists={selectedArtists}
-          artistOptions={artists}
+          artistOptions={formattedArtistOptions}
           onArtistChange={handleArtistChange}
           onAddArtist={addArtist}
           onRemoveArtist={removeArtist}
