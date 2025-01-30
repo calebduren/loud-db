@@ -7,6 +7,7 @@ export interface ScrapedRelease {
   recordLabel?: string;
   trackCount: number;
   releaseDate: string;
+  spotify_url?: string;
 }
 
 export interface ScraperResult {

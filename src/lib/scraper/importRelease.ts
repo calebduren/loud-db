@@ -1,13 +1,16 @@
-import { supabase } from '../supabase';
-import { ScrapedRelease } from './types';
-import { uploadImageFromUrl } from '../storage/images';
+import { supabase } from "../supabase";
+import { ScrapedRelease } from "./types";
+import { uploadImageFromUrl } from "../storage/images";
 
 export async function importRelease(release: ScrapedRelease, userId: string) {
   try {
     // Download and upload cover image if available
     let coverUrl = release.coverUrl;
     if (coverUrl) {
-      const uploadedUrl = await uploadImageFromUrl(coverUrl, `${Math.random()}.jpg`);
+      const uploadedUrl = await uploadImageFromUrl(
+        coverUrl,
+        `${Math.random()}.jpg`
+      );
       if (uploadedUrl) {
         coverUrl = uploadedUrl;
       }
@@ -17,9 +20,9 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
     const artistIds = await Promise.all(
       release.artists.map(async (artist) => {
         const { data: existingArtist } = await supabase
-          .from('artists')
-          .select('id')
-          .ilike('name', artist.name)
+          .from("artists")
+          .select("id")
+          .ilike("name", artist.name)
           .maybeSingle();
 
         if (existingArtist) {
@@ -27,9 +30,9 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
         }
 
         const { data: newArtist } = await supabase
-          .from('artists')
+          .from("artists")
           .insert({ name: artist.name })
-          .select('id')
+          .select("id")
           .single();
 
         return newArtist?.id;
@@ -38,7 +41,7 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
 
     // 2. Create release
     const { data: newRelease, error: releaseError } = await supabase
-      .from('releases')
+      .from("releases")
       .insert({
         name: release.name,
         release_type: release.releaseType,
@@ -48,9 +51,8 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
         track_count: release.trackCount,
         created_by: userId,
         release_date: release.releaseDate,
-        spotify_url: release.spotify_url
       })
-      .select('id')
+      .select("id")
       .single();
 
     if (releaseError) throw releaseError;
@@ -58,23 +60,21 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
     // 3. Create artist relationships
     if (newRelease) {
       await Promise.all(
-        artistIds.map((artistId, index) => {
+        artistIds.map((artistId: string | undefined, index: number) => {
           if (!artistId) return Promise.resolve();
-          
-          return supabase
-            .from('release_artists')
-            .insert({
-              release_id: newRelease.id,
-              artist_id: artistId,
-              position: index
-            });
+
+          return supabase.from("release_artists").insert({
+            release_id: newRelease.id,
+            artist_id: artistId,
+            position: index,
+          });
         })
       );
     }
 
     return true;
   } catch (error) {
-    console.error('Error importing release:', error);
+    console.error("Error importing release:", error);
     return false;
   }
 }
