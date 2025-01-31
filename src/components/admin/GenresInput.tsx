@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Check, ChevronDown, Plus } from "lucide-react";
 import { useAllGenres } from "@/hooks/admin/useAllGenres";
+import { useGenreGroups } from "@/hooks/useGenreGroups";
 import { cn } from "@/lib/utils";
 
 interface GenresInputProps {
@@ -14,13 +15,24 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { genres: allGenres, loading } = useAllGenres();
+  const { genreGroups = {}, loading: groupsLoading } = useGenreGroups();
 
-  // Filter genres based on search query and already selected genres
+  console.log("Genre groups:", genreGroups);
+
+  // Get group names and filter them based on search
+  const filteredGroupNames = Object.keys(genreGroups).filter(
+    (name) =>
+      !value.includes(name) &&
+      name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get all genres and filter them
   const filteredGenres = allGenres
     .filter(
       (genre) =>
         !value.includes(genre) &&
-        genre.toLowerCase().includes(searchQuery.toLowerCase())
+        genre.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !Object.keys(genreGroups).includes(genre) // Only exclude parent genre names
     )
     .slice(0, 100); // Limit to 100 results for performance
 
@@ -102,9 +114,9 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-1 py-1 bg-zinc-900 border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
+          className="absolute z-50 w-full mt-1 py-1 bg-[--color-gray-900] border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
         >
-          {loading ? (
+          {loading || groupsLoading ? (
             <div className="px-2 py-1 text-sm text-white/60">Loading...</div>
           ) : (
             <>
@@ -121,30 +133,65 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
                 </button>
               )}
 
-              {filteredGenres.length === 0 ? (
-                <div className="px-2 py-1 text-sm text-white/60">
-                  {searchQuery.trim()
-                    ? "No matching genres"
-                    : "Type to search or create a new genre"}
-                </div>
-              ) : (
-                filteredGenres.map((genre) => (
-                  <button
-                    key={genre}
-                    onClick={() => {
-                      addGenre(genre);
-                      setIsOpen(false);
-                    }}
-                    className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
-                  >
-                    <span>{genre}</span>
-                    <Check
-                      size={14}
-                      className="opacity-0 group-hover:opacity-100 text-white/60"
-                    />
-                  </button>
-                ))
+              {/* Show genre groups at the top */}
+              {filteredGroupNames.length > 0 && (
+                <>
+                  <div className="px-2 py-1 text-sm text-white/40 select-none">
+                    Parent Genres
+                  </div>
+                  {filteredGroupNames.map((groupName) => (
+                    <button
+                      key={groupName}
+                      onClick={() => {
+                        addGenre(groupName);
+                        setIsOpen(false);
+                      }}
+                      className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group bg-white/5"
+                    >
+                      <span>{groupName}</span>
+                      <Check
+                        size={14}
+                        className="opacity-0 group-hover:opacity-100 text-white/60"
+                      />
+                    </button>
+                  ))}
+                  <div className="h-px bg-white/10 my-1" />
+                </>
               )}
+
+              {/* Show remaining genres */}
+              {filteredGenres.length > 0 && (
+                <>
+                  <div className="px-2 py-1 text-sm text-white/40 select-none">
+                    All Genres
+                  </div>
+                  {filteredGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => {
+                        addGenre(genre);
+                        setIsOpen(false);
+                      }}
+                      className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
+                    >
+                      <span>{genre}</span>
+                      <Check
+                        size={14}
+                        className="opacity-0 group-hover:opacity-100 text-white/60"
+                      />
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {filteredGenres.length === 0 &&
+                filteredGroupNames.length === 0 && (
+                  <div className="px-2 py-1 text-sm text-white/60">
+                    {searchQuery.trim()
+                      ? "No matching genres"
+                      : "Type to search or create a new genre"}
+                  </div>
+                )}
             </>
           )}
         </div>
