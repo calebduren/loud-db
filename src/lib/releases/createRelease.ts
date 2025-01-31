@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { ReleaseType } from '../../types/database';
 import { findOrCreateArtist } from '../artists/artistService';
 import { AppError } from '../errors/messages';
+import { normalizeGenre } from '../utils/genreUtils';
 
 interface Track {
   name: string;
@@ -64,11 +65,11 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
     const { data: release, error: releaseError } = await supabase
       .from('releases')
       .insert({
-        name: data.name,
+        name: data.name.trim(),
         release_type: data.release_type,
         cover_url: data.cover_url,
-        genres: data.genres,
-        record_label: data.record_label,
+        genres: data.genres.map(normalizeGenre),
+        record_label: data.record_label?.trim(),
         track_count: data.track_count,
         spotify_url: data.spotify_url,
         apple_music_url: data.apple_music_url,

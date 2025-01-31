@@ -3,6 +3,7 @@ import { X, Check, ChevronDown, Plus } from "lucide-react";
 import { useAllGenres } from "@/hooks/admin/useAllGenres";
 import { useGenreGroups } from "@/hooks/useGenreGroups";
 import { cn } from "@/lib/utils";
+import { normalizeGenre } from "@/lib/utils/genreUtils";
 
 interface GenresInputProps {
   value: string[];
@@ -60,8 +61,9 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
   };
 
   const addGenre = (genre: string) => {
-    if (!value.includes(genre)) {
-      onChange([...value, genre]);
+    const normalizedGenre = normalizeGenre(genre);
+    if (!value.includes(normalizedGenre)) {
+      onChange([...value, normalizedGenre]);
       setSearchQuery("");
     }
   };

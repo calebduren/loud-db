@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
 import { ScrapedRelease } from "./types";
 import { uploadImageFromUrl } from "../storage/images";
+import { normalizeGenre } from "../utils/genreUtils";
 
 export async function importRelease(release: ScrapedRelease, userId: string) {
   try {
@@ -46,7 +47,7 @@ export async function importRelease(release: ScrapedRelease, userId: string) {
         name: release.name,
         release_type: release.releaseType,
         cover_url: coverUrl,
-        genres: release.genres,
+        genres: release.genres.map(normalizeGenre), // Normalize genres
         record_label: release.recordLabel,
         track_count: release.trackCount,
         created_by: userId,
