@@ -8,7 +8,7 @@ import { Badge } from "../ui/Badge"; // Import the Badge component
 import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
 import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
-import { formatDate } from "../../lib/utils/dateUtils";
+import { formatDate, formatWeekDate } from "../../lib/utils/dateUtils";
 import { Tooltip } from "../ui/tooltip"; // Import the Tooltip component
 
 interface WeekGroup {
@@ -119,11 +119,6 @@ export function ReleaseList({
   const { genreGroups, loading: groupsLoading } = useGenreGroups();
   const { sortReleases } = useReleaseSorting();
 
-  // Reset sorting stabilized state when releases or sorting dependencies change
-  useEffect(() => {
-    setSortingStabilized(false);
-  }, [releases, preferences, genreGroups]);
-
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
     const seen = new Set<string>();
@@ -134,41 +129,6 @@ export function ReleaseList({
       return true;
     });
   }, [releases]);
-
-  const formatArtists = useCallback((release: Release) => {
-    if (!release.artists?.length) return "";
-    return release.artists.map((ra) => ra.artist.name).join(", ");
-  }, []);
-
-  const getWeekKey = useCallback((date: Date) => {
-    const dayOfWeek = date.getDay();
-    const daysUntilFriday = (dayOfWeek + 2) % 7;
-    const start = new Date(date);
-    start.setDate(start.getDate() - daysUntilFriday);
-    start.setHours(0, 0, 0, 0);
-    return start.toISOString();
-  }, []);
-
-  const getWeekRange = useCallback(
-    (date: Date) => {
-      const dayOfWeek = date.getDay();
-      const daysUntilFriday = (dayOfWeek + 2) % 7;
-      const start = new Date(date);
-      start.setDate(start.getDate() - daysUntilFriday);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 6);
-      return {
-        start,
-        end,
-        key: start.toISOString(),
-        label: `${formatDate(start.toISOString())} – ${formatDate(
-          end.toISOString()
-        )}`,
-      };
-    },
-    [formatDate]
-  );
 
   // Memoize the sorted releases
   const sortedReleases = useMemo(() => {
@@ -203,27 +163,89 @@ export function ReleaseList({
     }
   }, [loading, preferencesLoading, groupsLoading, sortedReleases]);
 
-  const groupReleasesByWeek = useCallback(
-    (releases: Release[]) => {
-      const groups = new Map<string, Release[]>();
+  const formatArtists = useCallback((release: Release) => {
+    if (!release.artists?.length) return "";
+    return release.artists.map((ra) => ra.artist.name).join(", ");
+  }, []);
 
-      // Use already sorted releases
-      releases.forEach((release) => {
-        const weekKey = getWeekKey(new Date(release.release_date));
-        const group = groups.get(weekKey) || [];
-        group.push(release);
-        groups.set(weekKey, group);
-      });
+  const getWeekKey = useCallback((date: Date) => {
+    // Get the day of week (0 = Sunday, 5 = Friday)
+    const dayOfWeek = date.getDay();
 
-      return Array.from(groups.entries())
-        .sort(([keyA], [keyB]) => keyB.localeCompare(keyA))
-        .map(([key, releases]) => ({
-          weekRange: getWeekRange(new Date(key)),
-          releases, // Releases are already sorted with recommendation info
-        }));
+    // If it's before Friday, go back to previous Friday
+    // If it's Friday or after, use this Friday
+    const daysToSubtract =
+      dayOfWeek < 5
+        ? (dayOfWeek + 2) % 7 // Days back to previous Friday
+        : dayOfWeek - 5; // Days back to this Friday
+
+    const start = new Date(date);
+    start.setDate(start.getDate() - daysToSubtract);
+    start.setHours(0, 0, 0, 0);
+    return start.toISOString();
+  }, []);
+
+  const getWeekRange = useCallback(
+    (date: Date) => {
+      // Get the day of week (0 = Sunday, 5 = Friday)
+      const dayOfWeek = date.getUTCDay();
+
+      // If it's before Friday, go back to previous Friday
+      // If it's Friday or after, use this Friday
+      const daysToSubtract =
+        dayOfWeek < 5
+          ? (dayOfWeek + 2) % 7 // Days back to previous Friday
+          : dayOfWeek - 5; // Days back to this Friday
+
+      // Start at midnight on Friday
+      const start = new Date(date.getTime());
+      start.setUTCDate(start.getUTCDate() - daysToSubtract);
+      start.setUTCHours(0, 0, 0, 0);
+
+      // End at 23:59:59.999 on Thursday
+      const end = new Date(start.getTime());
+      end.setUTCDate(end.getUTCDate() + 6); // Add 6 days to get to Thursday
+      end.setUTCHours(23, 59, 59, 999);
+
+      return {
+        start,
+        end,
+        key: start.toISOString(),
+        // Always show Friday first, then Thursday
+        label: `${formatWeekDate(start.toISOString())} – ${formatWeekDate(
+          end.toISOString()
+        )}`,
+      };
     },
-    [getWeekKey, getWeekRange]
+    [formatWeekDate]
   );
+
+  // Group releases by week
+  const weekGroups = useMemo(() => {
+    if (!sortedReleases.length || !sortingStabilized) return [];
+
+    const groups = new Map<string, WeekGroup>();
+
+    sortedReleases.forEach((release) => {
+      // Parse the ISO date string directly
+      const releaseDate = new Date(release.release_date);
+
+      const weekRange = getWeekRange(releaseDate);
+
+      if (!groups.has(weekRange.key)) {
+        groups.set(weekRange.key, {
+          weekRange,
+          releases: [],
+        });
+      }
+
+      groups.get(weekRange.key)?.releases.push(release);
+    });
+
+    return Array.from(groups.values()).sort(
+      (a, b) => b.weekRange.start.getTime() - a.weekRange.start.getTime()
+    );
+  }, [sortedReleases, getWeekRange, sortingStabilized]);
 
   const formatReleaseType = useCallback((type: string) => {
     switch (type.toLowerCase()) {
@@ -361,22 +383,16 @@ export function ReleaseList({
     [formatArtists, formatDate, formatReleaseType]
   );
 
-  // Show loading state until everything is ready
-  const isLoading =
-    loading ||
-    preferencesLoading ||
-    groupsLoading ||
-    !sortingStabilized ||
-    !sortedReleases.length;
-
-  if (isLoading) {
+  if (loading || preferencesLoading || groupsLoading || !sortingStabilized) {
     return (
-      <div className="space-y-12">
+      <div className="space-y-8">
         {showWeeklyGroups ? (
-          <SkeletonWeeklyGroup />
+          Array.from({ length: 2 }).map((_, i) => (
+            <SkeletonWeeklyGroup key={i} />
+          ))
         ) : (
           <div className="release-grid">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 12 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
@@ -390,7 +406,7 @@ export function ReleaseList({
   return (
     <div className="space-y-8">
       {showWeeklyGroups ? (
-        groupReleasesByWeek(sortedReleases).map(({ weekRange, releases }) => (
+        weekGroups.map(({ weekRange, releases }) => (
           <div key={weekRange.key}>
             <div className="weekly-group-header">
               {weekRange.label}
