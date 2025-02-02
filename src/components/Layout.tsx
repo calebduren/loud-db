@@ -1,7 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
-import { Sidebar } from "./layout/Sidebar";
-import { Menu } from "lucide-react";
+import { TopNav } from "./layout/TopNav";
 import { Toaster } from "sonner";
 
 interface LayoutProps {
@@ -10,7 +9,6 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const context = useContext(AuthContext);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!context?.user) {
     return (
@@ -23,18 +21,8 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen relative">
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="sidebar-toggle"
-        aria-label="Toggle navigation menu"
-      >
-        <Menu size={24} strokeWidth={1.5} />
-      </button>
-
-      <div className={`sidebar ${isSidebarOpen ? "sidebar--open" : ""}`}>
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
-      </div>
-      <main className="layout">{children}</main>
+      <TopNav />
+      <main className="layout pt-16">{children}</main>
       <Toaster richColors position="top-right" />
     </div>
   );

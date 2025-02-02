@@ -1,0 +1,99 @@
+.top-nav {
+  @apply fixed top-0 left-0 right-0 z-50 bg-[var(--color-background)] border-b border-white/10;
+
+  &__container {
+    @apply max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between;
+  }
+
+  &__left {
+    @apply flex items-center gap-4;
+  }
+
+  &__logo {
+    @apply flex items-center;
+  }
+
+  &__mobile-toggle {
+    @apply text-white sm:hidden;
+  }
+
+  &__nav {
+    @apply hidden sm:block flex-1 px-8;
+
+    &--mobile-open {
+      @apply fixed inset-0 top-16 bg-[var(--color-background)] sm:static sm:bg-transparent;
+      @apply block p-4 sm:p-0;
+    }
+  }
+
+  &__list {
+    @apply flex flex-col sm:flex-row items-start sm:items-center gap-6;
+  }
+
+  &__nav-item {
+    @apply flex items-center text-sm font-semibold text-white/60 hover:text-white/80 transition-colors;
+
+    &--active {
+      @apply text-white;
+    }
+
+    .nav-indicator {
+      @apply w-0 h-[8.5px] rounded-full bg-white/0 transition-colors;
+
+      &--active {
+        @apply bg-white w-[8.5px] mr-2;
+      }
+    }
+  }
+
+  &__actions {
+    @apply flex items-center gap-4;
+  }
+
+  &__user-menu {
+    @apply relative;
+  }
+
+  &__user-button {
+    @apply flex items-center justify-center;
+    @apply w-8 h-8 rounded-full overflow-hidden;
+    @apply hover:ring-2 hover:ring-white/20 transition-all;
+  }
+
+  &__user-menu-items {
+    @apply absolute right-0 mt-2 w-56 rounded-lg;
+    @apply bg-[var(--color-background)] border border-white/10;
+    @apply divide-y divide-white/10 shadow-lg;
+    @apply focus:outline-none;
+  }
+
+  &__user-info {
+    @apply px-4 py-3;
+  }
+
+  &__user-menu-links {
+    @apply py-1;
+  }
+
+  &__user-menu-item {
+    @apply block w-full text-left px-4 py-2 text-sm text-white/60;
+    @apply hover:bg-white/5 hover:text-white transition-colors;
+
+    &--active {
+      @apply bg-white/5 text-white;
+    }
+  }
+
+  &__user-menu-footer {
+    @apply px-4 py-3 flex flex-col gap-2;
+  }
+
+  &__user-menu-footer-link {
+    @apply text-xs font-semibold text-white/40 hover:text-white/60 transition-colors text-left;
+  }
+
+  // Mobile menu styles
+  &--mobile-open {
+    @apply sm:bg-transparent;
+  }
+}
