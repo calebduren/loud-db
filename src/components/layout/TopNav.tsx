@@ -10,7 +10,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Menu } from "@headlessui/react";
 import { Menu as MenuIcon, X, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { usePermissions } from "../../hooks/usePermissions";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
 import { PlaylistImportModal } from "../admin/PlaylistImportModal";
 import { toast } from "sonner";
@@ -137,10 +136,6 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
   if (!user) return null;
 
-  const showAddRelease =
-    location.pathname === "/" || location.pathname === "/submissions";
-  const showImportPlaylist = location.pathname === "/";
-
   return (
     <>
       <header
@@ -196,7 +191,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
           <div className="top-nav__actions">
             {/* Page-specific actions */}
             <div className="hidden sm:flex items-center gap-2">
-              {showImportPlaylist && isAdmin && (
+              {isAdmin && (
                 <>
                   <Button
                     variant="secondary"
@@ -220,7 +215,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                   </Button>
                 </>
               )}
-              {showAddRelease && (isAdmin || canManageReleases) && (
+              {(isAdmin || canManageReleases) && (
                 <Button
                   variant="primary"
                   onClick={() => setIsCreateModalOpen(true)}
