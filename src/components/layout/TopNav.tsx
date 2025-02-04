@@ -18,6 +18,7 @@ import { supabase } from "../../lib/supabase";
 import { importFromReddit } from "../../api/reddit";
 import { PixelAvatar } from "../user/profile/PixelAvatar";
 import { SpotifyConnectModal } from "../spotify/SpotifyConnectModal";
+import { useSpotifyConnection } from "../../hooks/useSpotifyConnection";
 
 interface TopNavProps {
   className?: string;
@@ -26,6 +27,7 @@ interface TopNavProps {
 export const TopNav = React.memo(({ className }: TopNavProps) => {
   const { user, isAdmin, canManageReleases } = useAuth();
   const { profile } = useProfile(user?.id);
+  const { isConnected, loading, connect, disconnect } = useSpotifyConnection();
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -328,7 +330,10 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
       <SpotifyConnectModal
         isOpen={isSpotifyModalOpen}
         onClose={() => setIsSpotifyModalOpen(false)}
-        isConnected={!!profile?.spotify_connected}
+        isConnected={isConnected}
+        onConnect={connect}
+        onDisconnect={disconnect}
+        loading={loading}
       />
     </>
   );

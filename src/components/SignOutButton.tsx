@@ -1,7 +1,11 @@
 import React from "react";
 import { supabase } from "../lib/supabase";
 
-export function SignOutButton() {
+interface SignOutButtonProps {
+  className?: string;
+}
+
+export function SignOutButton({ className }: SignOutButtonProps) {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -11,7 +15,7 @@ export function SignOutButton() {
   };
 
   return (
-    <button onClick={handleSignOut} className="sidebar__footer-legal-link">
+    <button onClick={handleSignOut} className={className}>
       Sign Out
     </button>
   );

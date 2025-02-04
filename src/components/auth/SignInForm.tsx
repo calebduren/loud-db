@@ -89,18 +89,8 @@ export function SignInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={() => {
-                    setSearchParams({ mode: "reset" }, { replace: true });
-                  }}
-                >
-                  Forgot your password?
-                </Button>
-              </div>
+              <FormLabel>Password</FormLabel>
+
               <FormControl>
                 <Input
                   type="password"
@@ -123,6 +113,15 @@ export function SignInForm() {
           ) : (
             "Sign In"
           )}
+        </Button>
+        <Button
+          variant="link"
+          type="button"
+          onClick={() => {
+            setSearchParams({ mode: "reset" }, { replace: true });
+          }}
+        >
+          Forgot your password?
         </Button>
       </form>
     </Form>

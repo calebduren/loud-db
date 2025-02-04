@@ -1,75 +1,51 @@
 import React from "react";
-import { Dialog } from "@headlessui/react";
+import { Modal } from "../ui/Modal";
 import { Button } from "../ui/button";
-import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 
 interface SpotifyConnectModalProps {
   isOpen: boolean;
   onClose: () => void;
   isConnected: boolean;
+  onConnect: () => void;
+  onDisconnect: () => void;
+  loading: boolean;
 }
 
-export function SpotifyConnectModal({ isOpen, onClose, isConnected }: SpotifyConnectModalProps) {
-  const handleConnect = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    // TODO: Implement Spotify OAuth connection
-    // This should redirect to Spotify's OAuth flow
-    console.log("Connecting to Spotify...");
-  };
-
-  const handleDisconnect = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      // TODO: Implement Spotify disconnect
-      // This should revoke the Spotify OAuth token and update the user's profile
-      console.log("Disconnecting from Spotify...");
-      
-      toast.success("Successfully disconnected from Spotify");
-      onClose();
-    } catch (error) {
-      console.error("Error disconnecting from Spotify:", error);
-      toast.error("Failed to disconnect from Spotify");
-    }
-  };
-
+export function SpotifyConnectModal({ 
+  isOpen, 
+  onClose, 
+  isConnected,
+  onConnect,
+  onDisconnect,
+  loading 
+}: SpotifyConnectModalProps) {
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
-      
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-[var(--color-background)] p-6 shadow-xl">
-          <Dialog.Title className="text-lg font-medium mb-4">
-            {isConnected ? "Spotify Connected" : "Connect to Spotify"}
-          </Dialog.Title>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isConnected ? "Disconnect from Spotify" : "Connect to Spotify"}
+    >
+      <div className="space-y-6">
+        <p className="text-white/60 text-sm">
+          {isConnected
+            ? "Are you sure you want to disconnect your Spotify account? This will remove access to your Spotify listening history and personalized recommendations."
+            : "Connect your Spotify account to get personalized release recommendations based on your listening history."}
+        </p>
 
-          <p className="text-white/60 mb-6">
-            {isConnected 
-              ? "Your Spotify account is currently connected. You can disconnect it at any time."
-              : "Connect your Spotify account to enable music playback and playlist features."
-            }
-          </p>
-
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            {isConnected ? (
-              <Button variant="destructive" onClick={handleDisconnect}>
-                Disconnect
-              </Button>
-            ) : (
-              <Button onClick={handleConnect}>
-                Connect Spotify
-              </Button>
-            )}
-          </div>
-        </Dialog.Panel>
+        <Button
+          variant="primary"
+          onClick={isConnected ? onDisconnect : onConnect}
+          disabled={loading}
+          className="w-full"
+        >
+          {loading
+            ? "Loading..."
+            : isConnected
+            ? "Disconnect Spotify"
+            : "Connect Spotify"}
+        </Button>
       </div>
-    </Dialog>
+    </Modal>
   );
 }
