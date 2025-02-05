@@ -7,7 +7,7 @@ import { TermsModal } from "../legal/TermsModal";
 import { SignOutButton } from "../SignOutButton";
 import { useProfile } from "../../hooks/useProfile";
 import { useAuth } from "../../contexts/AuthContext";
-import { Menu } from "@headlessui/react";
+import { Menu, MenuItem } from "@headlessui/react";
 import { Menu as MenuIcon, X, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { ReleaseFormModal } from "../admin/ReleaseFormModal";
@@ -240,13 +240,15 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                   )}
                 </div>
               </Menu.Button>
+
               <Menu.Items className="top-nav__user-menu-items">
                 <div className="top-nav__user-info">
                   <div className="font-medium">{profile?.username}</div>
                   <div className="text-sm text-white/60">{user.email}</div>
                 </div>
+                
                 <div className="top-nav__user-menu-links">
-                  <Menu.Item>
+                  <MenuItem>
                     {({ active }) => (
                       <NavLink
                         to="/profile"
@@ -258,8 +260,9 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                         Profile
                       </NavLink>
                     )}
-                  </Menu.Item>
-                  <Menu.Item>
+                  </MenuItem>
+
+                  <MenuItem>
                     {({ active }) => (
                       <NavLink
                         to="/account"
@@ -271,8 +274,9 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                         Account
                       </NavLink>
                     )}
-                  </Menu.Item>
-                  <Menu.Item>
+                  </MenuItem>
+
+                  <MenuItem>
                     {({ active }) => (
                       <NavLink
                         to="/preferences"
@@ -284,24 +288,27 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                         Preferences
                       </NavLink>
                     )}
-                  </Menu.Item>
-                  <Menu.Item>
+                  </MenuItem>
+
+                  <MenuItem as="div">
                     <SignOutButton className="top-nav__user-menu-item" />
-                  </Menu.Item>
+                  </MenuItem>
                 </div>
+
                 <div className="top-nav__user-menu-footer">
-                  <button
+                  <MenuItem as="button"
                     onClick={() => setIsPrivacyOpen(true)}
                     className="top-nav__user-menu-footer-link"
                   >
                     Privacy policy
-                  </button>
-                  <button
+                  </MenuItem>
+
+                  <MenuItem as="button"
                     onClick={() => setIsTermsOpen(true)}
                     className="top-nav__user-menu-footer-link"
                   >
                     Terms of service
-                  </button>
+                  </MenuItem>
                 </div>
               </Menu.Items>
             </Menu>
