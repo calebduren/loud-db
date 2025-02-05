@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Logo } from "../ui/Logo";
 import { cn } from "../../lib/utils";
 import { PrivacyPolicyModal } from "../legal/PrivacyPolicyModal";
@@ -34,7 +34,6 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = React.useState(false);
   const [isImporting, setIsImporting] = React.useState(false);
   const [isSpotifyModalOpen, setIsSpotifyModalOpen] = React.useState(false);
-  const location = useLocation();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("top-nav__nav-item", isActive && "top-nav__nav-item--active");
@@ -246,7 +245,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                   <div className="font-medium">{profile?.username}</div>
                   <div className="text-sm text-white/60">{user.email}</div>
                 </div>
-                
+
                 <div className="top-nav__user-menu-links">
                   <MenuItem>
                     {({ active }) => (
@@ -296,14 +295,16 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                 </div>
 
                 <div className="top-nav__user-menu-footer">
-                  <MenuItem as="button"
+                  <MenuItem
+                    as="button"
                     onClick={() => setIsPrivacyOpen(true)}
                     className="top-nav__user-menu-footer-link"
                   >
                     Privacy policy
                   </MenuItem>
 
-                  <MenuItem as="button"
+                  <MenuItem
+                    as="button"
                     onClick={() => setIsTermsOpen(true)}
                     className="top-nav__user-menu-footer-link"
                   >
