@@ -1,8 +1,11 @@
+@use "../utilities/shared";
+
 .top-nav {
-  @apply fixed top-0 left-0 right-0 z-50 bg-[var(--color-background)] border-b border-white/10;
+  @apply fixed top-0 left-0 right-0 z-50 bg-[var(--color-background)] border-b-[0.5px] border-[--color-gray-700];
 
   &__container {
-    @apply max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between;
+    @apply max-w-screen-2xl mx-auto h-20 flex items-center justify-between;
+    @extend %loud-container-px;
   }
 
   &__left {
@@ -63,7 +66,6 @@
   &__user-menu-items {
     @apply absolute right-0 mt-2 w-56 rounded-lg;
     @apply bg-[var(--color-gray-800)] border border-white/5;
-    @apply divide-y divide-white/5 shadow-lg;
     @apply focus:outline-none;
   }
 

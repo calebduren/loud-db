@@ -58,7 +58,9 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
         return;
       }
 
-      const result = await importFromReddit(session.user.id) as RedditImportResult;
+      const result = (await importFromReddit(
+        session.user.id
+      )) as RedditImportResult;
 
       if (result) {
         const successCount = result.created;
@@ -116,7 +118,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
   const SpotifyIcon = () => {
     const { isConnected } = useSpotifyConnection();
-    
+
     return (
       <button
         onClick={() => setIsSpotifyModalOpen(true)}
@@ -250,69 +252,79 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
               </DropdownMenu.Trigger>
 
               <DropdownMenu.Portal>
-                <DropdownMenu.Content className="top-nav__user-menu-items" sideOffset={5}>
+                <DropdownMenu.Content
+                  className="top-nav__user-menu-items"
+                  sideOffset={4}
+                >
                   <div className="top-nav__user-info">
                     <div className="font-medium">{profile?.username}</div>
                     <div className="text-sm text-white/60">{user.email}</div>
                   </div>
+                  <DropdownMenu.Separator className="menu-separator" />
 
-                  <div className="top-nav__user-menu-links">
-                    <DropdownMenu.Item className="outline-none">
-                      <NavLink
-                        to="/profile"
-                        className={({ isActive }) => cn(
+                  <DropdownMenu.Item className="outline-none">
+                    <NavLink
+                      to="/profile"
+                      className={({ isActive }) =>
+                        cn(
                           "top-nav__user-menu-item",
                           isActive && "top-nav__user-menu-item--active"
-                        )}
-                      >
-                        Profile
-                      </NavLink>
-                    </DropdownMenu.Item>
+                        )
+                      }
+                    >
+                      Profile
+                    </NavLink>
+                  </DropdownMenu.Item>
 
-                    <DropdownMenu.Item className="outline-none">
-                      <NavLink
-                        to="/account"
-                        className={({ isActive }) => cn(
+                  <DropdownMenu.Item className="outline-none">
+                    <NavLink
+                      to="/account"
+                      className={({ isActive }) =>
+                        cn(
                           "top-nav__user-menu-item",
                           isActive && "top-nav__user-menu-item--active"
-                        )}
-                      >
-                        Account
-                      </NavLink>
-                    </DropdownMenu.Item>
+                        )
+                      }
+                    >
+                      Account
+                    </NavLink>
+                  </DropdownMenu.Item>
 
-                    <DropdownMenu.Item className="outline-none">
-                      <NavLink
-                        to="/preferences"
-                        className={({ isActive }) => cn(
+                  <DropdownMenu.Item className="outline-none">
+                    <NavLink
+                      to="/preferences"
+                      className={({ isActive }) =>
+                        cn(
                           "top-nav__user-menu-item",
                           isActive && "top-nav__user-menu-item--active"
-                        )}
-                      >
-                        Preferences
-                      </NavLink>
-                    </DropdownMenu.Item>
-
-                    <DropdownMenu.Item as="div">
-                      <SignOutButton className="top-nav__user-menu-item" />
-                    </DropdownMenu.Item>
-                  </div>
-
+                        )
+                      }
+                    >
+                      Preferences
+                    </NavLink>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="menu-separator" />
+                  <DropdownMenu.Item asChild>
+                    <SignOutButton className="top-nav__user-menu-item" />
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="menu-separator" />
                   <div className="top-nav__user-menu-footer">
-                    <DropdownMenu.Item
-                      as="button"
-                      onClick={() => setIsPrivacyOpen(true)}
-                      className="top-nav__user-menu-footer-link"
-                    >
-                      Privacy policy
+                    <DropdownMenu.Item asChild>
+                      <button
+                        onClick={() => setIsPrivacyOpen(true)}
+                        className="top-nav__user-menu-footer-link"
+                      >
+                        Privacy policy
+                      </button>
                     </DropdownMenu.Item>
 
-                    <DropdownMenu.Item
-                      as="button"
-                      onClick={() => setIsTermsOpen(true)}
-                      className="top-nav__user-menu-footer-link"
-                    >
-                      Terms of service
+                    <DropdownMenu.Item asChild>
+                      <button
+                        onClick={() => setIsTermsOpen(true)}
+                        className="top-nav__user-menu-footer-link"
+                      >
+                        Terms of service
+                      </button>
                     </DropdownMenu.Item>
                   </div>
                 </DropdownMenu.Content>

@@ -20,6 +20,8 @@
 @use "components/datalist"; // Add datalist styles
 @use "components/tabs"; // Add tabs styles
 
+@use "utilities/shared";
+
 // Font faces
 @font-face {
   font-family: "Innovator Grotesk";
@@ -202,7 +204,7 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --input-height: 36px;
+  --input-height: 34px;
   --input-border-radius: 6px;
   --input-border-width: 0.5px;
 }
@@ -219,7 +221,8 @@ body {
 }
 
 .layout {
-  @apply mt-12 relative z-0 p-10 lg:py-16 lg:pr-16;
+  @apply mt-12 relative;
+  @extend %loud-container-px;
 }
 
 .container--narrow {
@@ -300,5 +303,9 @@ p {
 }
 
 .vertical-divider {
-  @apply self-stretch w-[0.5px] bg-white/20 mx-1;
+  @apply self-stretch w-[0.5px] bg-[--color-gray-700] mx-1;
+}
+
+.menu-separator {
+  @apply h-[0.5px] my-1 bg-[--color-gray-700];
 }
