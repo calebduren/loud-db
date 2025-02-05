@@ -1,7 +1,6 @@
 import React from "react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
 
 interface SpotifyConnectModalProps {
   isOpen: boolean;
@@ -12,19 +11,20 @@ interface SpotifyConnectModalProps {
   loading: boolean;
 }
 
-export function SpotifyConnectModal({ 
-  isOpen, 
-  onClose, 
+export function SpotifyConnectModal({
+  isOpen,
+  onClose,
   isConnected,
   onConnect,
   onDisconnect,
-  loading 
+  loading,
 }: SpotifyConnectModalProps) {
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={isConnected ? "Disconnect from Spotify" : "Connect to Spotify"}
+      width={480}
     >
       <div className="space-y-6">
         <p className="text-white/60 text-sm">
@@ -34,7 +34,7 @@ export function SpotifyConnectModal({
         </p>
 
         <Button
-          variant="primary"
+          variant={isConnected ? "destructive" : "primary"}
           onClick={isConnected ? onDisconnect : onConnect}
           disabled={loading}
           className="w-full"

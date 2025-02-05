@@ -8,6 +8,7 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   className?: string;
+  width?: number;
 }
 
 export function Modal({
@@ -16,6 +17,7 @@ export function Modal({
   children,
   title,
   className,
+  width = 800,
 }: ModalProps) {
   // Handle ESC key
   useEffect(() => {
@@ -63,10 +65,11 @@ export function Modal({
           className={cn(
             "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
             title
-              ? "max-w-2xl"
+              ? `max-w-[${width}px]`
               : "max-w-[1280px] lg:h-[640px] lg:max-h-[calc(100dvh-32px)]",
             className
           )}
+          style={{ maxWidth: width }}
           onClick={(e) => e.stopPropagation()}
         >
           {title ? (
@@ -76,7 +79,7 @@ export function Modal({
                 <h2 className="text-xl font-semibold">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="text-white/60 hover:text-white transition-colors"
+                  className="h-8 w-8 flex items-center justify-center text-white hover:bg-[--color-gray-800] rounded transition-colors"
                 >
                   <X size={16} strokeWidth={1.5} />
                 </button>
