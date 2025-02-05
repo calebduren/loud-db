@@ -101,17 +101,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
         className={linkClass}
         onClick={() => setIsMobileMenuOpen(false)}
       >
-        {({ isActive }) => (
-          <div className="flex items-center">
-            <div
-              className={cn(
-                "nav-indicator",
-                isActive && "nav-indicator--active"
-              )}
-            />
-            <span>{children}</span>
-          </div>
-        )}
+        {() => children}
       </NavLink>
     );
   };
