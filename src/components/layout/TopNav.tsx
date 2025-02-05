@@ -149,16 +149,6 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
             <NavLink to="/" className="top-nav__logo">
               <Logo className="text-white h-6" />
             </NavLink>
-            <button
-              className="top-nav__mobile-toggle"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <MenuIcon className="h-6 w-6" />
-              )}
-            </button>
           </div>
 
           {/* Main navigation */}
@@ -187,6 +177,16 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
           {/* Right side actions */}
           <div className="top-nav__actions">
+            <button
+              className="top-nav__mobile-toggle"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X size={20} strokeWidth={1.5} />
+              ) : (
+                <MenuIcon size={20} strokeWidth={1.5} />
+              )}
+            </button>
             {/* Page-specific actions */}
             <div className="hidden sm:flex items-center gap-2">
               {isAdmin && (
