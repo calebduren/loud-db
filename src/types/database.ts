@@ -14,7 +14,13 @@ export interface Release {
   name: string;
   release_type: ReleaseType;
   cover_url?: string;
-  genres: string[];
+  genres: string[]; // Keep for backward compatibility
+  release_genres: {
+    genre: {
+      id: string;
+      name: string;
+    };
+  }[];
   record_label?: string;
   track_count: number;
   spotify_url?: string;

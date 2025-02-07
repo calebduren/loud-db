@@ -168,6 +168,16 @@ export function ReleaseList({
     return release.artists.map((ra) => ra.artist.name).join(", ");
   }, []);
 
+  const getGenres = useCallback((release: Release) => {
+    // First try to get genres from the new structure
+    const newGenres = release.release_genres?.map(rg => rg.genre.name) || [];
+    if (newGenres.length > 0) {
+      return newGenres;
+    }
+    // Fall back to old genre array if needed
+    return release.genres || [];
+  }, []);
+
   const getWeekKey = useCallback((date: Date) => {
     // Get the day of week (0 = Sunday, 5 = Friday)
     const dayOfWeek = date.getDay();
@@ -304,9 +314,9 @@ export function ReleaseList({
               <h2 className="release-card__artist">{formatArtists(release)}</h2>
               <h2 className="release-card__title">{release.name}</h2>
 
-              {release.genres?.length > 0 && (
+              {getGenres(release).length > 0 && (
                 <div className="release-card__genres">
-                  {release.genres.slice(0, 3).map((genre) => (
+                  {getGenres(release).slice(0, 3).map((genre) => (
                     <div key={genre} className="pill pill--genre">
                       {genre}
                     </div>
@@ -380,7 +390,7 @@ export function ReleaseList({
         </div>
       </div>
     ),
-    [formatArtists, formatDate, formatReleaseType]
+    [formatArtists, formatDate, formatReleaseType, getGenres]
   );
 
   if (loading || preferencesLoading || groupsLoading || !sortingStabilized) {

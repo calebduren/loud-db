@@ -47,12 +47,18 @@ export function useReleases({
       const cacheKey = `releases:${JSON.stringify(queryParams)}:${start}`;
 
       try {
+        console.log('Fetching releases with params:', {
+          start,
+          loadMore,
+          selectedTypes,
+          selectedGenres,
+          genreFilterMode,
+          genreGroups
+        });
+
         const data = await cache.get(
           cacheKey,
           async () => {
-            // Add a delay before fetching to allow database to become consistent
-            await new Promise(resolve => setTimeout(resolve, 500));
-
             let query = supabase.from("releases").select(
               `
             id,
@@ -60,6 +66,12 @@ export function useReleases({
             release_type,
             cover_url,
             genres,
+            release_genres:release_genres(
+              genre:genres(
+                id,
+                name
+              )
+            ),
             record_label,
             track_count,
             spotify_url,
@@ -99,14 +111,18 @@ export function useReleases({
               const allGenres = selectedGenres.flatMap(
                 (group) => genreGroups[group] || [group]
               );
+              console.log('Filtering by genres:', allGenres);
+              
               if (genreFilterMode === "include") {
-                // Use overlap operator to match ANY of the genres
-                query = query.overlaps("genres", allGenres);
+                // Use release_genres to filter, but fall back to old genres array
+                query = query.or(
+                  `release_genres.genre.name.in.(${allGenres.map(g => `'${g}'`).join(',')}),genres.cs.{${allGenres.join(',')}}`,
+                  { foreignTable: 'release_genres' }
+                );
               } else {
-                // For exclude mode, filter out any releases that contain any of the genres
-                allGenres.forEach((genre) => {
-                  query = query.not('genres', 'cs', `{${genre}}`);
-                });
+                // For exclude mode, filter out releases with any of these genres
+                query = query.not('genres', 'cs', `{${allGenres.join(',')}}`);
+                query = query.not('release_genres.genre.name', 'in', `(${allGenres.map(g => `'${g}'`).join(',')})`, { foreignTable: 'release_genres' });
               }
             }
 
@@ -120,21 +136,31 @@ export function useReleases({
               )
               .order("created_at", { ascending: false });
 
+            console.log('Executing query...');
             const { data, count, error } = await query;
+            console.log('Query results:', { 
+              resultCount: data?.length || 0, 
+              totalCount: count,
+              error,
+              firstResult: data?.[0]
+            });
 
             if (error) throw error;
 
-            console.log("Release data from Supabase:", data?.[0]);
             return { releases: data || [], total: count || 0 };
           },
           { ttl: 5 * 60 * 1000 }
-        ); // Cache for 5 minutes
+        );
 
         if (options.force) {
           await cache.delete(cacheKey);
         }
 
         const sortedReleases = sortReleases(data.releases);
+        console.log('Sorted releases:', {
+          count: sortedReleases.length,
+          first: sortedReleases[0]
+        });
         
         if (!loadMore) {
           setReleases(sortedReleases);
@@ -206,58 +232,17 @@ export function useReleases({
 
   // Initial load
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      // Add a delay before the initial fetch
-      await new Promise(resolve => setTimeout(resolve, 500));
-      fetchReleases(0, false, { force: true });
-    };
-    init();
-
-    // Listen for refresh events
-    const handleRefresh = () => {
-      fetchReleases(0, false, { force: true });
-    };
-
-    window.addEventListener('refreshReleases', handleRefresh);
-    return () => window.removeEventListener('refreshReleases', handleRefresh);
+    console.log('Initial load effect triggered');
+    fetchReleases(0, false, { force: true });
   }, [fetchReleases]);
-
-  const loadMore = useCallback(() => {
-    if (!hasMore || loading) return;
-    fetchReleases(releases.length, true);
-  }, [fetchReleases, hasMore, loading, releases.length]);
-
-  const loadMoreRef = useCallback((node: HTMLElement | null) => {
-    if (node && hasMore && !loading) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            loadMore();
-          }
-        },
-        { threshold: 0.5 }
-      );
-      observer.observe(node);
-      return () => observer.disconnect();
-    }
-  }, [hasMore, loading, loadMore]);
-
-  // Expose cache invalidation for manual refreshes
-  const backgroundRefetch = useCallback(async () => {
-    invalidateCache();
-    await fetchReleases(0, false, { force: true });
-  }, [fetchReleases, invalidateCache]);
 
   return {
     releases,
     loading,
     hasMore,
-    loadMore,
     totalCount,
-    loadMoreRef,
+    fetchMore: (start: number) => fetchReleases(start, true),
+    invalidateCache,
     addReleaseOptimistically,
-    updateReleaseOptimistically,
-    backgroundRefetch,
   };
 }
