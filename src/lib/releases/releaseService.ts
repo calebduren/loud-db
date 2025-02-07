@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { Release, ReleaseType } from '../../types/database';
 import { ArtistData, ReleaseFormData } from '../../types/forms';
 import { findOrCreateArtist } from '../artists/artistService';
+import { findOrCreateGenre } from '../genres/genreService';
 import { processReleaseImage } from '../storage/imageUtils';
 import { logger } from '../utils/logger';
 import { 
@@ -57,6 +58,13 @@ export async function createOrUpdateRelease(
 
     logger.debug('Processed artists', { artistIds });
 
+    // Process genres
+    const genreIds = await Promise.all(
+      (data.genres ?? []).map(genre => findOrCreateGenre(genre))
+    );
+
+    logger.debug('Processed genres', { genreIds });
+
     // Filter and validate tracks
     const validTracks = (data.tracks ?? []).filter(track => 
       track.name.trim() && track.track_number > 0
@@ -72,7 +80,7 @@ export async function createOrUpdateRelease(
       name: data.name.trim(),
       release_type: data.release_type,
       cover_url: coverUrl,
-      genres: data.genres ?? [],
+      genres: data.genres ?? [], // Keep the text array for now until we fully migrate
       record_label: data.record_label?.trim() ?? null,
       track_count: validTracks.length || data.track_count || 0,
       spotify_url: data.spotify_url?.trim() ?? null,
@@ -89,7 +97,8 @@ export async function createOrUpdateRelease(
     logger.info('Executing database transaction', { 
       releaseId,
       trackCount: validTracks.length,
-      artistCount: artistIds.length 
+      artistCount: artistIds.length,
+      genreCount: genreIds.length
     });
 
     // Start with the release upsert and get the ID back
@@ -145,6 +154,16 @@ export async function createOrUpdateRelease(
         logger.error('Failed to delete existing tracks', deleteTracksError);
         throw new DatabaseError('Failed to update release', deleteTracksError);
       }
+
+      const { error: deleteGenresError } = await supabase
+        .from('release_genres')
+        .delete()
+        .eq('release_id', finalReleaseId);
+
+      if (deleteGenresError) {
+        logger.error('Failed to delete existing genres', deleteGenresError);
+        throw new DatabaseError('Failed to update release', deleteGenresError);
+      }
     }
 
     // Insert artist relationships
@@ -161,6 +180,21 @@ export async function createOrUpdateRelease(
     if (artistError) {
       logger.error('Failed to insert artists', artistError);
       throw new DatabaseError('Failed to update release', artistError);
+    }
+
+    // Insert genre relationships
+    const { error: genreError } = await supabase
+      .from('release_genres')
+      .insert(
+        genreIds.map(genreId => ({
+          release_id: finalReleaseId,
+          genre_id: genreId
+        }))
+      );
+
+    if (genreError) {
+      logger.error('Failed to insert genres', genreError);
+      throw new DatabaseError('Failed to update release', genreError);
     }
 
     // Insert tracks and their credits
@@ -204,7 +238,8 @@ export async function createOrUpdateRelease(
       releaseId: finalReleaseId,
       name: releaseData.name,
       trackCount: validTracks.length,
-      artistCount: artistIds.length
+      artistCount: artistIds.length,
+      genreCount: genreIds.length
     });
 
     return finalReleaseId;
