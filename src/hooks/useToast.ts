@@ -1,11 +1,30 @@
 import { useState, useCallback } from 'react';
-import { ToastAction } from '../components/ui/Toast';
+import { toast } from 'sonner';
 
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error';
-  action?: ToastAction;
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
 }
 
-export { ToastComponent, ToastProvider, useToast } from '../components/ui/Toast';
+export function useToast() {
+  return {
+    showToast: ({ message, type, action }: { 
+      message: string; 
+      type: 'success' | 'error';
+      action?: ToastAction;
+    }) => {
+      const toastFn = type === 'success' ? toast.success : toast.error;
+      
+      if (action) {
+        toastFn(message, {
+          action: {
+            label: action.label,
+            onClick: action.onClick
+          }
+        });
+      } else {
+        toastFn(message);
+      }
+    }
+  };
+}

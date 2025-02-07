@@ -14,7 +14,7 @@ export function Layout({ children }: LayoutProps) {
     return (
       <div className="min-h-screen">
         {children}
-        <Toaster richColors position="top-right" />
+        <Toaster richColors position="top-center" />
       </div>
     );
   }
@@ -23,7 +23,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen relative">
       <TopNav />
       <main className="layout pt-16">{children}</main>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-center" />
     </div>
   );
 }
