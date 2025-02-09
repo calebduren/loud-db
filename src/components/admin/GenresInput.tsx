@@ -16,9 +16,17 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { genres: allGenres, loading } = useAllGenres();
-  const { genreGroups = {}, loading: groupsLoading } = useGenreGroups();
+  const { genreGroups = {}, loading: groupsLoading, error: groupsError } = useGenreGroups();
 
   console.log("Genre groups:", genreGroups);
+
+  if (groupsLoading) {
+    return <div>Loading genre groups...</div>;
+  }
+
+  if (groupsError) {
+    return <div className="text-red-500">Error loading genre groups. Please try again later.</div>;
+  }
 
   // Get group names and filter them based on search
   const filteredGroupNames = Object.keys(genreGroups).filter(
@@ -118,7 +126,7 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
           ref={dropdownRef}
           className="absolute z-50 w-full mt-1 py-1 bg-[--color-gray-900] border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
         >
-          {loading || groupsLoading ? (
+          {loading ? (
             <div className="px-2 py-1 text-sm text-white/60">Loading...</div>
           ) : (
             <>

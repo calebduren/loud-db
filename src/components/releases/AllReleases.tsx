@@ -13,35 +13,31 @@ import { Button } from "../ui/button";
 import { supabase } from "../../lib/supabase";
 import { ArrowUpToLine } from "lucide-react";
 import cn from "classnames";
+import { logger } from "../../lib/logger";
 
 export function AllReleases() {
   const {
     selectedTypes,
     selectedGenres,
     genreFilterMode,
-    filteredReleases,
+    releases: filteredReleases,
     loading,
     hasMore,
     totalCount,
-    addReleaseOptimistically,
-    updateReleaseOptimistically,
-    backgroundRefetch,
     loadMore,
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
+    backgroundRefetch,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | undefined>(
-    undefined
-  );
-  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
-    undefined
-  );
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(undefined);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const { isAdmin } = useAuth();
-  const { user } = useAuth();
+  const { isAdmin, user } = useAuth();
   const { profile } = useProfile(user?.id);
 
   const isCreator = profile?.role === "creator";
@@ -59,7 +55,7 @@ export function AllReleases() {
 
   const handleEditSuccess = useCallback(
     async (release: Release) => {
-      console.log("AllReleases - handleEditSuccess called");
+      logger.debug("AllReleases - handleEditSuccess called");
       updateReleaseOptimistically(release);
       setEditingRelease(undefined);
       backgroundRefetch();
@@ -69,7 +65,7 @@ export function AllReleases() {
 
   const handleDelete = useCallback(
     async (release: Release) => {
-      console.log("AllReleases - handleDelete called");
+      logger.debug("AllReleases - handleDelete called");
       try {
         const { error } = await supabase
           .from("releases")
@@ -87,27 +83,27 @@ export function AllReleases() {
   );
 
   const handleEdit = useCallback((release: Release) => {
-    console.log("AllReleases - handleEdit called");
+    logger.debug("AllReleases - handleEdit called");
     setEditingRelease(release);
     setViewingRelease(undefined);
   }, []);
 
   const handleCloseCreate = useCallback((e?: React.MouseEvent) => {
-    console.log("AllReleases - handleCloseCreate called");
+    logger.debug("AllReleases - handleCloseCreate called");
     e?.preventDefault();
     e?.stopPropagation();
     setIsCreateModalOpen(false);
   }, []);
 
   const handleCloseEdit = useCallback((e?: React.MouseEvent) => {
-    console.log("AllReleases - handleCloseEdit called");
+    logger.debug("AllReleases - handleCloseEdit called");
     e?.preventDefault();
     e?.stopPropagation();
     setEditingRelease(undefined);
   }, []);
 
   const handleCloseView = useCallback((e?: React.MouseEvent) => {
-    console.log("AllReleases - handleCloseView called");
+    logger.debug("AllReleases - handleCloseView called");
     e?.preventDefault();
     e?.stopPropagation();
     setViewingRelease(undefined);
@@ -128,7 +124,7 @@ export function AllReleases() {
   }, []);
 
   // Only show loading state on initial load when no releases are available
-  if (loading && !filteredReleases.length) {
+  if (loading && !filteredReleases?.length) {
     return (
       <div>
         <PageTitle
@@ -136,6 +132,7 @@ export function AllReleases() {
           subtitle="Releases are sorted based on your preferences and likes"
           showAddRelease={isAdmin || isCreator}
           showImportPlaylist={isAdmin}
+          onAddRelease={() => setIsCreateModalOpen(true)}
         />
         <ReleaseFilters
           loading={loading}
@@ -146,7 +143,9 @@ export function AllReleases() {
           onGenreChange={handleGenreChange}
           onGenreFilterModeChange={handleGenreFilterModeChange}
         />
-        <ReleaseList releases={[]} loading={true} showWeeklyGroups={true} />
+        <div className="releases">
+          <ReleaseList.Skeleton />
+        </div>
       </div>
     );
   }
@@ -165,6 +164,7 @@ export function AllReleases() {
         subtitle="Releases are sorted based on your preferences and likes"
         showAddRelease={isAdmin || isCreator}
         showImportPlaylist={isAdmin}
+        onAddRelease={() => setIsCreateModalOpen(true)}
       />
 
       <ReleaseFilters
@@ -178,31 +178,25 @@ export function AllReleases() {
       />
 
       <div className="mt-6">
-        {filteredReleases.length === 0 ? (
-          <div className="text-center">
-            <p className="text-white/60 text-sm mb-4">
-              {showLoadMoreButton
-                ? "No releases found in the initial results."
-                : "No releases match your criteria."}
-            </p>
-            {showLoadMoreButton && (
-              <Button onClick={loadMore} disabled={loading} className="mx-auto">
-                Load More Releases
-              </Button>
-            )}
-          </div>
-        ) : (
-          <ReleaseList
-            releases={filteredReleases}
-            loading={loading}
-            hasMore={hasMore}
-            loadMore={loadMore}
-            showWeeklyGroups={true}
-            onSelect={setViewingRelease}
-            onEdit={isAdmin ? handleEdit : undefined}
-            onDelete={isAdmin ? handleDelete : undefined}
-          />
-        )}
+        <div className="releases">
+          {loading ? (
+            <ReleaseList.Skeleton />
+          ) : filteredReleases?.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-4">
+              <p className="text-gray-500">No releases match your criteria</p>
+            </div>
+          ) : (
+            <ReleaseList
+              releases={filteredReleases || []}
+              loading={loading}
+              hasMore={hasMore}
+              loadMore={loadMore}
+              onSelect={setViewingRelease}
+              onEdit={isAdmin ? handleEdit : undefined}
+              onDelete={isAdmin ? handleDelete : undefined}
+            />
+          )}
+        </div>
       </div>
 
       {/* Modals */}
@@ -220,7 +214,7 @@ export function AllReleases() {
         <>
           <ReleaseFormModal
             isOpen={isCreateModalOpen}
-            onClose={() => setIsCreateModalOpen(false)}
+            onClose={handleCloseCreate}
             onSuccess={handleCreateSuccess}
           />
 

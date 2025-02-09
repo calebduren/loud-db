@@ -79,6 +79,22 @@ CREATE INDEX IF NOT EXISTS idx_genres_name ON genres(name);
 -- Grant appropriate permissions
 GRANT SELECT, INSERT, UPDATE ON genres TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON release_genres TO authenticated;
+GRANT SELECT ON genre_groups TO authenticated;
+GRANT SELECT ON genre_mappings TO authenticated;
+
+-- Add RLS policies
+ALTER TABLE genre_groups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE genre_mappings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable read access for authenticated users" ON genre_groups
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Enable read access for authenticated users" ON genre_mappings
+    FOR SELECT
+    TO authenticated
+    USING (true);
 
 -- Execute the migration function
 SELECT migrate_genres();

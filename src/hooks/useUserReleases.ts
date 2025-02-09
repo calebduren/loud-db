@@ -82,11 +82,14 @@ export function useUserReleases(userId?: string) {
       requestAnimationFrame(updates);
     } catch (err) {
       setError(err as Error);
-      showToast({
-        title: 'Error loading releases',
-        description: 'Please try again later',
-        type: 'error',
-      });
+      // Only show toast for non-404 errors
+      if (err instanceof Error && !err.message?.includes('404')) {
+        showToast({
+          message: 'Failed to load your releases. Please try again later.',
+          type: 'error',
+        });
+      }
+      setLoading(false);
     }
   }, [userId, canManageReleases, releases.length, showToast]);
 

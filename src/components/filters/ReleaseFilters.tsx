@@ -33,12 +33,8 @@ export function ReleaseFilters({
   onGenreChange,
   onGenreFilterModeChange,
 }: ReleaseFiltersProps) {
-  const { genreGroups } = useGenreGroups();
+  const { genreGroups, loading: groupsLoading, error: groupsError } = useGenreGroups();
   const availableGenres = Object.keys(genreGroups).sort();
-
-  if (!selectedTypes || !selectedGenres) {
-    return null;
-  }
 
   const handleGenreToggle = useCallback(
     (genre: string) => {
@@ -61,6 +57,18 @@ export function ReleaseFilters({
     selectedTypes[0] === "all" &&
     selectedGenres.length === 0 &&
     genreFilterMode === "include";
+
+  if (groupsLoading) {
+    return <div>Loading filters...</div>;
+  }
+
+  if (groupsError) {
+    return <div className="text-red-500">Error loading filters. Please try again later.</div>;
+  }
+
+  if (!selectedTypes || !selectedGenres) {
+    return null;
+  }
 
   return (
     <div className="filters-container">

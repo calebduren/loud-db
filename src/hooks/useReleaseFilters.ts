@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { ReleaseType } from "../types/database";
 import { useGenreGroups } from "./useGenreGroups";
 import { useReleases } from "./useReleases";
@@ -20,70 +20,67 @@ export function useReleaseFilters() {
   // Only show genre groups as available filters
   const availableGenres = Object.keys(genreGroups).sort();
 
+  console.log('useReleaseFilters state:', {
+    selectedTypes,
+    selectedGenres,
+    genreFilterMode,
+    hasGenreGroups: Object.keys(genreGroups || {}).length > 0
+  });
+
   const {
-    releases: filteredReleases,
-    loading,
-    hasMore,
-    totalCount,
-    loadMore,
-    loadMoreRef,
-    addReleaseOptimistically,
-    updateReleaseOptimistically,
-    backgroundRefetch,
+    releases,
+    count: totalCount,
+    error,
+    loading: releasesLoading,
+    loadMore: loadMoreReleases,
+    backgroundRefetch: refetchReleases,
   } = useReleases({
     selectedTypes,
     selectedGenres,
     genreFilterMode,
-    genreGroups,
   });
 
-  const handleTypeChange = useCallback(
-    (type: ReleaseType | "all") => {
-      setSelectedTypes((prev) => {
-        if (type === "all") {
-          return ["all"];
-        }
+  useEffect(() => {
+    console.log("[useReleaseFilters] Data updated:", {
+      releasesCount: releases?.length || 0,
+      totalCount,
+      loading: releasesLoading,
+      error,
+      filters: {
+        types: selectedTypes,
+        genres: selectedGenres,
+        mode: genreFilterMode
+      }
+    });
+  }, [releases, totalCount, releasesLoading, error, selectedTypes, selectedGenres, genreFilterMode]);
 
-        const newTypes = prev.includes(type)
-          ? prev.filter((t) => t !== type)
-          : [...prev.filter((t) => t !== "all"), type];
+  const handleTypeChange = useCallback((types: string[]) => {
+    console.log("[useReleaseFilters] Type change:", types);
+    setSelectedTypes(types);
+  }, []);
 
-        return newTypes.length === 0 ? ["all"] : newTypes;
-      });
-    },
-    [setSelectedTypes]
-  );
+  const handleGenreChange = useCallback((genres: string[]) => {
+    console.log("[useReleaseFilters] Genre change:", genres);
+    setSelectedGenres(genres);
+  }, []);
 
-  const handleGenreChange = useCallback(
-    (genres: string[]) => {
-      setSelectedGenres(genres);
-    },
-    [setSelectedGenres]
-  );
-
-  const handleGenreFilterModeChange = useCallback(
-    (mode: "include" | "exclude") => {
-      setGenreFilterMode(mode);
-    },
-    [setGenreFilterMode]
-  );
+  const handleGenreFilterModeChange = useCallback((mode: "include" | "exclude") => {
+    console.log("[useReleaseFilters] Mode change:", mode);
+    setGenreFilterMode(mode);
+  }, []);
 
   return {
     selectedTypes,
     selectedGenres,
     genreFilterMode,
-    availableGenres,
-    filteredReleases,
-    loading,
-    hasMore,
+    releases,
+    loading: releasesLoading,
+    hasMore: (totalCount || 0) > (releases?.length || 0),
     totalCount,
-    loadMoreRef,
-    loadMore,
+    loadMore: loadMoreReleases,
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
-    addReleaseOptimistically,
-    updateReleaseOptimistically,
-    backgroundRefetch,
+    backgroundRefetch: refetchReleases,
   };
 }

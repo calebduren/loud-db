@@ -75,43 +75,67 @@ export function useSpotifyConnection() {
   // Track if we're intentionally disconnecting
   const disconnectingRef = useRef(false);
 
+  // Track if we're checking connection to prevent loops
+  const checkingRef = useRef(false);
+
   // Check connection status on mount and after auth changes
   useEffect(() => {
-    if (!user || disconnectingRef.current) return;
+    if (!user || disconnectingRef.current || checkingRef.current) return;
+
+    let mounted = true;
+    const controller = new AbortController();
+    checkingRef.current = true;
 
     async function checkConnection() {
       try {
+        console.log("[Spotify] Starting connection check");
         setLoading(true);
+        
+        // Only proceed if we're still mounted
+        if (!mounted) return;
+
         const { data: connection } = await supabase
           .from('spotify_connections')
           .select("*")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .maybeSingle()
+          .abortSignal(controller.signal);
 
-        console.log("[Spotify] Checking connection:", { connection });
+        // Only update state if we're still mounted
+        if (!mounted) return;
 
         if (!connection) {
-          console.log("[Spotify] No connection found, clearing state");
+          console.log("[Spotify] No connection found");
           setIsConnected(false);
           hasShownToastRef.current = false;
           initializeApi("");
         } else {
-          console.log("[Spotify] Connection found, initializing");
+          console.log("[Spotify] Connection found");
           setIsConnected(true);
           hasShownToastRef.current = true;
           initializeApi(connection.access_token);
         }
       } catch (error) {
+        if (!mounted) return;
         console.error("[Spotify] Error checking connection:", error);
         setIsConnected(false);
         hasShownToastRef.current = false;
         initializeApi("");
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          checkingRef.current = false;
+        }
       }
     }
 
     checkConnection();
+
+    return () => {
+      mounted = false;
+      controller.abort();
+      checkingRef.current = false;
+    };
   }, [user]);
 
   // Handle Spotify connection

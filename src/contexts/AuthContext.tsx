@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function initAuth() {
       try {
+        console.log('[AuthContext] Initializing auth state...');
         const sessionData = await cache.get('auth:session', 
           () => supabase.auth.getSession(),
           { ttl: 60 * 1000 }
@@ -67,14 +68,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!mounted) return;
         
         const session = sessionData.data.session;
+        console.log('[AuthContext] Auth session:', {
+          hasSession: !!session,
+          userId: session?.user?.id,
+          email: session?.user?.email,
+          role: session?.user?.role,
+          aud: session?.user?.aud,
+          exp: session?.expires_at ? new Date(session.expires_at * 1000).toISOString() : null
+        });
+
         if (session?.user) {
           updateState({
             user: session.user,
             email: session.user.email ?? '',
             loading: false
           });
+          console.log('[AuthContext] Auth state updated with user');
         } else {
           updateState({ loading: false });
+          console.log('[AuthContext] Auth state updated without user');
         }
 
         // Set up auth subscription
@@ -82,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!mounted) return;
           
           const startTime = performance.now();
+          console.log('[AuthContext] Auth state change:', { event, userId: session?.user?.id });
           
           if (event === 'SIGNED_OUT') {
             cache.clear();
@@ -101,13 +114,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Auth state change (${event}) took ${Math.round(performance.now() - startTime)}ms`);
+            console.log(`[AuthContext] Auth state change (${event}) took ${Math.round(performance.now() - startTime)}ms`);
           }
         });
 
         authSubscription = subscription;
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('[AuthContext] Error initializing auth:', error);
         if (mounted) updateState({ loading: false });
       }
     }

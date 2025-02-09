@@ -6,18 +6,12 @@ type SpotifyApi = SpotifyWebApi.SpotifyWebApiJs;
 let spotifyApi: SpotifyApi | null = null;
 let errorCallback: ((error: { status: number }) => void) | null = null;
 
-export function initializeApi(accessToken: string, onError?: (error: { status: number }) => void) {
+export function initializeApi(accessToken: string) {
   if (!accessToken) {
-    logger.warn('Attempting to initialize Spotify API without access token');
+    console.log("[Spotify] Initializing API without token");
     return;
   }
-
-  if (!spotifyApi) {
-    spotifyApi = new SpotifyWebApi();
-  }
-  
-  spotifyApi.setAccessToken(accessToken);
-  errorCallback = onError || null;
+  console.log("[Spotify] Initializing API with token");
 }
 
 export function getSpotifyApi(): SpotifyApi {

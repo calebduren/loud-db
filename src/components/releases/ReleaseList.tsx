@@ -4,12 +4,8 @@ import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/Badge"; // Import the Badge component
-import { useReleaseSorting } from "../../hooks/useReleaseSorting"; // Import the useReleaseSorting hook
-import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences"; // Import the useGenrePreferences hook
-import { useGenreGroups } from "../../hooks/useGenreGroups"; // Import the useGenreGroups hook
-import { formatDate, formatWeekDate } from "../../lib/utils/dateUtils";
-import { Tooltip } from "../ui/tooltip"; // Import the Tooltip component
+import { Badge } from "../ui/Badge"; 
+import { useReleaseSorting } from "../../hooks/useReleaseSorting"; 
 
 interface WeekGroup {
   weekRange: {
@@ -38,6 +34,9 @@ const SkeletonCard = () => (
   <div className="release-card">
     <div className="release-card__cover">
       <div className="release-card__image-container bg-white/5">
+        <div className="release-card__placeholder">
+          <Music className="w-12 h-12 text-gray-700" />
+        </div>
         <div className="release-card__gradient" />
       </div>
 
@@ -114,45 +113,82 @@ export function ReleaseList({
   disableSorting = false,
   onSelect,
 }: ReleaseListProps) {
+  console.log("ReleaseList render:", {
+    releasesCount: releases?.length || 0,
+    loading,
+    hasMore,
+    showWeeklyGroups,
+    disableSorting,
+    releases: releases?.map(r => ({
+      id: r.id,
+      name: r.name,
+      artistCount: r.artists?.length || 0,
+      genreCount: r.genres?.length || 0,
+      artists: r.artists?.map(a => ({
+        position: a.position,
+        artistName: a.artist?.name,
+        artistId: a.artist?.id
+      })),
+      genres: r.genres
+    }))
+  });
+
+  // Show loading skeleton while loading
+  if (loading) {
+    console.log("Showing loading skeleton");
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <ReleaseList.Skeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  // Show empty state only if not loading and no releases
+  if (!releases || releases.length === 0) {
+    console.log("No releases to display");
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        <p className="text-gray-500">No releases match your criteria</p>
+      </div>
+    );
+  }
+
   const [sortingStabilized, setSortingStabilized] = useState(false);
-  const { preferences, loading: preferencesLoading } = useGenrePreferences();
-  const { genreGroups, loading: groupsLoading } = useGenreGroups();
   const { sortReleases } = useReleaseSorting();
 
   // Deduplicate releases by ID
   const uniqueReleases = useMemo(() => {
     const seen = new Set<string>();
     return releases.filter((release) => {
-      const key = `${release.id}-${release.created_by}`;
+      const key = `${release.id}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
   }, [releases]);
 
-  // Memoize the sorted releases
+  // Sort releases if needed
   const sortedReleases = useMemo(() => {
-    if (disableSorting) {
-      return uniqueReleases;
-    }
-    if (!uniqueReleases || preferencesLoading || groupsLoading) return [];
-    return sortReleases(uniqueReleases);
-  }, [
-    uniqueReleases,
-    sortReleases,
-    disableSorting,
-    preferencesLoading,
-    groupsLoading,
-  ]);
+    if (disableSorting) return uniqueReleases;
+    console.log("Sorting releases...");
+    return sortReleases(uniqueReleases || []);
+  }, [uniqueReleases, disableSorting, sortReleases]);
+
+  console.log("Sorted releases:", {
+    count: sortedReleases?.length || 0,
+    firstRelease: sortedReleases?.[0] ? {
+      id: sortedReleases[0].id,
+      name: sortedReleases[0].name,
+      artistCount: sortedReleases[0].artists?.length || 0,
+      genreCount: sortedReleases[0].genres?.length || 0
+    } : null
+  });
 
   // Effect to handle sorting stabilization
   useEffect(() => {
-    if (
-      !loading &&
-      !preferencesLoading &&
-      !groupsLoading &&
-      sortedReleases.length > 0
-    ) {
+    if (!loading && sortedReleases.length > 0) {
       const timer = setTimeout(() => {
         setSortingStabilized(true);
       }, 100);
@@ -161,21 +197,24 @@ export function ReleaseList({
     } else {
       setSortingStabilized(false);
     }
-  }, [loading, preferencesLoading, groupsLoading, sortedReleases]);
+  }, [loading, sortedReleases]);
 
   const formatArtists = useCallback((release: Release) => {
-    if (!release.artists?.length) return "";
-    return release.artists.map((ra) => ra.artist.name).join(", ");
+    if (!Array.isArray(release.artists)) return "";
+    
+    return release.artists
+      .sort((a, b) => (a.position || 0) - (b.position || 0))
+      .map((a) => a.artist?.name || '')
+      .filter(Boolean)
+      .join(", ");
   }, []);
 
   const getGenres = useCallback((release: Release) => {
-    // First try to get genres from the new structure
-    const newGenres = release.release_genres?.map(rg => rg.genre.name) || [];
-    if (newGenres.length > 0) {
-      return newGenres;
-    }
-    // Fall back to old genre array if needed
-    return release.genres || [];
+    const genres = [
+      ...(release.genres || []),
+      ...(release.release_genres?.map((rg) => rg.genres?.name).filter(Boolean) || [])
+    ];
+    return [...new Set(genres)];
   }, []);
 
   const getWeekKey = useCallback((date: Date) => {
@@ -195,83 +234,92 @@ export function ReleaseList({
     return start.toISOString();
   }, []);
 
-  const getWeekRange = useCallback(
-    (date: Date) => {
-      // Get the day of week (0 = Sunday, 5 = Friday)
-      const dayOfWeek = date.getUTCDay();
+  const getWeekRange = useCallback((date: Date) => {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
 
-      // If it's before Friday, go back to previous Friday
-      // If it's Friday or after, use this Friday
-      const daysToSubtract =
-        dayOfWeek < 5
-          ? (dayOfWeek + 2) % 7 // Days back to previous Friday
-          : dayOfWeek - 5; // Days back to this Friday
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
 
-      // Start at midnight on Friday
-      const start = new Date(date.getTime());
-      start.setUTCDate(start.getUTCDate() - daysToSubtract);
-      start.setUTCHours(0, 0, 0, 0);
+    return {
+      start,
+      end,
+      key: start.toISOString(),
+      label: formatWeekDate(start),
+    };
+  }, []);
 
-      // End at 23:59:59.999 on Thursday
-      const end = new Date(start.getTime());
-      end.setUTCDate(end.getUTCDate() + 6); // Add 6 days to get to Thursday
-      end.setUTCHours(23, 59, 59, 999);
-
-      return {
-        start,
-        end,
-        key: start.toISOString(),
-        // Always show Friday first, then Thursday
-        label: `${formatWeekDate(start.toISOString())} – ${formatWeekDate(
-          end.toISOString()
-        )}`,
-      };
-    },
-    [formatWeekDate]
-  );
-
-  // Group releases by week
-  const weekGroups = useMemo(() => {
-    if (!sortedReleases.length || !sortingStabilized) return [];
+  const weeklyGroups = useMemo(() => {
+    if (!showWeeklyGroups) return [];
 
     const groups = new Map<string, WeekGroup>();
 
     sortedReleases.forEach((release) => {
-      // Parse the ISO date string directly
-      const releaseDate = new Date(release.release_date);
+      const releaseDate = new Date(release.created_at);
+      const weekKey = getWeekKey(releaseDate);
 
-      const weekRange = getWeekRange(releaseDate);
-
-      if (!groups.has(weekRange.key)) {
-        groups.set(weekRange.key, {
-          weekRange,
+      if (!groups.has(weekKey)) {
+        groups.set(weekKey, {
+          weekRange: getWeekRange(releaseDate),
           releases: [],
         });
       }
 
-      groups.get(weekRange.key)?.releases.push(release);
+      groups.get(weekKey)?.releases.push(release);
     });
 
-    return Array.from(groups.values()).sort(
-      (a, b) => b.weekRange.start.getTime() - a.weekRange.start.getTime()
+    return Array.from(groups.values());
+  }, [sortedReleases, showWeeklyGroups, getWeekKey, getWeekRange]);
+
+  const isLoading = loading || !sortingStabilized;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        {showWeeklyGroups ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonWeeklyGroup key={i} />
+          ))
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        )}
+      </div>
     );
-  }, [sortedReleases, getWeekRange, sortingStabilized]);
+  }
 
-  const formatReleaseType = useCallback((type: string) => {
-    switch (type.toLowerCase()) {
-      case "single":
-        return "Single";
-      case "compilation":
-        return "Compilation";
-      default:
-        return type;
-    }
-  }, []);
+  // Show weekly groups
+  if (showWeeklyGroups) {
+    return (
+      <div className="space-y-8">
+        {weeklyGroups.map((group) => (
+          <div key={group.weekRange.key} className="space-y-4">
+            <h2 className="text-lg font-medium">{group.weekRange.label}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {group.releases.map((release) => renderRelease(release))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
-  const renderRelease = useCallback(
-    (release: Release) => (
+  // Show grid layout
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {sortedReleases.map((release) => renderRelease(release))}
+    </div>
+  );
+
+  function renderRelease(release: Release) {
+    return (
       <div
-        key={`${release.id}-${release.created_by}`}
+        key={`${release.id}`}
         className="release-card"
         onClick={(e) => {
           e.preventDefault();
@@ -298,17 +346,8 @@ export function ReleaseList({
           <div className="release-card__content">
             <div className="release-card__type">
               <div className="pill pill--release-type">
-                {formatReleaseType(release.release_type) || "Album"}
+                {release.release_type}
               </div>
-              {release.isRecommended === true && (
-                <Tooltip
-                  text={release.recommendationReason || "Recommended for you"}
-                  position="bottom"
-                  align="right"
-                >
-                  <Badge variant="recommended">Top Rec</Badge>
-                </Tooltip>
-              )}
             </div>
             <div>
               <h2 className="release-card__artist">{formatArtists(release)}</h2>
@@ -330,127 +369,71 @@ export function ReleaseList({
         <div className="release-card__details">
           <div className="release-card__details-container">
             <div className="release-card__info">
-              <div className="release-card__info-row">
-                <span className="release-card__info-label">Tracks</span>
-                <span className="release-card__info-value">
-                  {release.track_count}
-                </span>
-              </div>
-              <div className="release-card__info-row">
-                <span className="release-card__info-label">Released</span>
-                <span className="release-card__info-value">
-                  {formatDate(release.release_date)}
-                </span>
-              </div>
-              <div className="release-card__info-row">
-                <span className="release-card__info-label">Label</span>
-                <span className="release-card__info-value">
-                  {release.record_label || "—"}
-                </span>
-              </div>
-            </div>
-
-            <div className="release-card__actions">
-              {showActions && (
-                <div className="release-card__links">
-                  <div>
-                    {release.spotify_url && (
-                      <a
-                        href={release.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="release-card__link"
-                      >
-                        Spotify <ExternalLinkArrow />
-                      </a>
-                    )}
-                    {release.apple_music_url && (
-                      <a
-                        href={release.apple_music_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="release-card__link"
-                      >
-                        Apple Music <ExternalLinkArrow />
-                      </a>
-                    )}
+              {release.track_count > 0 && (
+                <div className="release-card__info-row">
+                  <div className="release-card__info-label">Tracks</div>
+                  <div className="release-card__info-value">{release.track_count}</div>
+                </div>
+              )}
+              {release.release_date && (
+                <div className="release-card__info-row">
+                  <div className="release-card__info-label">Released</div>
+                  <div className="release-card__info-value">
+                    {new Date(release.release_date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
                   </div>
                 </div>
               )}
-              <div
-                className="release__like"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <LikeButton releaseId={release.id} />
-              </div>
+              {release.record_label && (
+                <div className="release-card__info-row">
+                  <div className="release-card__info-label">Label</div>
+                  <div className="release-card__info-value">{release.record_label}</div>
+                </div>
+              )}
             </div>
+
+            {showActions && (
+              <div className="release-card__actions">
+                <div className="release-card__links">
+                  {release.spotify_url && (
+                    <a
+                      href={release.spotify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="release-card__link"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span>Spotify</span>
+                      <ExternalLinkArrow className="w-4 h-4" />
+                    </a>
+                  )}
+                  {release.apple_music_url && (
+                    <a
+                      href={release.apple_music_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="release-card__link"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span>Apple Music</span>
+                      <ExternalLinkArrow className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+                {release.spotify_url || release.apple_music_url ? <div className="release-card__divider" /> : null}
+                <div className="release__like">
+                  <LikeButton releaseId={release.id} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    ),
-    [formatArtists, formatDate, formatReleaseType, getGenres]
-  );
-
-  if (loading || preferencesLoading || groupsLoading || !sortingStabilized) {
-    return (
-      <div className="space-y-8">
-        {showWeeklyGroups ? (
-          Array.from({ length: 2 }).map((_, i) => (
-            <SkeletonWeeklyGroup key={i} />
-          ))
-        ) : (
-          <div className="release-grid">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        )}
       </div>
     );
   }
-
-  if (!uniqueReleases) return null;
-
-  return (
-    <div className="space-y-8">
-      {showWeeklyGroups ? (
-        weekGroups.map(({ weekRange, releases }) => (
-          <div key={weekRange.key}>
-            <div className="weekly-group-header">
-              {weekRange.label}
-              <span className="text-base font-normal text-white/60 ml-1">
-                {releases.length}{" "}
-                {releases.length === 1 ? "release" : "releases"}
-              </span>
-            </div>
-            <div className="release-grid mt-3">
-              {releases.map(renderRelease)}
-            </div>
-          </div>
-        ))
-      ) : (
-        <div className="release-grid">{sortedReleases.map(renderRelease)}</div>
-      )}
-
-      {/* Load more button */}
-      {hasMore && !loading && (
-        <div className="col-span-full mt-8 flex justify-center">
-          <Button onClick={() => loadMore?.()} disabled={loading}>
-            {loading ? "Loading..." : "Load More Releases"}
-          </Button>
-        </div>
-      )}
-
-      {/* Loading state */}
-      {loading && (
-        <div className="col-span-full h-20 flex items-center justify-center">
-          <div className="w-8 h-8 animate-spin rounded-full border-4 border-white/10 border-t-white" />
-        </div>
-      )}
-    </div>
-  );
 }
 
 ReleaseList.Skeleton = SkeletonCard;

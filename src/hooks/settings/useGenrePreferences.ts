@@ -30,7 +30,14 @@ export function useGenrePreferences() {
         .eq('user_id', user?.id);
 
       if (error) {
-        throw error;
+        // Don't show error toast for missing table/view
+        if (!error.message?.includes('404')) {
+          showToast({
+            message: 'Failed to load genre preferences',
+            type: 'error',
+          });
+        }
+        return;
       }
 
       console.log('Raw preferences from DB:', {
@@ -56,14 +63,14 @@ export function useGenrePreferences() {
         console.log('No preferences found, using empty map');
         setPreferences({});
       }
-    } catch (error) {
-      console.error('Error fetching preferences:', error);
-      showToast({
-        type: 'error',
-        message: 'Failed to load genre preferences'
-      });
-      // Set empty preferences to allow the app to function
-      setPreferences({});
+    } catch (err) {
+      // Only show toast for non-404 errors
+      if (err instanceof Error && !err.message?.includes('404')) {
+        showToast({
+          message: 'Failed to load genre preferences',
+          type: 'error',
+        });
+      }
     } finally {
       setLoading(false);
     }
