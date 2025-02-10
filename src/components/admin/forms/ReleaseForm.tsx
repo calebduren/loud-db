@@ -12,7 +12,6 @@ import { validateArtists } from "../../../lib/releases/validation";
 import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface ReleaseTrack {
   name: string;
@@ -233,13 +232,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           // Update UI immediately with basic data
           onSuccess?.(basicRelease);
 
-          // Show success toast
-          toast.success(
-            release
-              ? "Release updated successfully"
-              : "Release created successfully"
-          );
-
           // Let the database become consistent before triggering any refreshes
           await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -247,12 +239,10 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           window.dispatchEvent(new CustomEvent("refreshReleases"));
         } catch (error) {
           console.error("Error in release form submission:", error);
-          toast.error("There was an error saving the release");
         }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to save release. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -2,6 +2,7 @@ import React from "react";
 import { Modal } from "../ui/Modal";
 import { ReleaseForm } from "./forms/ReleaseForm";
 import { Release } from "../../types/database";
+import { toast } from "sonner";
 
 interface ReleaseFormModalProps {
   isOpen: boolean;
@@ -23,6 +24,14 @@ export function ReleaseFormModal({
       console.log("ReleaseFormModal - calling onSuccess");
       await Promise.resolve(onSuccess?.(release));
       console.log("ReleaseFormModal - onSuccess complete");
+      
+      // Show success toast
+      toast.success(
+        release
+          ? "Release updated successfully"
+          : "Release created successfully"
+      );
+
       console.log("ReleaseFormModal - closing modal");
       onClose();
       console.log("ReleaseFormModal - modal closed");
