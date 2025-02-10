@@ -10,7 +10,7 @@ Environment variables for Spotify, Supabase, and Resend are accurate and in the 
 
 If you have any questions or need clarification feel free to ask.
 
-We work out of branches, you can reference the main branch but please do not make changes directly to it.
+We work out of branches, you can reference the main branch but please do not checkout the main branch or make any changes directly to it.
 
 # Database: Create migration
 

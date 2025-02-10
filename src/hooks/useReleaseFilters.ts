@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReleaseType } from "../types/database";
 import { useGenreGroups } from "./useGenreGroups";
 import { useReleases } from "./useReleases";
@@ -40,6 +40,12 @@ export function useReleaseFilters() {
     genreFilterMode,
   });
 
+  const [filteredReleases, setReleases] = useState(releases);
+
+  useEffect(() => {
+    setReleases(releases);
+  }, [releases]);
+
   useEffect(() => {
     console.log("[useReleaseFilters] Data updated:", {
       releasesCount: releases?.length || 0,
@@ -73,14 +79,22 @@ export function useReleaseFilters() {
     selectedTypes,
     selectedGenres,
     genreFilterMode,
-    releases,
+    filteredReleases,
     loading: releasesLoading,
-    hasMore: (totalCount || 0) > (releases?.length || 0),
+    hasMore: (totalCount || 0) > (filteredReleases?.length || 0),
     totalCount,
     loadMore: loadMoreReleases,
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
     backgroundRefetch: refetchReleases,
+    addReleaseOptimistically: (release) => {
+      setReleases((prev) => [release, ...(prev || [])]);
+    },
+    updateReleaseOptimistically: (release) => {
+      setReleases((prev) =>
+        prev?.map((r) => (r.id === release.id ? release : r)) || []
+      );
+    },
   };
 }

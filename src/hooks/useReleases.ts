@@ -23,14 +23,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
   const initialFetchRef = useRef(false);
 
   const fetchReleases = useCallback(async (start = 0, loadMore = false) => {
-    if (!user) {
-      console.log("[useReleases] No user, skipping fetch");
-      setLoading(false);
-      setReleases([]);
-      setCount(0);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
@@ -38,28 +30,11 @@ export function useReleases(options: UseReleasesOptions = {}) {
       console.log("[useReleases] Starting fetch", {
         start,
         loadMore,
-        userId: user.id,
         filters: {
           types: selectedTypes,
           genres: selectedGenres,
           mode: genreFilterMode
         }
-      });
-
-      // Check if we have a valid session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.error("[useReleases] Session error:", sessionError);
-        throw sessionError;
-      }
-      if (!session) {
-        console.error("[useReleases] No valid session");
-        throw new Error("No valid session");
-      }
-
-      console.log("[useReleases] Session valid:", {
-        userId: session.user.id,
-        role: session.user.role
       });
 
       // First, get the total count with a simpler query
@@ -120,6 +95,7 @@ export function useReleases(options: UseReleasesOptions = {}) {
           spotify_url,
           apple_music_url,
           created_at,
+          created_by,
           genres,
           release_artists (
             position,
@@ -152,15 +128,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
           });
         }
       }
-
-      console.log("[useReleases] Data query filters:", {
-        types: selectedTypes,
-        genres: selectedGenres,
-        mode: genreFilterMode,
-        orderBy: "created_at",
-        ascending: false,
-        range: [start, start + pageSize - 1]
-      });
 
       const { data, error: dataError } = await dataQuery;
 
@@ -199,7 +166,8 @@ export function useReleases(options: UseReleasesOptions = {}) {
           release_date: release.release_date || null,
           spotify_url: release.spotify_url || null,
           apple_music_url: release.apple_music_url || null,
-          created_at: release.created_at
+          created_at: release.created_at,
+          created_by: release.created_by
         };
       }) || [];
 
@@ -208,15 +176,12 @@ export function useReleases(options: UseReleasesOptions = {}) {
         sample: transformedReleases[0]
       });
 
-      console.log("[useReleases] Detailed transformed releases:", transformedReleases);
-
+      setCount(totalCount || 0);
       if (!loadMore) {
         setReleases(transformedReleases);
       } else {
         setReleases((prev) => [...prev, ...transformedReleases]);
       }
-
-      setCount(totalCount || 0);
       setError(null);
     } catch (err) {
       console.error("[useReleases] Error fetching releases:", err);
@@ -225,13 +190,13 @@ export function useReleases(options: UseReleasesOptions = {}) {
       setCount(0);
     } finally {
       setLoading(false);
+      initialFetchRef.current = true;
     }
-  }, [user, selectedTypes, selectedGenres, genreFilterMode]);
+  }, [selectedTypes, selectedGenres, genreFilterMode]);
 
   useEffect(() => {
     console.log("[useReleases] Effect triggered", {
       initialFetch: initialFetchRef.current,
-      userId: user?.id,
       filters: {
         types: selectedTypes,
         genres: selectedGenres,
@@ -239,10 +204,8 @@ export function useReleases(options: UseReleasesOptions = {}) {
       }
     });
     
-    if (user) {
-      fetchReleases();
-    }
-  }, [fetchReleases, user, selectedTypes, selectedGenres, genreFilterMode]);
+    fetchReleases();
+  }, [fetchReleases, selectedTypes, selectedGenres, genreFilterMode]);
 
   const loadMoreReleases = useCallback(() => {
     if (!loading) {

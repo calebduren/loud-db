@@ -20,24 +20,25 @@ export function AllReleases() {
     selectedTypes,
     selectedGenres,
     genreFilterMode,
-    releases: filteredReleases,
+    filteredReleases,
     loading,
     hasMore,
     totalCount,
+    addReleaseOptimistically,
+    updateReleaseOptimistically,
+    backgroundRefetch,
     loadMore,
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
-    backgroundRefetch,
-    addReleaseOptimistically,
-    updateReleaseOptimistically,
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
   const [viewingRelease, setViewingRelease] = useState<Release | undefined>(undefined);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const { isAdmin, user } = useAuth();
+  const { isAdmin } = useAuth();
+  const { user } = useAuth();
   const { profile } = useProfile(user?.id);
 
   const isCreator = profile?.role === "creator";
@@ -178,25 +179,31 @@ export function AllReleases() {
       />
 
       <div className="mt-6">
-        <div className="releases">
-          {loading ? (
-            <ReleaseList.Skeleton />
-          ) : filteredReleases?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-4">
-              <p className="text-gray-500">No releases match your criteria</p>
-            </div>
-          ) : (
-            <ReleaseList
-              releases={filteredReleases || []}
-              loading={loading}
-              hasMore={hasMore}
-              loadMore={loadMore}
-              onSelect={setViewingRelease}
-              onEdit={isAdmin ? handleEdit : undefined}
-              onDelete={isAdmin ? handleDelete : undefined}
-            />
-          )}
-        </div>
+        {!filteredReleases || filteredReleases.length === 0 ? (
+          <div className="text-center">
+            <p className="text-white/60 text-sm mb-4">
+              {showLoadMoreButton
+                ? "No releases found in the initial results."
+                : "No releases match your criteria."}
+            </p>
+            {showLoadMoreButton && (
+              <Button onClick={loadMore} disabled={loading} className="mx-auto">
+                Load More Releases
+              </Button>
+            )}
+          </div>
+        ) : (
+          <ReleaseList
+            releases={filteredReleases}
+            loading={loading}
+            hasMore={hasMore}
+            loadMore={loadMore}
+            showWeeklyGroups={true}
+            onSelect={setViewingRelease}
+            onEdit={isAdmin ? handleEdit : undefined}
+            onDelete={isAdmin ? handleDelete : undefined}
+          />
+        )}
       </div>
 
       {/* Modals */}
