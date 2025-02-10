@@ -1,16 +1,15 @@
-import React, { useState, useCallback, useMemo, useEffect, Fragment } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Release } from "../../types/database";
 import { Music } from "lucide-react";
 import { LikeButton } from "../LikeButton";
 import { ExternalLinkArrow } from "../icons/ExternalLinkArrow";
-import { ReleaseModal } from "./ReleaseModal";
 import { useReleaseSorting } from "../../hooks/useReleaseSorting";
 import { useGenrePreferences } from "../../hooks/settings/useGenrePreferences";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
+import { useRecommendedReleases } from "../../hooks/useRecommendedReleases";
 import { formatDate, formatWeekDate } from "../../lib/utils/dateUtils";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/Badge";
-import { Tooltip } from "../ui/tooltip";
 
 interface WeekGroup {
   weekRange: {
@@ -168,10 +167,10 @@ export function ReleaseList({
 
   const formatArtists = useCallback((release: Release) => {
     if (!Array.isArray(release.artists)) return "";
-    
+
     return release.artists
       .sort((a, b) => (a.position || 0) - (b.position || 0))
-      .map((a) => a.artist?.name || '')
+      .map((a) => a.artist?.name || "")
       .filter(Boolean)
       .join(", ");
   }, []);
@@ -179,10 +178,7 @@ export function ReleaseList({
   const getWeekRange = useCallback((date: Date) => {
     const dayOfWeek = date.getUTCDay();
 
-    const daysToSubtract =
-      dayOfWeek < 5
-        ? (dayOfWeek + 2) % 7
-        : dayOfWeek - 5;
+    const daysToSubtract = dayOfWeek < 5 ? (dayOfWeek + 2) % 7 : dayOfWeek - 5;
 
     const start = new Date(date.getTime());
     start.setUTCDate(start.getUTCDate() - daysToSubtract);
@@ -209,7 +205,7 @@ export function ReleaseList({
 
     sortedReleases.forEach((release) => {
       if (!release.release_date) return;
-      
+
       // Parse the ISO date string directly
       const releaseDate = new Date(release.release_date);
       if (isNaN(releaseDate.getTime())) return;
@@ -243,6 +239,15 @@ export function ReleaseList({
     }
   }, []);
 
+  const recommendedReleases = useRecommendedReleases(uniqueReleases);
+  const isRecommended = useCallback(
+    (release: Release) => {
+      // Consider a release recommended if it's in the top 3 recommended releases
+      return recommendedReleases.slice(0, 3).some((r) => r.id === release.id);
+    },
+    [recommendedReleases]
+  );
+
   const renderRelease = useCallback(
     (release: Release) => (
       <div
@@ -275,23 +280,17 @@ export function ReleaseList({
               <div className="pill pill--release-type">
                 {formatReleaseType(release.release_type)}
               </div>
-              {release.isRecommended === true && (
-                <Tooltip
-                  text={release.recommendationReason || "Recommended for you"}
-                  position="bottom"
-                  align="right"
-                >
-                  <Badge variant="recommended">Top Rec</Badge>
-                </Tooltip>
+              {isRecommended(release) && (
+                <Badge variant="recommended">Top Rec</Badge>
               )}
             </div>
             <div>
               <h2 className="release-card__artist">{formatArtists(release)}</h2>
               <h2 className="release-card__title">{release.name}</h2>
 
-              {release.genres?.length > 0 && (
+              {(release.genres?.length ?? 0) > 0 && (
                 <div className="release-card__genres">
-                  {release.genres.slice(0, 3).map((genre) => (
+                  {release.genres?.slice(0, 3).map((genre) => (
                     <div key={genre} className="pill pill--genre">
                       {genre}
                     </div>
@@ -314,7 +313,7 @@ export function ReleaseList({
               <div className="release-card__info-row">
                 <span className="release-card__info-label">Released</span>
                 <span className="release-card__info-value">
-                  {formatDate(release.release_date)}
+                  {release.release_date ? formatDate(release.release_date) : '-'}
                 </span>
               </div>
               <div className="release-card__info-row">
@@ -365,7 +364,7 @@ export function ReleaseList({
         </div>
       </div>
     ),
-    [formatArtists, formatDate, formatReleaseType, onSelect]
+    [formatArtists, formatDate, formatReleaseType, isRecommended, onSelect]
   );
 
   if (loading || preferencesLoading || groupsLoading || !sortingStabilized) {

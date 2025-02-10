@@ -1,6 +1,5 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -25,7 +24,6 @@ export function Badge({
       )}
     >
       {children}
-      {variant === "recommended" && <QuestionMarkIcon className="ml-1" />}
     </div>
   );
 }
