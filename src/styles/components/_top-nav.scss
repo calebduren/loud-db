@@ -39,14 +39,6 @@
     &--active {
       @apply text-white;
     }
-
-    .nav-indicator {
-      @apply w-0 h-[8.5px] rounded-full bg-white/0 transition-colors;
-
-      &--active {
-        @apply bg-white w-[8.5px] mr-2;
-      }
-    }
   }
 
   &__actions {
@@ -60,7 +52,6 @@
   &__user-button {
     @apply flex items-center justify-center;
     @apply w-8 h-8 rounded-full overflow-hidden;
-    @apply hover:ring-2 hover:ring-white/20 transition-all;
   }
 
   &__user-menu-items {
