@@ -7,9 +7,9 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { AlertCircle } from "lucide-react";
 import { fetchReleaseFromSpotify } from "../../lib/spotify/client";
 import { SpotifyReleaseData } from "../../lib/spotify/types";
-import { useToast } from "../../hooks/useToast";
 import { validateSpotifyUrl } from "../../lib/spotify/validation";
 import { Progress } from "../../components/ui/progress";
+import { toast } from 'sonner';
 
 interface SpotifyImportSectionProps {
   onImport: (data: SpotifyReleaseData) => Promise<void>;
@@ -24,7 +24,6 @@ export function SpotifyImportSection({
   const [importing, setImporting] = useState(false);
   const [importStage, setImportStage] = useState<"spotify" | "apple_music" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   const handleImport = async () => {
     setError(null);
@@ -33,6 +32,9 @@ export function SpotifyImportSection({
     const validation = validateSpotifyUrl(url);
     if (!validation.isValid) {
       setError(validation.error ?? null);
+      toast.error(validation.error ?? 'Invalid URL', {
+        position: 'top-center'
+      });
       return;
     }
 
@@ -44,13 +46,13 @@ export function SpotifyImportSection({
       setImportStage("apple_music");
       await onImport(release);
       setUrl("");
+      // We'll let ReleaseForm handle the success toast
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to import release";
       setError(message);
-      showToast({
-        type: "error",
-        message,
+      toast.error(message, {
+        position: 'top-center'
       });
     } finally {
       setImporting(false);

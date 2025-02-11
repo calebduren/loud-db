@@ -143,7 +143,7 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
     async (importedData: SpotifyReleaseData) => {
       try {
         // Try to get Apple Music URL
-        const appleMusicUrl = await getAppleMusicUrl(importedData.spotify_url);
+        const appleMusicUrl = await getAppleMusicUrl(importedData.spotify_url || '');
 
         const formData: ReleaseFormData = {
           name: importedData.name,
@@ -177,11 +177,10 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           }))
         );
 
-        // Show success toast
+        // Show a single success toast with Apple Music status
         toast.success('Release imported successfully!', {
-          description: appleMusicUrl 
-            ? 'Found matching Apple Music link' 
-            : 'Apple Music link not found'
+          description: appleMusicUrl ? 'Found matching Apple Music link' : 'No Apple Music link found',
+          position: 'top-center'
         });
       } catch (error) {
         console.error('Error fetching Apple Music URL:', error);
@@ -217,11 +216,6 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
             name: artist.name,
           }))
         );
-
-        // Show success toast with warning about Apple Music
-        toast.success('Release imported successfully!', {
-          description: 'Could not find Apple Music link'
-        });
       }
     },
     [form, setSelectedArtists]

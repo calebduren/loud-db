@@ -15,9 +15,9 @@ export function LinksTab({ form }: LinksTabProps) {
 
   // Watch for changes to spotify_url to auto-fill apple_music_url
   useEffect(() => {
-    const subscription = form.watch(async (value, { name }) => {
-      // Only proceed if spotify_url changed and has a value
-      if (name === 'spotify_url' && value.spotify_url) {
+    const subscription = form.watch(async (value, { name, type }) => {
+      // Only proceed if spotify_url changed by user input and has a value
+      if (name === 'spotify_url' && value.spotify_url && type === 'change') {
         try {
           const appleMusicUrl = await getAppleMusicUrl(value.spotify_url);
           if (appleMusicUrl) {
