@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { X, Check, ChevronDown, Plus } from "lucide-react";
 import { useAllGenres } from "@/hooks/admin/useAllGenres";
 import { useGenreGroups } from "@/hooks/useGenreGroups";
@@ -10,44 +10,43 @@ interface GenresInputProps {
   onChange: (genres: string[]) => void;
 }
 
-export function GenresInput({ value, onChange }: GenresInputProps) {
+export function GenresInput({ value = [], onChange }: GenresInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { genres: allGenres, loading } = useAllGenres();
-  const { genreGroups = {}, loading: groupsLoading, error: groupsError } = useGenreGroups();
+  const { genres: allGenres = [], loading: genresLoading } = useAllGenres();
+  const { genreGroups = {}, loading: groupsLoading } = useGenreGroups();
 
-  console.log("Genre groups:", genreGroups);
+  const isLoading = useMemo(() => genresLoading || groupsLoading, [genresLoading, groupsLoading]);
 
-  if (groupsLoading) {
-    return <div>Loading genre groups...</div>;
-  }
+  const filteredGroupNames = useMemo(() => {
+    if (isLoading) return [];
+    return Object.keys(genreGroups).filter(
+      (name) =>
+        !value.includes(name) &&
+        name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [genreGroups, value, searchQuery, isLoading]);
 
-  if (groupsError) {
-    return <div className="text-red-500">Error loading genre groups. Please try again later.</div>;
-  }
+  const filteredGenres = useMemo(() => {
+    if (isLoading) return [];
+    return allGenres
+      .filter(
+        (genre) =>
+          !value.includes(genre) &&
+          genre.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !Object.keys(genreGroups).includes(genre)
+      )
+      .slice(0, 100);
+  }, [allGenres, value, searchQuery, genreGroups, isLoading]);
 
-  // Get group names and filter them based on search
-  const filteredGroupNames = Object.keys(genreGroups).filter(
-    (name) =>
-      !value.includes(name) &&
-      name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Get all genres and filter them
-  const filteredGenres = allGenres
-    .filter(
-      (genre) =>
-        !value.includes(genre) &&
-        genre.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !Object.keys(genreGroups).includes(genre) // Only exclude parent genre names
-    )
-    .slice(0, 100); // Limit to 100 results for performance
-
-  const exactMatch = allGenres.find(
-    (genre) => genre.toLowerCase() === searchQuery.toLowerCase()
-  );
+  const exactMatch = useMemo(() => {
+    if (isLoading) return undefined;
+    return allGenres.find(
+      (genre) => genre.toLowerCase() === searchQuery.toLowerCase()
+    );
+  }, [allGenres, searchQuery, isLoading]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,19 +63,19 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const removeGenre = (genreToRemove: string) => {
+  const removeGenre = useCallback((genreToRemove: string) => {
     onChange(value.filter((genre) => genre !== genreToRemove));
-  };
+  }, [value, onChange]);
 
-  const addGenre = (genre: string) => {
+  const addGenre = useCallback((genre: string) => {
     const normalizedGenre = normalizeGenre(genre);
     if (!value.includes(normalizedGenre)) {
       onChange([...value, normalizedGenre]);
       setSearchQuery("");
     }
-  };
+  }, [value, onChange]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
       e.preventDefault();
       if (!value.includes(searchQuery.trim())) {
@@ -84,7 +83,11 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
       }
       setIsOpen(false);
     }
-  };
+  }, [searchQuery, value, addGenre]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="relative flex-1">
@@ -126,84 +129,76 @@ export function GenresInput({ value, onChange }: GenresInputProps) {
           ref={dropdownRef}
           className="absolute z-50 w-full mt-1 py-1 bg-[--color-gray-900] border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
         >
-          {loading ? (
-            <div className="px-2 py-1 text-sm text-white/60">Loading...</div>
-          ) : (
+          {filteredGroupNames.length > 0 && (
             <>
-              {searchQuery.trim() && !exactMatch && (
+              <div className="px-2 py-1 text-sm text-white/40 select-none">
+                Parent Genres
+              </div>
+              {filteredGroupNames.map((groupName) => (
                 <button
+                  key={groupName}
                   onClick={() => {
-                    addGenre(searchQuery.trim());
+                    addGenre(groupName);
                     setIsOpen(false);
                   }}
-                  className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center gap-2 text-emerald-400"
+                  className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group bg-white/5"
                 >
-                  <Plus size={14} />
-                  <span>Create "{searchQuery.trim()}"</span>
+                  <span>{groupName}</span>
+                  <Check
+                    size={14}
+                    className="opacity-0 group-hover:opacity-100 text-white/60"
+                  />
                 </button>
-              )}
-
-              {/* Show genre groups at the top */}
-              {filteredGroupNames.length > 0 && (
-                <>
-                  <div className="px-2 py-1 text-sm text-white/40 select-none">
-                    Parent Genres
-                  </div>
-                  {filteredGroupNames.map((groupName) => (
-                    <button
-                      key={groupName}
-                      onClick={() => {
-                        addGenre(groupName);
-                        setIsOpen(false);
-                      }}
-                      className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group bg-white/5"
-                    >
-                      <span>{groupName}</span>
-                      <Check
-                        size={14}
-                        className="opacity-0 group-hover:opacity-100 text-white/60"
-                      />
-                    </button>
-                  ))}
-                  <div className="h-px bg-white/10 my-1" />
-                </>
-              )}
-
-              {/* Show remaining genres */}
-              {filteredGenres.length > 0 && (
-                <>
-                  <div className="px-2 py-1 text-sm text-white/40 select-none">
-                    All Genres
-                  </div>
-                  {filteredGenres.map((genre) => (
-                    <button
-                      key={genre}
-                      onClick={() => {
-                        addGenre(genre);
-                        setIsOpen(false);
-                      }}
-                      className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
-                    >
-                      <span>{genre}</span>
-                      <Check
-                        size={14}
-                        className="opacity-0 group-hover:opacity-100 text-white/60"
-                      />
-                    </button>
-                  ))}
-                </>
-              )}
-
-              {filteredGenres.length === 0 &&
-                filteredGroupNames.length === 0 && (
-                  <div className="px-2 py-1 text-sm text-white/60">
-                    {searchQuery.trim()
-                      ? "No matching genres"
-                      : "Type to search or create a new genre"}
-                  </div>
-                )}
+              ))}
+              <div className="h-px bg-white/10 my-1" />
             </>
           )}
+
+          {filteredGenres.length > 0 && (
+            <>
+              <div className="px-2 py-1 text-sm text-white/40 select-none">
+                All Genres
+              </div>
+              {filteredGenres.map((genre) => (
+                <button
+                  key={genre}
+                  onClick={() => {
+                    addGenre(genre);
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
+                >
+                  <span>{genre}</span>
+                  <Check
+                    size={14}
+                    className="opacity-0 group-hover:opacity-100 text-white/60"
+                  />
+                </button>
+              ))}
+            </>
+          )}
+
+          {searchQuery.trim() && !exactMatch && (
+            <button
+              onClick={() => {
+                addGenre(searchQuery.trim());
+                setIsOpen(false);
+              }}
+              className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center gap-2 text-emerald-400"
+            >
+              <Plus size={14} />
+              <span>Create "{searchQuery.trim()}"</span>
+            </button>
+          )}
+
+          {filteredGenres.length === 0 &&
+            filteredGroupNames.length === 0 && (
+              <div className="px-2 py-1 text-sm text-white/60">
+                {searchQuery.trim()
+                  ? "No matching genres"
+                  : "Type to search or create a new genre"}
+              </div>
+            )}
         </div>
       )}
     </div>

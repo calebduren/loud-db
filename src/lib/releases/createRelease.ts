@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import { ReleaseType } from '../../types/database';
 import { findOrCreateArtist } from '../artists/artistService';
+import { findOrCreateGenre } from '../genres/genreService';
 import { AppError } from '../errors/messages';
 import { normalizeGenre } from '../utils/genreUtils';
 
@@ -61,6 +62,11 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
       data.artists.map(artist => findOrCreateArtist(artist.name))
     );
 
+    // Process genres first to ensure they exist
+    const genreIds = await Promise.all(
+      data.genres.map(genre => findOrCreateGenre(normalizeGenre(genre)))
+    );
+
     // Start a transaction
     const { data: release, error: releaseError } = await supabase
       .from('releases')
@@ -68,7 +74,6 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
         name: data.name.trim(),
         release_type: data.release_type,
         cover_url: data.cover_url,
-        genres: data.genres.map(normalizeGenre),
         record_label: data.record_label?.trim(),
         track_count: data.track_count,
         spotify_url: data.spotify_url,
@@ -96,6 +101,20 @@ export async function createRelease(data: CreateReleaseData): Promise<string> {
 
     if (artistError) {
       throw artistError;
+    }
+
+    // Create genre relationships
+    const { error: genreError } = await supabase
+      .from('release_genres')
+      .insert(
+        genreIds.map(genreId => ({
+          release_id: release.id,
+          genre_id: genreId
+        }))
+      );
+
+    if (genreError) {
+      throw genreError;
     }
 
     // Create tracks if provided

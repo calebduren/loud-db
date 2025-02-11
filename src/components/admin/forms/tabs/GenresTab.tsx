@@ -24,7 +24,15 @@ export function GenresTab({ form }: GenresTabProps) {
           <FormItem>
             <FormLabel>Genres</FormLabel>
             <FormControl>
-              <GenresInput value={field.value} onChange={field.onChange} />
+              <div className="relative">
+                <GenresInput 
+                  value={field.value || []} 
+                  onChange={(genres) => {
+                    field.onChange(genres);
+                    form.clearErrors('genres');
+                  }} 
+                />
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

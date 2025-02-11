@@ -2,7 +2,6 @@ import React from "react";
 import { Modal } from "../ui/Modal";
 import { ReleaseForm } from "./forms/ReleaseForm";
 import { Release } from "../../types/database";
-import { toast } from "sonner";
 
 interface ReleaseFormModalProps {
   isOpen: boolean;
@@ -18,35 +17,18 @@ export function ReleaseFormModal({
   release,
 }: ReleaseFormModalProps) {
   const handleSuccess = async (release: Release) => {
-    console.log("ReleaseFormModal - handleSuccess called");
-
     try {
-      console.log("ReleaseFormModal - calling onSuccess");
       await Promise.resolve(onSuccess?.(release));
-      console.log("ReleaseFormModal - onSuccess complete");
-      
-      // Show success toast
-      toast.success(
-        release
-          ? "Release updated successfully"
-          : "Release created successfully"
-      );
-
-      console.log("ReleaseFormModal - closing modal");
       onClose();
-      console.log("ReleaseFormModal - modal closed");
     } catch (error) {
       console.error("Error in handleSuccess:", error);
     }
   };
 
   const handleClose = (e?: React.MouseEvent) => {
-    console.log("ReleaseFormModal - handleClose called");
     if (e) {
-      console.log("ReleaseFormModal - preventing event default");
       e.preventDefault();
       e.stopPropagation();
-      // Also stop immediate propagation
       if ("nativeEvent" in e) {
         e.nativeEvent.stopImmediatePropagation();
       }

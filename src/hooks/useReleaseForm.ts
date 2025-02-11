@@ -23,7 +23,7 @@ export function useReleaseForm(release?: Release) {
         name: release.name,
         release_type: release.release_type,
         cover_url: release.cover_url || '',
-        genres: release.genres,
+        genres: release.genres || [], // Ensure genres is always an array
         record_label: release.record_label || '',
         track_count: release.track_count,
         spotify_url: release.spotify_url || '',
@@ -38,7 +38,11 @@ export function useReleaseForm(release?: Release) {
     const savedForm = localStorage.getItem('releaseFormDraft');
     if (savedForm) {
       try {
-        return JSON.parse(savedForm);
+        const parsed = JSON.parse(savedForm);
+        return {
+          ...parsed,
+          genres: parsed.genres || [], // Ensure genres is always an array
+        };
       } catch (e) {
         console.error('Error parsing saved form:', e);
       }
@@ -48,7 +52,7 @@ export function useReleaseForm(release?: Release) {
       name: '',
       release_type: 'single',
       cover_url: '',
-      genres: [],
+      genres: [], // Initialize with empty array
       record_label: '',
       track_count: 1,
       spotify_url: '',

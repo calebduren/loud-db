@@ -48,10 +48,13 @@ export function AllReleases() {
 
   const handleCreateSuccess = useCallback(
     (release: Release) => {
+      logger.debug("AllReleases - handleCreateSuccess called");
       addReleaseOptimistically(release);
       setIsCreateModalOpen(false);
+      // Fetch the latest data to ensure we have everything
+      backgroundRefetch();
     },
-    [addReleaseOptimistically]
+    [addReleaseOptimistically, backgroundRefetch]
   );
 
   const handleEditSuccess = useCallback(

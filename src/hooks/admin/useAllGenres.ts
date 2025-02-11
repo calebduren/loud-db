@@ -9,18 +9,18 @@ export function useAllGenres() {
   useEffect(() => {
     async function fetchGenres() {
       try {
+        // Fetch from the new genres table
         const { data, error } = await supabase
-          .from('releases')
-          .select('genres');
+          .from('genres')
+          .select('name')
+          .order('name');
         
         if (error) throw error;
 
         if (data) {
-          const uniqueGenres = new Set<string>();
-          data.forEach(release => {
-            release.genres.forEach((genre: string) => uniqueGenres.add(genre));
-          });
-          setGenres(Array.from(uniqueGenres).sort());
+          // Map the genre names from the result
+          const genreNames = data.map(genre => genre.name);
+          setGenres(genreNames);
         }
       } catch (err) {
         console.error('Error fetching genres:', err);

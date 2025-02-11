@@ -5,6 +5,7 @@ import { ImageUpload } from "./ImageUpload";
 import { GenresInput } from "./GenresInput";
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -137,6 +138,7 @@ export function ReleaseFormFields({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cover Image</FormLabel>
+              <FormDescription>640px&times;640px recommended</FormDescription>
               <FormControl>
                 <ImageUpload
                   value={field.value}

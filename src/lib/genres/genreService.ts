@@ -99,38 +99,10 @@ export async function findOrCreateGenre(genreName: string): Promise<string> {
     const { data: newGenre, error: createError } = await supabase
       .from("genres")
       .insert({ name: normalizedName })
-      .select("id")
+      .select()
       .single();
 
     if (createError) {
-      // If we got a unique violation, someone else created it first, try to get it
-      if (createError.code === "23505") {
-        logger.debug("Genre was created concurrently, fetching", {
-          name: normalizedName,
-        });
-        const { data: genre, error: refindError } = await supabase
-          .from("genres")
-          .select("id")
-          .eq("name", normalizedName)
-          .single();
-
-        if (refindError || !genre?.id) {
-          logger.error("Error re-finding genre after concurrent creation", {
-            error: refindError,
-            name: normalizedName,
-          });
-          throw (
-            refindError ||
-            new Error("Failed to get genre after concurrent creation")
-          );
-        }
-
-        logger.debug("Found concurrently created genre", {
-          id: genre.id,
-          name: normalizedName,
-        });
-        return genre.id;
-      }
       logger.error("Error creating genre", {
         error: createError,
         name: normalizedName,
@@ -138,14 +110,16 @@ export async function findOrCreateGenre(genreName: string): Promise<string> {
       throw createError;
     }
 
-    if (!newGenre?.id) {
-      throw new Error("Failed to create genre: no id returned");
+    if (!newGenre) {
+      logger.error("Failed to create genre", { name: normalizedName });
+      throw new Error("Failed to create genre");
     }
 
     logger.debug("Created new genre", {
       id: newGenre.id,
       name: normalizedName,
     });
+
     return newGenre.id;
   } catch (error) {
     logger.error("Unexpected error in findOrCreateGenre", {

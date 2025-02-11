@@ -5,6 +5,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormDescription,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
@@ -55,7 +56,12 @@ export function BasicInfoTab({
         name="cover_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Cover Image</FormLabel>
+            <div>
+              <FormLabel>Cover Image</FormLabel>
+              <FormDescription className="text-[--color-gray-400]">
+                640px&times;640px recommended
+              </FormDescription>
+            </div>
             <FormControl>
               <ImageUpload
                 value={field.value}
