@@ -76,8 +76,8 @@ async function scrapeRedditForSpotifyLinks(maxPages = 10) {
 
         const response = await fetch(url.toString(), {
           headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/91.0.4472.124",
+            "User-Agent": "LoudDB/1.0 (by /u/LoudDB_Bot)",
+            "Accept": "*/*"
           },
         });
 
