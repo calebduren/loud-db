@@ -46,7 +46,7 @@ async function getSpotifyToken() {
   return data.access_token;
 }
 
-async function scrapeRedditForSpotifyLinks(maxPages = 5) {
+async function scrapeRedditForSpotifyLinks(maxPages = 10) {
   const spotifyLinks: string[] = [];
   const subreddits = ["indieheads", "hiphopheads", "electronicmusic"];
 
@@ -61,12 +61,15 @@ async function scrapeRedditForSpotifyLinks(maxPages = 5) {
         const url = new URL(
           `https://www.reddit.com/r/${subreddit}/search.json`
         );
-        url.searchParams.set("q", "fresh");
+        url.searchParams.set(
+          "q",
+          "fresh NOT video NOT album NOT performance NOT stream NOT podcast"
+        );
         url.searchParams.set("include_over_18", "on");
         url.searchParams.set("restrict_sr", "on");
         url.searchParams.set("t", "week");
         url.searchParams.set("sort", "new");
-        url.searchParams.set("limit", "100");
+        url.searchParams.set("limit", "200");
         if (after) {
           url.searchParams.set("after", after);
         }
@@ -265,7 +268,9 @@ async function processBatch(
       let coverUrl = "";
       if (response.images?.[0]?.url) {
         try {
-          const path = `${albumId}.${response.images[0].url.split('.').pop()?.split('?')[0]}`;
+          const path = `${albumId}.${
+            response.images[0].url.split(".").pop()?.split("?")[0]
+          }`;
           coverUrl = await uploadImageFromUrl(response.images[0].url, path);
         } catch (error) {
           console.error("Error uploading cover image:", error);
