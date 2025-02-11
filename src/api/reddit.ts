@@ -170,149 +170,71 @@ async function processBatch(
   };
 
   for (const url of batch) {
+    progress.currentUrl = url;
+    onProgress(progress);
+
     try {
-      // Get album ID from URL first so we can fetch details even for duplicates
-      const albumId = url.split("/album/")[1].split("?")[0];
-
-      // Fetch album details from Spotify
-      const response = await retry(
-        async () => {
-          const res = await fetch(
-            `https://api.spotify.com/v1/albums/${albumId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          if (!res.ok) {
-            throw new Error(`Failed to fetch album: ${res.statusText}`);
-          }
-          return res.json();
-        },
-        3,
-        1000
-      );
-
-      console.log("Spotify album response:", {
-        name: response.name,
-        artists: response.artists.map((a: any) => a.name),
-        genres: response.genres,
-        album_type: response.album_type,
-      });
-
-      // Update progress
-      progress.current = startIdx + batch.indexOf(url) + 1;
-      progress.currentUrl = `${response.artists[0]?.name} - ${response.name}`;
-      onProgress(progress);
-
       // Check for duplicates
-      const isDuplicate = await retry(
-        () => checkSpotifyDuplicate(url),
-        3,
-        2000
-      );
-
+      const isDuplicate = await checkSpotifyDuplicate(url);
       if (isDuplicate) {
-        console.log(`Skipping duplicate album: ${response.name}`);
-        progress.skipped.push(
-          `${response.artists[0]?.name} - ${response.name}`
-        );
-        onProgress(progress);
+        progress.skipped.push(url);
         continue;
       }
 
-      // Determine release type based on track count
-      let releaseType: ReleaseType = "LP";
-      if (response.tracks.total <= 4) {
-        releaseType = "single";
-      } else if (response.tracks.total <= 6) {
-        releaseType = "EP";
+      // Fetch album data from Spotify
+      const response = await retry(() =>
+        fetch(`https://api.spotify.com/v1/albums/${url.split("/").pop()}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
+
+      if (!response.ok) {
+        throw new Error(`Spotify API error: ${response.status}`);
       }
 
-      // Let's try to get artist genres if album has no genres
-      let genres = response.genres || [];
-      if (genres.length === 0 && response.artists?.length > 0) {
-        console.log("Album has no genres, fetching from artist...");
-        try {
-          const artistId = response.artists[0].id;
-          const artistResponse = await retry(
-            async () => {
-              const res = await fetch(
-                `https://api.spotify.com/v1/artists/${artistId}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-              if (!res.ok) {
-                throw new Error(`Failed to fetch artist: ${res.statusText}`);
-              }
-              return res.json();
-            },
-            3,
-            1000
-          );
+      const album = await response.json();
 
-          if (artistResponse.genres?.length > 0) {
-            console.log("Found genres from artist:", artistResponse.genres);
-            genres = artistResponse.genres;
-          }
-        } catch (error) {
-          console.error("Error fetching artist genres:", error);
-        }
+      // Try to get Apple Music URL
+      let appleMusicUrl = null;
+      try {
+        appleMusicUrl = await getAppleMusicUrl(url);
+      } catch (error) {
+        console.error('Error fetching Apple Music URL:', error);
       }
 
       // Upload cover image to Supabase storage
-      let coverUrl = "";
-      if (response.images?.[0]?.url) {
-        try {
-          const path = `${albumId}.${
-            response.images[0].url.split(".").pop()?.split("?")[0]
-          }`;
-          coverUrl = await uploadImageFromUrl(response.images[0].url, path);
-        } catch (error) {
-          console.error("Error uploading cover image:", error);
-          // Fallback to Spotify CDN URL if upload fails
-          coverUrl = response.images[0].url;
-        }
+      let coverUrl = null;
+      if (album.images?.[0]?.url) {
+        coverUrl = await uploadImageFromUrl(album.images[0].url);
       }
 
       // Create the release
-      await createRelease({
-        name: response.name,
-        release_type: releaseType,
+      const releaseData = {
+        name: album.name,
+        release_type: album.album_type === "single" ? "single" : "LP",
         cover_url: coverUrl,
-        genres: genres,
-        record_label: response.label || "Unknown",
-        track_count: response.tracks.total,
+        record_label: album.label,
+        track_count: album.tracks.total,
         spotify_url: url,
-        release_date: response.release_date,
+        apple_music_url: appleMusicUrl,
+        release_date: album.release_date,
         created_by: userId,
-        artists: response.artists.map((artist: any) => ({
-          name: artist.name,
-        })),
-        tracks: response.tracks.items.map((track: any) => ({
-          name: track.name,
-          duration_ms: track.duration_ms || 0,
-          track_number: track.track_number || 1,
-          preview_url: track.preview_url || null,
-        })),
-      });
+      };
 
-      progress.created.push(`${response.artists[0]?.name} - ${response.name}`);
-      onProgress(progress);
+      await createRelease(releaseData);
+      progress.created.push(url);
     } catch (error) {
-      console.error(`Error processing album ${url}:`, error);
-      progress.errors.push(
-        `Failed to import ${url}: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-      onProgress(progress);
+      console.error(`Error processing ${url}:`, error);
+      progress.errors.push(url);
     }
+
+    progress.current++;
+    onProgress(progress);
   }
+
+  return progress;
 }
 
 export interface ImportProgress {

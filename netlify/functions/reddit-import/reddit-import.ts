@@ -18,6 +18,62 @@ async function isAdmin(userId: string): Promise<boolean> {
   return profile?.role === "admin";
 }
 
+async function processSpotifyUrl(url: string, token: string) {
+  try {
+    // Extract album ID from URL
+    const albumId = url.split('/album/')[1]?.split('?')[0];
+    if (!albumId) {
+      throw new Error('Invalid Spotify URL');
+    }
+
+    // Fetch album data from Spotify
+    const response = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Spotify API error: ${response.status}`);
+    }
+
+    const album = await response.json();
+
+    // Try to get Apple Music URL
+    let appleMusicUrl = null;
+    try {
+      appleMusicUrl = await getAppleMusicUrl(url);
+    } catch (error) {
+      console.error('Error fetching Apple Music URL:', error);
+    }
+
+    // Upload cover image to storage
+    let coverUrl = null;
+    if (album.images?.[0]?.url) {
+      coverUrl = await uploadImageFromUrl(album.images[0].url);
+    }
+
+    // Return processed data
+    return {
+      name: album.name,
+      release_type: album.album_type === 'single' ? 'single' : 'LP',
+      cover_url: coverUrl,
+      record_label: album.label,
+      track_count: album.tracks.total,
+      spotify_url: url,
+      apple_music_url: appleMusicUrl,
+      release_date: album.release_date,
+      genres: album.genres || [],
+      artists: album.artists.map((artist: any) => ({
+        name: artist.name,
+      })),
+    };
+  } catch (error) {
+    console.error(`Error processing Spotify URL ${url}:`, error);
+    throw error;
+  }
+}
+
 export const handler: Handler = async (event) => {
   // Enable CORS
   if (event.httpMethod === "OPTIONS") {

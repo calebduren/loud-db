@@ -13,6 +13,7 @@ import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { toast } from 'sonner';
+import { getAppleMusicUrl } from '../../../api/music';
 
 interface ReleaseTrack {
   name: string;
@@ -139,38 +140,77 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
   }, [release, form]);
 
   const handleSpotifyImport = useCallback(
-    (importedData: SpotifyReleaseData) => {
-      const formData: ReleaseFormData = {
-        name: importedData.name,
-        release_type: importedData.releaseType,
-        cover_url: importedData.coverUrl || "",
-        genres: importedData.genres,
-        record_label: importedData.recordLabel || "",
-        track_count: importedData.trackCount,
-        spotify_url: importedData.spotify_url || "",
-        release_date: new Date(
-          new Date(importedData.releaseDate).getTime() +
-            new Date().getTimezoneOffset() * 60000
-        )
-          .toISOString()
-          .split("T")[0],
-        description: "",
-        tracks: importedData.tracks.map((track) => ({
-          ...track,
-          duration_ms: track.duration_ms ?? undefined,
-          preview_url: track.preview_url || undefined,
-          credits: [],
-        })),
-        apple_music_url: "",
-      };
+    async (importedData: SpotifyReleaseData) => {
+      try {
+        // Try to get Apple Music URL
+        const appleMusicUrl = await getAppleMusicUrl(importedData.spotify_url);
 
-      form.reset(formData);
-      setSelectedArtists(
-        importedData.artists.map((artist) => ({
-          id: undefined,
-          name: artist.name,
-        }))
-      );
+        const formData: ReleaseFormData = {
+          name: importedData.name,
+          release_type: importedData.releaseType,
+          cover_url: importedData.coverUrl || "",
+          genres: importedData.genres,
+          record_label: importedData.recordLabel || "",
+          track_count: importedData.trackCount,
+          spotify_url: importedData.spotify_url || "",
+          release_date: new Date(
+            new Date(importedData.releaseDate).getTime() +
+              new Date().getTimezoneOffset() * 60000
+          )
+            .toISOString()
+            .split("T")[0],
+          description: "",
+          tracks: importedData.tracks.map((track) => ({
+            ...track,
+            duration_ms: track.duration_ms ?? undefined,
+            preview_url: track.preview_url || undefined,
+            credits: [],
+          })),
+          apple_music_url: appleMusicUrl || "",
+        };
+
+        form.reset(formData);
+        setSelectedArtists(
+          importedData.artists.map((artist) => ({
+            id: undefined,
+            name: artist.name,
+          }))
+        );
+      } catch (error) {
+        console.error('Error fetching Apple Music URL:', error);
+        // Still proceed with form reset even if Apple Music URL fetch fails
+        const formData: ReleaseFormData = {
+          name: importedData.name,
+          release_type: importedData.releaseType,
+          cover_url: importedData.coverUrl || "",
+          genres: importedData.genres,
+          record_label: importedData.recordLabel || "",
+          track_count: importedData.trackCount,
+          spotify_url: importedData.spotify_url || "",
+          release_date: new Date(
+            new Date(importedData.releaseDate).getTime() +
+              new Date().getTimezoneOffset() * 60000
+          )
+            .toISOString()
+            .split("T")[0],
+          description: "",
+          tracks: importedData.tracks.map((track) => ({
+            ...track,
+            duration_ms: track.duration_ms ?? undefined,
+            preview_url: track.preview_url || undefined,
+            credits: [],
+          })),
+          apple_music_url: "",
+        };
+
+        form.reset(formData);
+        setSelectedArtists(
+          importedData.artists.map((artist) => ({
+            id: undefined,
+            name: artist.name,
+          }))
+        );
+      }
     },
     [form, setSelectedArtists]
   );
