@@ -9,9 +9,10 @@ import { fetchReleaseFromSpotify } from "../../lib/spotify/client";
 import { SpotifyReleaseData } from "../../lib/spotify/types";
 import { useToast } from "../../hooks/useToast";
 import { validateSpotifyUrl } from "../../lib/spotify/validation";
+import { Progress } from "../../components/ui/progress";
 
 interface SpotifyImportSectionProps {
-  onImport: (data: SpotifyReleaseData) => void;
+  onImport: (data: SpotifyReleaseData) => Promise<void>;
   disabled?: boolean;
 }
 
@@ -21,6 +22,7 @@ export function SpotifyImportSection({
 }: SpotifyImportSectionProps) {
   const [url, setUrl] = useState("");
   const [importing, setImporting] = useState(false);
+  const [importStage, setImportStage] = useState<"spotify" | "apple_music" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
 
@@ -35,10 +37,12 @@ export function SpotifyImportSection({
     }
 
     setImporting(true);
+    setImportStage("spotify");
 
     try {
       const release = await fetchReleaseFromSpotify(url);
-      onImport(release);
+      setImportStage("apple_music");
+      await onImport(release);
       setUrl("");
     } catch (error) {
       const message =
@@ -50,7 +54,22 @@ export function SpotifyImportSection({
       });
     } finally {
       setImporting(false);
+      setImportStage(null);
     }
+  };
+
+  const getImportProgress = () => {
+    if (!importing) return 0;
+    if (importStage === "spotify") return 50;
+    if (importStage === "apple_music") return 75;
+    return 100;
+  };
+
+  const getImportStatus = () => {
+    if (!importing) return "";
+    if (importStage === "spotify") return "Fetching Spotify data...";
+    if (importStage === "apple_music") return "Finding Apple Music link...";
+    return "Importing...";
   };
 
   return (
@@ -84,6 +103,17 @@ export function SpotifyImportSection({
           )}
         </Button>
       </div>
+
+      {importing && (
+        <div className="space-y-2 mt-4">
+          <div className="relative">
+            <Progress value={getImportProgress()} className="h-2" />
+            <p className="text-sm text-zinc-400 mt-2 text-center">
+              {getImportStatus()}
+            </p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <Alert variant="destructive">

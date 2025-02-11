@@ -2,6 +2,8 @@
 
 This is a react app built with Vite and Tailwind. We use Supabase for our database. This project is connected to the production database so do not prompt to reset. It is preferred that tailwind styles are used in scss files and that we create class names using BEM nomenclature to apply styles instead of applying directly to elements. If you need an icon, use Lucide icon, although they should be used sparingly.
 
+Use Radix and Shadcn when possible.
+
 Do not add, remove, or change styles unless asked explicitly.
 
 The app is connected to the production database in Supabase so we should NEVER reset the database. Since we are connected to the production database we do not use Docker. I can push migrations to Supabase.

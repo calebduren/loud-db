@@ -176,6 +176,13 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
             name: artist.name,
           }))
         );
+
+        // Show success toast
+        toast.success('Release imported successfully!', {
+          description: appleMusicUrl 
+            ? 'Found matching Apple Music link' 
+            : 'Apple Music link not found'
+        });
       } catch (error) {
         console.error('Error fetching Apple Music URL:', error);
         // Still proceed with form reset even if Apple Music URL fetch fails
@@ -210,6 +217,11 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
             name: artist.name,
           }))
         );
+
+        // Show success toast with warning about Apple Music
+        toast.success('Release imported successfully!', {
+          description: 'Could not find Apple Music link'
+        });
       }
     },
     [form, setSelectedArtists]
