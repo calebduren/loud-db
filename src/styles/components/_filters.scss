@@ -1,12 +1,12 @@
 @use "../components/pill";
 
 .filters-container {
-  @apply flex flex-col gap-4 xl:flex-row xl:items-end;
+  @apply flex flex-col gap-5 xl:flex-row xl:items-end xl:h-[--input-height];
 }
 
 // Filter Section
 .filter-section {
-  @apply flex flex-row justify-start items-center gap-4 xl:gap-6;
+  @apply flex flex-row justify-start items-center gap-3 h-full;
 
   &__label {
     @apply flex items-baseline text-sm font-medium text-[--color-gray-400];

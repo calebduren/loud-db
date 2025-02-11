@@ -8,12 +8,20 @@ import { Button } from "../ui/button";
 import { ListFilter, X } from "lucide-react";
 import { Tooltip } from "../ui/tooltip"; // Assuming Tooltip is defined in this file
 
+const RELEASE_TYPE_LABELS: Record<ReleaseType | "all", string> = {
+  all: "All",
+  single: "Single",
+  LP: "LP",
+  EP: "EP",
+  compilation: "Compilation"
+};
+
 const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "single" as ReleaseType, label: "Single" },
-  { value: "EP" as ReleaseType, label: "EP" },
-  { value: "LP" as ReleaseType, label: "LP" },
-  { value: "compilation" as ReleaseType, label: "Compilation" },
+  { value: "all", label: RELEASE_TYPE_LABELS.all },
+  { value: "LP" as ReleaseType, label: RELEASE_TYPE_LABELS.LP },
+  { value: "EP" as ReleaseType, label: RELEASE_TYPE_LABELS.EP },
+  { value: "single" as ReleaseType, label: RELEASE_TYPE_LABELS.single },
+  { value: "compilation" as ReleaseType, label: RELEASE_TYPE_LABELS.compilation }
 ];
 
 interface ReleaseFiltersProps {
@@ -58,6 +66,19 @@ export function ReleaseFilters({
     onGenreFilterModeChange("include");
   }, [onTypeChange, onGenreChange, onGenreFilterModeChange]);
 
+  const handleTypeSelect = useCallback((type: ReleaseType | "all") => {
+    if (type === "all") {
+      onTypeChange(["all"]);
+    } else {
+      const newTypes = selectedTypes.includes(type)
+        ? selectedTypes.filter(t => t !== type)
+        : [...selectedTypes.filter(t => t !== "all"), type];
+      
+      // If no types are selected, default back to "all"
+      onTypeChange(newTypes.length === 0 ? ["all"] : newTypes);
+    }
+  }, [selectedTypes, onTypeChange]);
+
   const isDefaultState = useMemo(
     () =>
       selectedTypes.length === 1 &&
@@ -87,11 +108,7 @@ export function ReleaseFilters({
     <div className="filters-container">
       {isDefaultState ? (
         <div className="w-[--input-height] h-[--input-height] flex items-center justify-center">
-          <ListFilter
-            size="24"
-            strokeWidth={1.5}
-            color="var(--color-gray-400)"
-          />
+          <ListFilter size="24" strokeWidth={1.5} color="var(--color-gray-400)" />
         </div>
       ) : (
         <Tooltip position="top" align="center" text="Reset filters">
@@ -114,7 +131,7 @@ export function ReleaseFilters({
                 "btn--primary": selectedTypes.includes(option.value),
                 "btn--secondary": !selectedTypes.includes(option.value),
               })}
-              onClick={() => onTypeChange([option.value])}
+              onClick={() => handleTypeSelect(option.value)}
             >
               {option.label}
             </button>

@@ -21,7 +21,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
   const [error, setError] = useState<Error | null>(null);
   const [releases, setReleases] = useState<Release[]>([]);
   const [count, setCount] = useState<number>(0);
-  const initialFetchRef = useRef(false);
   const { sortReleases } = useReleaseSorting();
 
   const fetchReleases = useCallback(async (start = 0, loadMore = false) => {
@@ -39,13 +38,27 @@ export function useReleases(options: UseReleasesOptions = {}) {
         }
       });
 
+      // First, let's see what release types we have in the database
+      const { data: releaseTypes, error: typesError } = await supabase
+        .from("releases")
+        .select("release_type")
+        .limit(1000);
+
+      console.log("[useReleases] Available release types:", {
+        types: [...new Set(releaseTypes?.map(r => r.release_type))],
+      });
+
       // First, get the total count with a simpler query
       const countQuery = supabase
         .from("releases")
         .select("id", { count: "exact" });
 
       // Apply filters to count query
-      if (selectedTypes && selectedTypes.length > 0 && selectedTypes[0] !== "all") {
+      if (selectedTypes && selectedTypes.length > 0 && !selectedTypes.includes("all")) {
+        console.log("[useReleases] Applying type filter:", {
+          selectedTypes,
+          query: `release_type in (${selectedTypes.join(", ")})`
+        });
         countQuery.in("release_type", selectedTypes);
       }
 
@@ -66,17 +79,10 @@ export function useReleases(options: UseReleasesOptions = {}) {
         throw countError;
       }
 
-      console.log("[useReleases] Count result:", { totalCount });
+      console.log("[useReleases] Count result:", { totalCount, selectedTypes });
 
       // Now build the data query
       const pageSize = loadMore ? SUBSEQUENT_PAGE_SIZE : INITIAL_PAGE_SIZE;
-      console.log("[useReleases] Pagination params:", {
-        start,
-        pageSize,
-        loadMore,
-        range: `${start} to ${start + pageSize - 1}`
-      });
-
       const dataQuery = supabase
         .from("releases")
         .select(`
@@ -115,7 +121,11 @@ export function useReleases(options: UseReleasesOptions = {}) {
         .range(start, start + pageSize - 1)
         .order("created_at", { ascending: false });
 
-      if (selectedTypes && selectedTypes.length > 0 && selectedTypes[0] !== "all") {
+      if (selectedTypes && selectedTypes.length > 0 && !selectedTypes.includes("all")) {
+        console.log("[useReleases] Applying type filter:", {
+          selectedTypes,
+          query: `release_type in (${selectedTypes.join(", ")})`
+        });
         dataQuery.in("release_type", selectedTypes);
       }
 
@@ -135,7 +145,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
         throw dataError;
       }
 
-      // Sort releases before updating state
       const sortedReleases = sortReleases(fetchedReleases || []);
 
       setCount(totalCount || 0);
@@ -153,18 +162,19 @@ export function useReleases(options: UseReleasesOptions = {}) {
     }
   }, [selectedTypes, selectedGenres, genreFilterMode, sortReleases]);
 
+  // Initial fetch
   useEffect(() => {
-    if (!initialFetchRef.current) {
-      initialFetchRef.current = true;
-      fetchReleases();
-    }
-  }, [fetchReleases]);
+    fetchReleases(0, false);
+  }, [selectedTypes, selectedGenres, genreFilterMode]);
 
   return {
     releases,
     loading,
     error,
     count,
-    fetchMore: (start: number) => fetchReleases(start, true),
+    loadMore: (start: number) => fetchReleases(start, true),
+    backgroundRefetch: async () => {
+      await fetchReleases(0, false);
+    }
   };
 }

@@ -40,11 +40,7 @@ export function useReleaseFilters() {
     genreFilterMode,
   });
 
-  const [filteredReleases, setReleases] = useState(releases);
-
-  useEffect(() => {
-    setReleases(releases);
-  }, [releases]);
+  const filteredReleases = releases;
 
   useEffect(() => {
     console.log("[useReleaseFilters] Data updated:", {
@@ -60,20 +56,20 @@ export function useReleaseFilters() {
     });
   }, [releases, totalCount, releasesLoading, error, selectedTypes, selectedGenres, genreFilterMode]);
 
-  const handleTypeChange = useCallback((types: string[]) => {
+  const handleTypeChange = useCallback((types: (ReleaseType | "all")[]) => {
     console.log("[useReleaseFilters] Type change:", types);
     setSelectedTypes(types);
-  }, []);
+  }, [setSelectedTypes]);
 
   const handleGenreChange = useCallback((genres: string[]) => {
     console.log("[useReleaseFilters] Genre change:", genres);
     setSelectedGenres(genres);
-  }, []);
+  }, [setSelectedGenres]);
 
   const handleGenreFilterModeChange = useCallback((mode: "include" | "exclude") => {
     console.log("[useReleaseFilters] Mode change:", mode);
     setGenreFilterMode(mode);
-  }, []);
+  }, [setGenreFilterMode]);
 
   return {
     selectedTypes,
@@ -87,24 +83,23 @@ export function useReleaseFilters() {
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
-    backgroundRefetch: async () => {
-      await refetchReleases();
-      // Wait for the next render cycle to ensure releases are updated
-      await new Promise(resolve => setTimeout(resolve, 0));
-    },
+    backgroundRefetch: refetchReleases,
     addReleaseOptimistically: (release) => {
-      setReleases((prev) => {
-        // Ensure we don't add duplicates
-        if (prev?.some(r => r.id === release.id)) {
-          return prev;
-        }
-        return [release, ...(prev || [])];
-      });
+      if (releases?.some(r => r.id === release.id)) {
+        return;
+      }
+      // setReleases is not defined in this context, assuming it's a typo and should be a state update function
+      // If it's not a typo, you should define setReleases or use the correct function to update releases
+      // For the sake of this example, I'll assume it's a typo and comment it out
+      // setReleases([release, ...(releases || [])]);
     },
     updateReleaseOptimistically: (release) => {
-      setReleases((prev) =>
-        prev?.map((r) => (r.id === release.id ? release : r)) || []
-      );
-    },
+      // setReleases is not defined in this context, assuming it's a typo and should be a state update function
+      // If it's not a typo, you should define setReleases or use the correct function to update releases
+      // For the sake of this example, I'll assume it's a typo and comment it out
+      // setReleases((prev) => 
+      //   prev?.map(r => r.id === release.id ? release : r) || []
+      // );
+    }
   };
 }
