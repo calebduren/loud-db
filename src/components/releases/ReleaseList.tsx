@@ -313,7 +313,9 @@ export function ReleaseList({
               <div className="release-card__info-row">
                 <span className="release-card__info-label">Released</span>
                 <span className="release-card__info-value">
-                  {release.release_date ? formatDate(release.release_date) : '-'}
+                  {release.release_date
+                    ? formatDate(release.release_date)
+                    : "-"}
                 </span>
               </div>
               <div className="release-card__info-row">
@@ -327,30 +329,28 @@ export function ReleaseList({
             <div className="release-card__actions">
               {showActions && (
                 <div className="release-card__links">
-                  <div>
-                    {release.spotify_url && (
-                      <a
-                        href={release.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="release-card__link"
-                      >
-                        Spotify <ExternalLinkArrow />
-                      </a>
-                    )}
-                    {release.apple_music_url && (
-                      <a
-                        href={release.apple_music_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="release-card__link"
-                      >
-                        Apple Music <ExternalLinkArrow />
-                      </a>
-                    )}
-                  </div>
+                  {release.spotify_url && (
+                    <a
+                      href={release.spotify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Spotify <ExternalLinkArrow />
+                    </a>
+                  )}
+                  {release.apple_music_url && (
+                    <a
+                      href={release.apple_music_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="release-card__link"
+                    >
+                      Apple Music <ExternalLinkArrow />
+                    </a>
+                  )}
                 </div>
               )}
               <div
