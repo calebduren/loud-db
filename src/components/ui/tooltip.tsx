@@ -30,7 +30,7 @@ export function Tooltip({
           align === "center" && "left-1/2 -translate-x-1/2",
           align === "right" && "right-0",
           // Base styles
-          "px-2 py-1.5 rounded-lg bg-[--color-gray-700] text-white font-medium text-xs",
+          "px-2 py-1.5 rounded-lg bg-[--color-gray-700] text-white font-medium text-sm",
           "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
           "pointer-events-none whitespace-nowrap z-50",
           className

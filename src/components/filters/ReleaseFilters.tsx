@@ -6,6 +6,7 @@ import { ReleaseType } from "../../types/database";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
 import { Button } from "../ui/button";
 import { ListFilter, X } from "lucide-react";
+import { Tooltip } from "../ui/tooltip"; // Assuming Tooltip is defined in this file
 
 const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -57,12 +58,14 @@ export function ReleaseFilters({
     onGenreFilterModeChange("include");
   }, [onTypeChange, onGenreChange, onGenreFilterModeChange]);
 
-  const isDefaultState = useMemo(() => (
-    selectedTypes.length === 1 &&
-    selectedTypes[0] === "all" &&
-    selectedGenres.length === 0 &&
-    genreFilterMode === "include"
-  ), [selectedTypes, selectedGenres, genreFilterMode]);
+  const isDefaultState = useMemo(
+    () =>
+      selectedTypes.length === 1 &&
+      selectedTypes[0] === "all" &&
+      selectedGenres.length === 0 &&
+      genreFilterMode === "include",
+    [selectedTypes, selectedGenres, genreFilterMode]
+  );
 
   if (groupsLoading) {
     return <div>Loading filters...</div>;
@@ -84,19 +87,26 @@ export function ReleaseFilters({
     <div className="filters-container">
       {isDefaultState ? (
         <div className="w-[--input-height] h-[--input-height] flex items-center justify-center">
-          <ListFilter size="24" strokeWidth={1.5} color="var(--color-gray-400)" />
+          <ListFilter
+            size="24"
+            strokeWidth={1.5}
+            color="var(--color-gray-400)"
+          />
         </div>
       ) : (
-        <Button 
-          variant="secondary" 
-          size="icon" 
-          onClick={handleReset}
-          className="w-[--input-height] h-[--input-height]"
-        >
-          <X size="24" strokeWidth={1.5} />
-        </Button>
+        <Tooltip position="top" align="center" text="Reset filters">
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={handleReset}
+            className="w-[--input-height] h-[--input-height]"
+          >
+            <X size="24" strokeWidth={1.5} />
+          </Button>
+        </Tooltip>
       )}
-      <FilterSection label="Filter length">
+      <div className="filter-divider" />
+      <FilterSection label="Length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
             <button
@@ -108,12 +118,12 @@ export function ReleaseFilters({
             >
               {option.label}
             </button>
-            {index === 0 && <div className="vertical-divider" />}
+            {index === 0 && <div className="length-divider" />}
           </React.Fragment>
         ))}
       </FilterSection>
-
-      <FilterSection label="Filter genres" className="flex-1">
+      <div className="filter-divider" />
+      <FilterSection label="Genres" className="flex-1">
         <GenreFilterDropdown
           genres={availableGenres}
           selectedGenres={selectedGenres}
@@ -123,15 +133,6 @@ export function ReleaseFilters({
           disabled={loading}
         />
       </FilterSection>
-
-      <Button
-        onClick={handleReset}
-        variant="secondary"
-        disabled={isDefaultState}
-        className="filter-reset-button"
-      >
-        Reset filters
-      </Button>
     </div>
   );
 }

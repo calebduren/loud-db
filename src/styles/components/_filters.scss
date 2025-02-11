@@ -1,20 +1,28 @@
 @use "../components/pill";
 
 .filters-container {
-  @apply flex flex-col gap-4 xl:flex-row;
+  @apply flex flex-col gap-4 xl:flex-row xl:items-end;
 }
 
 // Filter Section
 .filter-section {
-  @apply flex flex-row justify-start items-center gap-4 xl:flex-col xl:justify-center xl:items-stretch xl:gap-2;
+  @apply flex flex-row justify-start items-center gap-4 xl:gap-6;
 
   &__label {
-    @apply w-[88px] xl:w-auto flex items-baseline text-sm font-medium text-[--color-gray-400];
+    @apply flex items-baseline text-sm font-medium text-[--color-gray-400];
   }
 
   &__content {
     @apply flex items-center gap-2 flex-1;
   }
+}
+
+.length-divider {
+  @apply w-[24px] h-[0.5px] bg-[--color-gray-500];
+}
+
+.filter-divider {
+  @apply w-[0.5px] h-full bg-[--color-gray-500];
 }
 
 // Filter Button
