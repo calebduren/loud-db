@@ -6,7 +6,7 @@ import { ReleaseType } from "../../types/database";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
 import { Button } from "../ui/button";
 import { ListFilter, X } from "lucide-react";
-import { Tooltip } from "../ui/tooltip"; // Assuming Tooltip is defined in this file
+import { Tooltip } from "../ui/tooltip";
 import { RELEASE_TYPES, RELEASE_TYPE_LABELS } from "@/constants/releases";
 
 interface ReleaseFiltersProps {
@@ -51,18 +51,21 @@ export function ReleaseFilters({
     onGenreFilterModeChange("include");
   }, [onTypeChange, onGenreChange, onGenreFilterModeChange]);
 
-  const handleTypeSelect = useCallback((type: ReleaseType | "all") => {
-    if (type === "all") {
-      onTypeChange(["all"]);
-    } else {
-      const newTypes = selectedTypes.includes(type)
-        ? selectedTypes.filter(t => t !== type)
-        : [...selectedTypes.filter(t => t !== "all"), type];
-      
-      // If no types are selected, default back to "all"
-      onTypeChange(newTypes.length === 0 ? ["all"] : newTypes);
-    }
-  }, [selectedTypes, onTypeChange]);
+  const handleTypeSelect = useCallback(
+    (type: ReleaseType | "all") => {
+      if (type === "all") {
+        onTypeChange(["all"]);
+      } else {
+        const newTypes = selectedTypes.includes(type)
+          ? selectedTypes.filter((t) => t !== type)
+          : [...selectedTypes.filter((t) => t !== "all"), type];
+
+        // If no types are selected, default back to "all"
+        onTypeChange(newTypes.length === 0 ? ["all"] : newTypes);
+      }
+    },
+    [selectedTypes, onTypeChange]
+  );
 
   const isDefaultState = useMemo(
     () =>
@@ -73,13 +76,14 @@ export function ReleaseFilters({
     [selectedTypes, selectedGenres, genreFilterMode]
   );
 
-  const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
-    { value: "all", label: RELEASE_TYPE_LABELS.all },
-    ...RELEASE_TYPES.map(type => ({
-      value: type,
-      label: RELEASE_TYPE_LABELS[type]
-    }))
-  ];
+  const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] =
+    [
+      { value: "all", label: RELEASE_TYPE_LABELS.all },
+      ...RELEASE_TYPES.map((type) => ({
+        value: type,
+        label: RELEASE_TYPE_LABELS[type],
+      })),
+    ];
 
   if (groupsLoading) {
     return <div>Loading filters...</div>;
@@ -101,7 +105,11 @@ export function ReleaseFilters({
     <div className="filters-container">
       {isDefaultState ? (
         <div className="w-[--input-height] h-[--input-height] flex items-center justify-center">
-          <ListFilter size="24" strokeWidth={1.5} color="var(--color-gray-400)" />
+          <ListFilter
+            size="24"
+            strokeWidth={1.5}
+            color="var(--color-gray-400)"
+          />
         </div>
       ) : (
         <Tooltip position="top" align="center" text="Reset filters">
