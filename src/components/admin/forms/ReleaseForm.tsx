@@ -12,6 +12,7 @@ import { validateArtists } from "../../../lib/releases/validation";
 import { DuplicateReleaseError } from "../../releases/DuplicateReleaseError";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from 'sonner';
 
 interface ReleaseTrack {
   name: string;
@@ -192,55 +193,61 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
         return;
       }
 
-      const artistError = validateArtists(selectedArtists);
-      if (artistError) {
-        form.setError("name", { message: artistError });
+      // Validate that we have at least one artist with a name
+      const hasArtists = selectedArtists.some(artist => artist.name.trim());
+      if (!hasArtists) {
+        toast.error("At least one artist is required", {
+          position: 'top-center'
+        });
         return;
       }
 
-      const releaseId = await originalHandleSubmit(values, selectedArtists);
-      if (releaseId) {
-        try {
-          // Close modal first
-          handleClose();
+      // Convert selected artists to the format expected by the API
+      const artistData = selectedArtists
+        .filter(artist => artist.name.trim()) // Filter out empty artists
+        .map(artist => ({
+          id: artist.id, // This might be undefined for new artists
+          name: artist.name.trim()
+        }));
 
-          // Create a basic release object for immediate UI update
-          const basicRelease: Release = {
-            id: releaseId,
-            ...values,
-            description: values.description || null,
-            created_by: user?.id || "",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            description_author_id: user?.id || null,
-            artists: selectedArtists.map((a, index) => ({
-              position: index,
-              artist: {
-                id: a.id || "",
-                name: a.name,
-              },
-            })),
-            tracks: values.tracks.map((track) => ({
-              ...track,
-              id: track.id || crypto.randomUUID(),
-              release_id: releaseId,
-              created_at: new Date().toISOString(),
-              preview_url: track.preview_url || null,
-            })),
-          };
+      await originalHandleSubmit(values, artistData);
 
-          // Update UI immediately with basic data
-          onSuccess?.(basicRelease);
+      // Close modal first
+      handleClose();
 
-          // Let the database become consistent before triggering any refreshes
-          await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Create a basic release object for immediate UI update
+      const basicRelease: Release = {
+        id: crypto.randomUUID(), // Temporary ID until we get the real one
+        ...values,
+        description: values.description || null,
+        created_by: user?.id || "",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        description_author_id: user?.id || null,
+        artists: selectedArtists.map((a, index) => ({
+          position: index,
+          artist: {
+            id: a.id || "",
+            name: a.name,
+          },
+        })),
+        tracks: values.tracks.map((track) => ({
+          ...track,
+          id: track.id || crypto.randomUUID(),
+          release_id: crypto.randomUUID(), // Temporary ID
+          created_at: new Date().toISOString(),
+          preview_url: track.preview_url || null,
+        })),
+      };
 
-          // Trigger a background refresh of the releases list
-          window.dispatchEvent(new CustomEvent("refreshReleases"));
-        } catch (error) {
-          console.error("Error in release form submission:", error);
-        }
-      }
+      // Update UI immediately with basic data
+      onSuccess?.(basicRelease);
+
+      // Let the database become consistent before triggering any refreshes
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Trigger a background refresh of the releases list
+      window.dispatchEvent(new CustomEvent("refreshReleases"));
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {

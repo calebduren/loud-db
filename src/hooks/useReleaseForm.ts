@@ -6,15 +6,12 @@ import { Release } from '../types/database';
 import { ArtistData } from '../types/forms';
 import { useAuth } from '../contexts/AuthContext';
 import { createOrUpdateRelease } from '../lib/releases/releaseService';
-import { validateNewRelease } from '../lib/validation/releaseValidation';
-import { ReleaseValidationError } from '../lib/errors/releaseErrors';
-import { useToast } from './useToast';
+import { toast } from 'sonner';
 
 export function useReleaseForm(release?: Release) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ReleaseValidationError | null>(null);
   const { user } = useAuth();
-  const { showToast } = useToast();
 
   // Load initial form state from localStorage or defaults
   const getInitialValues = () => {
@@ -93,55 +90,28 @@ export function useReleaseForm(release?: Release) {
     return () => subscription.unsubscribe();
   }, [form]);
 
-  const handleSubmit = async (values: FormValues, artists: ArtistData[]): Promise<string | false> => {
-    if (!user) return false;
-    
-    setLoading(true);
-    setError(null);
-
+  const handleSubmit = async (values: FormValues, artists: ArtistData[]) => {
     try {
-      // Validate for duplicates
-      const validation = await validateNewRelease(
-        values.name,
-        artists,
-        values.release_date,
-        release?.id
-      );
-
-      if (!validation.isValid) {
-        if (validation.error) {
-          setError(validation.error);
-          showToast({
-            type: 'error',
-            message: validation.error.message
-          });
-        }
-        return false;
-      }
+      setLoading(true);
+      setError(null);
 
       // Create or update release
-      const releaseId = await createOrUpdateRelease(
-        { 
-          ...values, 
-          created_by: user.id,
-          description: values.description?.trim() || null,
-          description_author_id: values.description?.trim() ? user.id : null
-        },
-        artists,
-        release
-      );
+      const releaseId = await createOrUpdateRelease({
+        ...values,
+        created_by: user?.id || ''
+      }, artists, release);
 
-      // Clear saved form data after successful submission
-      localStorage.removeItem('releaseFormDraft');
+      toast.success(release ? "Release updated successfully" : "Release created successfully", {
+        position: 'top-center'
+      });
 
       return releaseId;
     } catch (error) {
       console.error('Error saving release:', error);
-      showToast({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to save release'
+      toast.error(error instanceof Error ? error.message : 'Failed to save release', {
+        position: 'top-center'
       });
-      return false;
+      throw error;
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@ import React from "react";
 import { Modal } from "../ui/Modal";
 import { ReleaseForm } from "./forms/ReleaseForm";
 import { Release } from "../../types/database";
+import { toast } from "sonner";
 
 interface ReleaseFormModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function ReleaseFormModal({
       onClose();
     } catch (error) {
       console.error("Error in handleSuccess:", error);
+      toast.error("Error saving release");
     }
   };
 

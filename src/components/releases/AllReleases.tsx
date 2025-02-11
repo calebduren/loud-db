@@ -34,8 +34,12 @@ export function AllReleases() {
   } = useReleaseFilters();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingRelease, setEditingRelease] = useState<Release | undefined>(undefined);
-  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(undefined);
+  const [editingRelease, setEditingRelease] = useState<Release | undefined>(
+    undefined
+  );
+  const [viewingRelease, setViewingRelease] = useState<Release | undefined>(
+    undefined
+  );
   const [showScrollButton, setShowScrollButton] = useState(false);
   const { isAdmin } = useAuth();
   const { user } = useAuth();
@@ -47,22 +51,29 @@ export function AllReleases() {
   useReleaseSubscription(backgroundRefetch);
 
   const handleCreateSuccess = useCallback(
-    (release: Release) => {
+    async (release: Release) => {
       logger.debug("AllReleases - handleCreateSuccess called");
-      addReleaseOptimistically(release);
+      // Close modal first to prevent any state issues
       setIsCreateModalOpen(false);
-      // Fetch the latest data to ensure we have everything
-      backgroundRefetch();
+      // Wait a tick to ensure modal state is updated
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      // Then update optimistically
+      addReleaseOptimistically(release);
     },
-    [addReleaseOptimistically, backgroundRefetch]
+    [addReleaseOptimistically]
   );
 
   const handleEditSuccess = useCallback(
     async (release: Release) => {
       logger.debug("AllReleases - handleEditSuccess called");
-      updateReleaseOptimistically(release);
+      // Close modal first
       setEditingRelease(undefined);
-      backgroundRefetch();
+      // Wait a tick to ensure modal state is updated
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      // Trigger background refetch first
+      await backgroundRefetch();
+      // Then update optimistically
+      updateReleaseOptimistically(release);
     },
     [updateReleaseOptimistically, backgroundRefetch]
   );

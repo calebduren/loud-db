@@ -64,13 +64,10 @@ export function Modal({
         <div
           className={cn(
             "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
-            title
-              ? `max-w-[${width}px]`
-              : "max-w-[1280px] lg:h-[640px] lg:max-h-[calc(100dvh-32px)]",
+            title ? "" : "max-w-[1280px] lg:h-[640px] lg:max-h-[calc(100dvh-32px)]",
             className
           )}
           style={{ maxWidth: width }}
-          onClick={(e) => e.stopPropagation()}
         >
           {title ? (
             <>

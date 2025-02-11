@@ -87,9 +87,19 @@ export function useReleaseFilters() {
     handleTypeChange,
     handleGenreChange,
     handleGenreFilterModeChange,
-    backgroundRefetch: refetchReleases,
+    backgroundRefetch: async () => {
+      await refetchReleases();
+      // Wait for the next render cycle to ensure releases are updated
+      await new Promise(resolve => setTimeout(resolve, 0));
+    },
     addReleaseOptimistically: (release) => {
-      setReleases((prev) => [release, ...(prev || [])]);
+      setReleases((prev) => {
+        // Ensure we don't add duplicates
+        if (prev?.some(r => r.id === release.id)) {
+          return prev;
+        }
+        return [release, ...(prev || [])];
+      });
     },
     updateReleaseOptimistically: (release) => {
       setReleases((prev) =>

@@ -48,21 +48,18 @@ export function useReleases(options: UseReleasesOptions = {}) {
       }
 
       if (selectedGenres && selectedGenres.length > 0) {
-        const formattedGenres = selectedGenres.map(g => `'${g}'`).join(',');
         if (genreFilterMode === "include") {
-          countQuery.or(`genres.cs.{${selectedGenres.join(',')}},release_genres.genres.name.in.(${formattedGenres})`);
+          countQuery.or(
+            selectedGenres.map(genre => 
+              `release_genres.genres.name.eq.${genre}`
+            ).join(',')
+          );
         } else {
           selectedGenres.forEach(genre => {
-            countQuery.not(`genres.cs.{${genre}}`).not('release_genres.genres.name', 'eq', genre);
+            countQuery.not('release_genres.genres.name', 'eq', genre);
           });
         }
       }
-
-      console.log("[useReleases] Count query filters:", {
-        types: selectedTypes,
-        genres: selectedGenres,
-        mode: genreFilterMode
-      });
       
       const { count: totalCount, error: countError } = await countQuery;
       
@@ -96,7 +93,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
           apple_music_url,
           created_at,
           created_by,
-          genres,
           release_artists (
             position,
             artists (
@@ -119,12 +115,15 @@ export function useReleases(options: UseReleasesOptions = {}) {
       }
 
       if (selectedGenres && selectedGenres.length > 0) {
-        const formattedGenres = selectedGenres.map(g => `'${g}'`).join(',');
         if (genreFilterMode === "include") {
-          dataQuery.or(`genres.cs.{${selectedGenres.join(',')}},release_genres.genres.name.in.(${formattedGenres})`);
+          dataQuery.or(
+            selectedGenres.map(genre => 
+              `release_genres.genres.name.eq.${genre}`
+            ).join(',')
+          );
         } else {
           selectedGenres.forEach(genre => {
-            dataQuery.not(`genres.cs.{${genre}}`).not('release_genres.genres.name', 'eq', genre);
+            dataQuery.not('release_genres.genres.name', 'eq', genre);
           });
         }
       }
@@ -150,7 +149,6 @@ export function useReleases(options: UseReleasesOptions = {}) {
           })) || [];
 
         const genres = [
-          ...(release.genres || []),
           ...(release.release_genres?.map((rg) => rg.genres?.name).filter(Boolean) || [])
         ];
 
