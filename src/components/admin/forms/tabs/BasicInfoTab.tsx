@@ -5,21 +5,23 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormDescription,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { FormInput } from "@/components/ui/form-input";
 import { FormTextarea } from "@/components/ui/form-textarea";
+import { ReleaseTypeInput } from "../ReleaseTypeInput";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/filter-select";
+} from "@/components/ui/radix-select";
 import { ImageUpload } from "../../ImageUpload";
 import { ArtistSearchInput } from "../ArtistSearchInput";
+import { RELEASE_TYPES, RELEASE_TYPE_LABELS } from "@/constants/releases";
 
 interface Artist {
   id?: string;
@@ -38,8 +40,6 @@ interface BasicInfoTabProps {
   onAddArtist: () => void;
   onRemoveArtist: (index: number) => void;
 }
-
-const RELEASE_TYPES = ["single", "EP", "LP", "compilation"] as const;
 
 export function BasicInfoTab({
   form,
@@ -96,20 +96,12 @@ export function BasicInfoTab({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Release Type</FormLabel>
-            <Select value={field.value} onValueChange={field.onChange}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {RELEASE_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <ReleaseTypeInput
+                value={field.value}
+                onChange={field.onChange}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

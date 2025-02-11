@@ -7,22 +7,7 @@ import { useGenreGroups } from "../../hooks/useGenreGroups";
 import { Button } from "../ui/button";
 import { ListFilter, X } from "lucide-react";
 import { Tooltip } from "../ui/tooltip"; // Assuming Tooltip is defined in this file
-
-const RELEASE_TYPE_LABELS: Record<ReleaseType | "all", string> = {
-  all: "All",
-  single: "Single",
-  LP: "LP",
-  EP: "EP",
-  compilation: "Compilation"
-};
-
-const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
-  { value: "all", label: RELEASE_TYPE_LABELS.all },
-  { value: "LP" as ReleaseType, label: RELEASE_TYPE_LABELS.LP },
-  { value: "EP" as ReleaseType, label: RELEASE_TYPE_LABELS.EP },
-  { value: "single" as ReleaseType, label: RELEASE_TYPE_LABELS.single },
-  { value: "compilation" as ReleaseType, label: RELEASE_TYPE_LABELS.compilation }
-];
+import { RELEASE_TYPES, RELEASE_TYPE_LABELS } from "@/constants/releases";
 
 interface ReleaseFiltersProps {
   loading?: boolean;
@@ -87,6 +72,14 @@ export function ReleaseFilters({
       genreFilterMode === "include",
     [selectedTypes, selectedGenres, genreFilterMode]
   );
+
+  const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
+    { value: "all", label: RELEASE_TYPE_LABELS.all },
+    ...RELEASE_TYPES.map(type => ({
+      value: type,
+      label: RELEASE_TYPE_LABELS[type]
+    }))
+  ];
 
   if (groupsLoading) {
     return <div>Loading filters...</div>;
