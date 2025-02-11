@@ -3,9 +3,10 @@ import { Release, ReleaseType } from "@/types/database";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { useAuth } from "../contexts/AuthContext";
+import { useReleaseSorting } from "../hooks/useReleaseSorting";
 
-const INITIAL_PAGE_SIZE = 20;
-const SUBSEQUENT_PAGE_SIZE = 10;
+const INITIAL_PAGE_SIZE = 150;
+const SUBSEQUENT_PAGE_SIZE = 100;
 
 interface UseReleasesOptions {
   selectedTypes?: (ReleaseType | "all")[];
@@ -21,6 +22,7 @@ export function useReleases(options: UseReleasesOptions = {}) {
   const [releases, setReleases] = useState<Release[]>([]);
   const [count, setCount] = useState<number>(0);
   const initialFetchRef = useRef(false);
+  const { sortReleases } = useReleaseSorting();
 
   const fetchReleases = useCallback(async (start = 0, loadMore = false) => {
     try {
@@ -49,14 +51,10 @@ export function useReleases(options: UseReleasesOptions = {}) {
 
       if (selectedGenres && selectedGenres.length > 0) {
         if (genreFilterMode === "include") {
-          countQuery.or(
-            selectedGenres.map(genre => 
-              `release_genres.genres.name.eq.${genre}`
-            ).join(',')
-          );
+          countQuery.overlaps("genres", selectedGenres);
         } else {
           selectedGenres.forEach(genre => {
-            countQuery.not('release_genres.genres.name', 'eq', genre);
+            countQuery.not('genres', 'cs', `{${genre}}`);
           });
         }
       }
@@ -86,137 +84,87 @@ export function useReleases(options: UseReleasesOptions = {}) {
           name,
           release_type,
           cover_url,
+          genres,
           record_label,
           track_count,
-          release_date,
           spotify_url,
           apple_music_url,
           created_at,
+          updated_at,
           created_by,
-          release_artists (
+          release_date,
+          description,
+          description_author_id,
+          description_author:profiles!releases_description_author_id_fkey(id, username),
+          artists:release_artists(
             position,
-            artists (
+            artist:artists(
               id,
               name
             )
           ),
-          release_genres (
-            genres (
-              name
-            )
+          tracks(
+            id,
+            name,
+            track_number,
+            duration_ms,
+            preview_url,
+            created_at
           )
         `)
-        .order("created_at", { ascending: false })
-        .range(start, start + pageSize - 1);
+        .range(start, start + pageSize - 1)
+        .order("created_at", { ascending: false });
 
-      // Apply filters to data query
       if (selectedTypes && selectedTypes.length > 0 && selectedTypes[0] !== "all") {
         dataQuery.in("release_type", selectedTypes);
       }
 
       if (selectedGenres && selectedGenres.length > 0) {
         if (genreFilterMode === "include") {
-          dataQuery.or(
-            selectedGenres.map(genre => 
-              `release_genres.genres.name.eq.${genre}`
-            ).join(',')
-          );
+          dataQuery.overlaps("genres", selectedGenres);
         } else {
           selectedGenres.forEach(genre => {
-            dataQuery.not('release_genres.genres.name', 'eq', genre);
+            dataQuery.not('genres', 'cs', `{${genre}}`);
           });
         }
       }
 
-      const { data, error: dataError } = await dataQuery;
+      const { data: fetchedReleases, error: dataError } = await dataQuery;
 
       if (dataError) {
-        console.error("[useReleases] Data query error:", dataError);
         throw dataError;
       }
 
-      console.log("[useReleases] Raw data:", {
-        count: data?.length || 0,
-        sample: data?.[0]
-      });
-
-      const transformedReleases = data?.map((release) => {
-        const artists = release.release_artists
-          ?.sort((a, b) => (a.position || 0) - (b.position || 0))
-          ?.map((ra) => ({
-            position: ra.position || 0,
-            artist: ra.artists
-          })) || [];
-
-        const genres = [
-          ...(release.release_genres?.map((rg) => rg.genres?.name).filter(Boolean) || [])
-        ];
-
-        return {
-          id: release.id,
-          name: release.name || "",
-          artists,
-          genres: [...new Set(genres)],
-          release_type: release.release_type || "Album",
-          cover_url: release.cover_url || null,
-          record_label: release.record_label || null,
-          track_count: release.track_count || 0,
-          release_date: release.release_date || null,
-          spotify_url: release.spotify_url || null,
-          apple_music_url: release.apple_music_url || null,
-          created_at: release.created_at,
-          created_by: release.created_by
-        };
-      }) || [];
-
-      console.log("[useReleases] Transformed releases:", {
-        count: transformedReleases.length,
-        sample: transformedReleases[0]
-      });
+      // Sort releases before updating state
+      const sortedReleases = sortReleases(fetchedReleases || []);
 
       setCount(totalCount || 0);
-      if (!loadMore) {
-        setReleases(transformedReleases);
+      if (loadMore) {
+        setReleases(prev => [...prev, ...sortedReleases]);
       } else {
-        setReleases((prev) => [...prev, ...transformedReleases]);
+        setReleases(sortedReleases);
       }
-      setError(null);
-    } catch (err) {
-      console.error("[useReleases] Error fetching releases:", err);
-      setError(err as Error);
-      setReleases([]);
-      setCount(0);
+
+    } catch (error) {
+      console.error("Error fetching releases:", error);
+      setError(error instanceof Error ? error : new Error("Failed to fetch releases"));
     } finally {
       setLoading(false);
-      initialFetchRef.current = true;
     }
-  }, [selectedTypes, selectedGenres, genreFilterMode]);
+  }, [selectedTypes, selectedGenres, genreFilterMode, sortReleases]);
 
   useEffect(() => {
-    console.log("[useReleases] Effect triggered", {
-      initialFetch: initialFetchRef.current,
-      filters: {
-        types: selectedTypes,
-        genres: selectedGenres,
-        mode: genreFilterMode
-      }
-    });
-    
-    fetchReleases();
-  }, [fetchReleases, selectedTypes, selectedGenres, genreFilterMode]);
-
-  const loadMoreReleases = useCallback(() => {
-    if (!loading) {
-      fetchReleases(releases.length, true);
+    if (!initialFetchRef.current) {
+      initialFetchRef.current = true;
+      fetchReleases();
     }
-  }, [loading, fetchReleases, releases.length]);
+  }, [fetchReleases]);
 
   return {
     releases,
-    count,
-    error,
     loading,
-    loadMore: loadMoreReleases,
-    backgroundRefetch: fetchReleases
+    error,
+    count,
+    fetchMore: (start: number) => fetchReleases(start, true),
   };
 }
