@@ -1,10 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { cn } from "../../lib/utils";
 import { FilterSection } from "./FilterSection";
 import { GenreFilterDropdown } from "./GenreFilterDropdown";
 import { ReleaseType } from "../../types/database";
 import { useGenreGroups } from "../../hooks/useGenreGroups";
 import { Button } from "../ui/button";
+import { ListFilter, X } from "lucide-react";
 
 const releaseLengthOptions: { value: ReleaseType | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -19,7 +20,7 @@ interface ReleaseFiltersProps {
   selectedTypes: (ReleaseType | "all")[];
   selectedGenres: string[];
   genreFilterMode: "exclude" | "include";
-  onTypeChange: (type: ReleaseType | "all") => void;
+  onTypeChange: (type: (ReleaseType | "all")[]) => void;
   onGenreChange: (genres: string[]) => void;
   onGenreFilterModeChange: (mode: "exclude" | "include") => void;
 }
@@ -33,7 +34,11 @@ export function ReleaseFilters({
   onGenreChange,
   onGenreFilterModeChange,
 }: ReleaseFiltersProps) {
-  const { genreGroups, loading: groupsLoading, error: groupsError } = useGenreGroups();
+  const {
+    genreGroups,
+    loading: groupsLoading,
+    error: groupsError,
+  } = useGenreGroups();
   const availableGenres = Object.keys(genreGroups).sort();
 
   const handleGenreToggle = useCallback(
@@ -47,23 +52,28 @@ export function ReleaseFilters({
   );
 
   const handleReset = useCallback(() => {
-    onTypeChange("all");
+    onTypeChange(["all"]);
     onGenreChange([]);
     onGenreFilterModeChange("include");
   }, [onTypeChange, onGenreChange, onGenreFilterModeChange]);
 
-  const isDefaultState =
+  const isDefaultState = useMemo(() => (
     selectedTypes.length === 1 &&
     selectedTypes[0] === "all" &&
     selectedGenres.length === 0 &&
-    genreFilterMode === "include";
+    genreFilterMode === "include"
+  ), [selectedTypes, selectedGenres, genreFilterMode]);
 
   if (groupsLoading) {
     return <div>Loading filters...</div>;
   }
 
   if (groupsError) {
-    return <div className="text-red-500">Error loading filters. Please try again later.</div>;
+    return (
+      <div className="text-red-500">
+        Error loading filters. Please try again later.
+      </div>
+    );
   }
 
   if (!selectedTypes || !selectedGenres) {
@@ -72,6 +82,20 @@ export function ReleaseFilters({
 
   return (
     <div className="filters-container">
+      {isDefaultState ? (
+        <div className="w-[--input-height] h-[--input-height] flex items-center justify-center">
+          <ListFilter size="24" strokeWidth={1.5} color="var(--color-gray-400)" />
+        </div>
+      ) : (
+        <Button 
+          variant="secondary" 
+          size="icon" 
+          onClick={handleReset}
+          className="w-[--input-height] h-[--input-height]"
+        >
+          <X size="24" strokeWidth={1.5} />
+        </Button>
+      )}
       <FilterSection label="Filter length">
         {releaseLengthOptions.map((option, index) => (
           <React.Fragment key={option.value}>
@@ -80,7 +104,7 @@ export function ReleaseFilters({
                 "btn--primary": selectedTypes.includes(option.value),
                 "btn--secondary": !selectedTypes.includes(option.value),
               })}
-              onClick={() => onTypeChange(option.value)}
+              onClick={() => onTypeChange([option.value])}
             >
               {option.label}
             </button>
