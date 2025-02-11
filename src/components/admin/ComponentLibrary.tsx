@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { PageTitle } from "../layout/PageTitle";
 import { ReleaseList } from "../releases/ReleaseList";
 import { useToast } from "../../hooks/useToast";
-import { ToastComponent } from "../ui/Toast";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
 
@@ -121,30 +120,30 @@ export function ComponentLibrary() {
                     <h5 className="text-sm text-white/80 mb-2">
                       Success Toast
                     </h5>
-                    <ToastComponent
+                    {/* <ToastComponent
                       message="Operation completed successfully"
                       type="success"
                       fixed={false}
-                    />
+                    /> */}
                   </div>
                   <div>
                     <h5 className="text-sm text-white/80 mb-2">Error Toast</h5>
-                    <ToastComponent
+                    {/* <ToastComponent
                       message="Something went wrong"
                       type="error"
                       fixed={false}
-                    />
+                    /> */}
                   </div>
                   <div>
                     <h5 className="text-sm text-white/80 mb-2">
                       Dismissible Toast
                     </h5>
-                    <ToastComponent
+                    {/* <ToastComponent
                       message="Click the X to dismiss"
                       type="success"
                       onClose={() => {}}
                       fixed={false}
-                    />
+                    /> */}
                   </div>
                 </div>
               </div>

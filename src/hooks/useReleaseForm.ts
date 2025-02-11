@@ -101,10 +101,7 @@ export function useReleaseForm(release?: Release) {
         created_by: user?.id || ''
       }, artists, release);
 
-      toast.success(release ? "Release updated successfully" : "Release created successfully", {
-        position: 'top-center'
-      });
-
+      // Let the component handle success toasts
       return releaseId;
     } catch (error) {
       console.error('Error saving release:', error);

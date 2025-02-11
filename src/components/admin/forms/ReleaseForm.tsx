@@ -177,8 +177,8 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           }))
         );
 
-        // Show a single success toast with Apple Music status
-        toast.success('Release imported successfully!', {
+        // Show a single toast with Apple Music status
+        toast('Release imported successfully!', {
           description: appleMusicUrl ? 'Found matching Apple Music link' : 'No Apple Music link found',
           position: 'top-center'
         });
@@ -256,44 +256,15 @@ export function ReleaseForm({ release, onSuccess, onClose }: ReleaseFormProps) {
           name: artist.name.trim()
         }));
 
-      await originalHandleSubmit(values, artistData);
+      const releaseId = await originalHandleSubmit(values, artistData);
 
-      // Close modal first
-      handleClose();
-
-      // Create a basic release object for immediate UI update
-      const basicRelease: Release = {
-        id: crypto.randomUUID(), // Temporary ID until we get the real one
-        ...values,
-        description: values.description || null,
-        created_by: user?.id || "",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        description_author_id: user?.id || null,
-        artists: selectedArtists.map((a, index) => ({
-          position: index,
-          artist: {
-            id: a.id || "",
-            name: a.name,
-          },
-        })),
-        tracks: values.tracks.map((track) => ({
-          ...track,
-          id: track.id || crypto.randomUUID(),
-          release_id: crypto.randomUUID(), // Temporary ID
-          created_at: new Date().toISOString(),
-          preview_url: track.preview_url || null,
-        })),
-      };
-
-      // Update UI immediately with basic data
-      onSuccess?.(basicRelease);
-
-      // Let the database become consistent before triggering any refreshes
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Trigger a background refresh of the releases list
-      window.dispatchEvent(new CustomEvent("refreshReleases"));
+      if (releaseId) {
+        toast.success(release ? "Release updated successfully" : "Release created successfully", {
+          position: 'top-center'
+        });
+        onSuccess?.(values as Release);
+        handleClose();
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
