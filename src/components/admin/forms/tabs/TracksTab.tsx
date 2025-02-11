@@ -48,7 +48,7 @@ export function TracksTab({ form }: TracksTabProps) {
         name="track_count"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Track Count</FormLabel>
+            <FormLabel>Track count</FormLabel>
             <FormControl>
               <Input type="number" min="0" placeholder="0" {...field} />
             </FormControl>

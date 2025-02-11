@@ -12,16 +12,8 @@ import {
 import { FormInput } from "@/components/ui/form-input";
 import { FormTextarea } from "@/components/ui/form-textarea";
 import { ReleaseTypeInput } from "../ReleaseTypeInput";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/radix-select";
 import { ImageUpload } from "../../ImageUpload";
 import { ArtistSearchInput } from "../ArtistSearchInput";
-import { RELEASE_TYPES, RELEASE_TYPE_LABELS } from "@/constants/releases";
 
 interface Artist {
   id?: string;
@@ -57,7 +49,7 @@ export function BasicInfoTab({
         render={({ field }) => (
           <FormItem>
             <div>
-              <FormLabel>Cover Image</FormLabel>
+              <FormLabel>Cover artwork</FormLabel>
               <FormDescription className="text-[--color-gray-400]">
                 640px&times;640px recommended
               </FormDescription>
@@ -66,40 +58,6 @@ export function BasicInfoTab({
               <ImageUpload
                 value={field.value}
                 onUploadComplete={field.onChange}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field, fieldState }) => (
-          <FormItem>
-            <FormLabel>Release Name</FormLabel>
-            <FormControl>
-              <FormInput
-                placeholder="Enter release name"
-                error={fieldState.error?.message}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="release_type"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Release Type</FormLabel>
-            <FormControl>
-              <ReleaseTypeInput
-                value={field.value}
-                onChange={field.onChange}
               />
             </FormControl>
             <FormMessage />
@@ -117,6 +75,38 @@ export function BasicInfoTab({
           onRemoveArtist={onRemoveArtist}
         />
       </div>
+
+      <FormField
+        control={form.control}
+        name="name"
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormLabel>Title</FormLabel>
+            <FormControl>
+              <FormInput
+                placeholder="Enter release title"
+                error={fieldState.error?.message}
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="release_type"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Length</FormLabel>
+            <FormControl>
+              <ReleaseTypeInput value={field.value} onChange={field.onChange} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}
@@ -141,7 +131,7 @@ export function BasicInfoTab({
         name="record_label"
         render={({ field, fieldState }) => (
           <FormItem>
-            <FormLabel>Record Label</FormLabel>
+            <FormLabel>Record label</FormLabel>
             <FormControl>
               <FormInput
                 placeholder="Enter record label"

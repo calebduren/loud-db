@@ -107,16 +107,16 @@ export function ImageUpload({ value, onUploadComplete }: ImageUploadProps) {
             disabled={uploading}
             className="hidden"
           />
-          <div className="h-48 w-48 border-2 border-dashed border-white/10 rounded-lg flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 transition-colors">
+          <div className="h-40 w-40 border border-dashed border-[--color-gray-600] rounded-lg flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 transition-colors">
             {uploading ? (
               <>
-                <Loader2 className="w-8 h-8 text-white/60 animate-spin" />
+                <Loader2 className="w-4 h-4 text-[--color-gray-400] animate-spin" />
                 <span className="text-sm text-white/60">Uploading...</span>
               </>
             ) : (
               <>
-                <Upload className="w-8 h-8 text-white/60" />
-                <span className="text-sm text-white/60">Upload Cover</span>
+                <Upload className="w-4 h-4 text-[--color-gray-400]" />
+                <span className="text-sm text-white/60">Upload</span>
               </>
             )}
           </div>
