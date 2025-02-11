@@ -217,3 +217,36 @@ from
 order by
   department_name;
 ```
+
+# Toast Notification Guidelines
+
+We use Sonner for toast notifications with the following guidelines:
+
+## Toast Provider
+
+- Single Sonner `<Toaster richColors />` component in Layout.tsx
+- No additional toast providers needed
+
+## Toast Types and Use Cases
+
+- Success (green): Use `toast.success()` for successful form submissions and major operations
+- Error (red): Use `toast.error()` for error messages and failed operations
+- Default (neutral): Use `toast()` for informational messages and status updates (e.g. import status)
+
+## Toast Configuration
+
+- Always use `position: 'top-center'` for consistency
+- Use `description` prop for additional context when needed
+- Keep messages concise and clear
+
+## Common Patterns
+
+- Form submission: Use success/error toasts
+- Import status: Use default toast with description for additional status
+- Validation errors: Use error toast with specific message
+
+## Avoid
+
+- Multiple toasts for the same operation
+- Inconsistent positioning
+- Duplicate toast providers
