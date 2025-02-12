@@ -8,7 +8,7 @@ import { fetchReleaseFromSpotify } from "../../lib/spotify/client";
 import { SpotifyReleaseData } from "../../lib/spotify/types";
 import { validateSpotifyUrl } from "../../lib/spotify/validation";
 import { Progress } from "../../components/ui/progress";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { FormInput } from "../ui/form-input";
 
 interface SpotifyImportSectionProps {
@@ -22,7 +22,9 @@ export function SpotifyImportSection({
 }: SpotifyImportSectionProps) {
   const [url, setUrl] = useState("");
   const [importing, setImporting] = useState(false);
-  const [importStage, setImportStage] = useState<"spotify" | "apple_music" | null>(null);
+  const [importStage, setImportStage] = useState<
+    "spotify" | "apple_music" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleImport = async () => {
@@ -32,8 +34,8 @@ export function SpotifyImportSection({
     const validation = validateSpotifyUrl(url);
     if (!validation.isValid) {
       setError(validation.error ?? null);
-      toast.error(validation.error ?? 'Invalid URL', {
-        position: 'top-center'
+      toast.error(validation.error ?? "Invalid URL", {
+        position: "top-center",
       });
       return;
     }
@@ -52,7 +54,7 @@ export function SpotifyImportSection({
         error instanceof Error ? error.message : "Failed to import release";
       setError(message);
       toast.error(message, {
-        position: 'top-center'
+        position: "top-center",
       });
     } finally {
       setImporting(false);
@@ -110,7 +112,7 @@ export function SpotifyImportSection({
         <div className="space-y-2 mt-4">
           <div className="relative">
             <Progress value={getImportProgress()} className="h-2" />
-            <p className="text-sm text-zinc-400 mt-2 text-center">
+            <p className="text-sm font-medium text-[--color-gray-400] mt-1">
               {getImportStatus()}
             </p>
           </div>
