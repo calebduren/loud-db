@@ -5,10 +5,8 @@
 }
 
 @mixin focus-ring {
-  &:focus {
+  &:focus-visible {
     outline: none;
-    ring-width: 2px;
-    ring-color: $color-focus;
-    border-color: $color-focus;
+    @apply ring-2 ring-white/20 ring-offset-2;
   }
 }

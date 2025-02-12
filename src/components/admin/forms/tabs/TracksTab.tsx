@@ -22,6 +22,19 @@ interface TracksTabProps {
 export function TracksTab({ form }: TracksTabProps) {
   const tracks = form.watch("tracks") || [];
 
+  React.useEffect(() => {
+    if (tracks.length === 0) {
+      form.setValue("tracks", [
+        {
+          name: "",
+          track_number: 1,
+          duration_ms: 0,
+          credits: [],
+        },
+      ]);
+    }
+  }, []);
+
   const addTrack = () => {
     const currentTracks = form.getValues("tracks") || [];
     form.setValue("tracks", [

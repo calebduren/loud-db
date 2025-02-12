@@ -10,10 +10,10 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { FormInput } from "@/components/ui/form-input";
-import { FormTextarea } from "@/components/ui/form-textarea";
 import { ReleaseTypeInput } from "../ReleaseTypeInput";
 import { ImageUpload } from "../../ImageUpload";
 import { ArtistSearchInput } from "../ArtistSearchInput";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Artist {
   id?: string;
@@ -42,7 +42,7 @@ export function BasicInfoTab({
   onRemoveArtist,
 }: BasicInfoTabProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="cover_url"
@@ -147,13 +147,12 @@ export function BasicInfoTab({
       <FormField
         control={form.control}
         name="description"
-        render={({ field, fieldState }) => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <FormTextarea
+              <Textarea
                 placeholder="Enter release description"
-                error={fieldState.error?.message}
                 {...field}
               />
             </FormControl>

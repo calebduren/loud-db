@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
@@ -10,6 +9,7 @@ import { SpotifyReleaseData } from "../../lib/spotify/types";
 import { validateSpotifyUrl } from "../../lib/spotify/validation";
 import { Progress } from "../../components/ui/progress";
 import { toast } from 'sonner';
+import { FormInput } from "../ui/form-input";
 
 interface SpotifyImportSectionProps {
   onImport: (data: SpotifyReleaseData) => Promise<void>;
@@ -78,14 +78,14 @@ export function SpotifyImportSection({
     <div className="space-y-4 mb-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <div className="flex-1">
-          <Label htmlFor="spotify-url">Import from Spotify</Label>
-          <Input
+          <FormInput
             id="spotify-url"
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Paste Spotify album URL"
             disabled={disabled || importing}
+            label="Import from Spotify"
           />
         </div>
         <Button
