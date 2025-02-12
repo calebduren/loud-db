@@ -172,6 +172,7 @@ export function useReleases(options: UseReleasesOptions = {}) {
     loading,
     error,
     count,
+    setReleases,
     loadMore: (start: number) => fetchReleases(start, true),
     backgroundRefetch: async () => {
       await fetchReleases(0, false);

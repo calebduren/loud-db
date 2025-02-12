@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { X, Check, ChevronDown, Plus } from "lucide-react";
 import { useAllGenres } from "@/hooks/admin/useAllGenres";
 import { useGenreGroups } from "@/hooks/useGenreGroups";
@@ -18,7 +24,10 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
   const { genres: allGenres = [], loading: genresLoading } = useAllGenres();
   const { genreGroups = {}, loading: groupsLoading } = useGenreGroups();
 
-  const isLoading = useMemo(() => genresLoading || groupsLoading, [genresLoading, groupsLoading]);
+  const isLoading = useMemo(
+    () => genresLoading || groupsLoading,
+    [genresLoading, groupsLoading]
+  );
 
   const filteredGroupNames = useMemo(() => {
     if (isLoading) return [];
@@ -63,27 +72,36 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const removeGenre = useCallback((genreToRemove: string) => {
-    onChange(value.filter((genre) => genre !== genreToRemove));
-  }, [value, onChange]);
+  const removeGenre = useCallback(
+    (genreToRemove: string) => {
+      onChange(value.filter((genre) => genre !== genreToRemove));
+    },
+    [value, onChange]
+  );
 
-  const addGenre = useCallback((genre: string) => {
-    const normalizedGenre = normalizeGenre(genre);
-    if (!value.includes(normalizedGenre)) {
-      onChange([...value, normalizedGenre]);
-      setSearchQuery("");
-    }
-  }, [value, onChange]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchQuery.trim()) {
-      e.preventDefault();
-      if (!value.includes(searchQuery.trim())) {
-        addGenre(searchQuery.trim());
+  const addGenre = useCallback(
+    (genre: string) => {
+      const normalizedGenre = normalizeGenre(genre);
+      if (!value.includes(normalizedGenre)) {
+        onChange([...value, normalizedGenre]);
+        setSearchQuery("");
       }
-      setIsOpen(false);
-    }
-  }, [searchQuery, value, addGenre]);
+    },
+    [value, onChange]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && searchQuery.trim()) {
+        e.preventDefault();
+        if (!value.includes(searchQuery.trim())) {
+          addGenre(searchQuery.trim());
+        }
+        setIsOpen(false);
+      }
+    },
+    [searchQuery, value, addGenre]
+  );
 
   if (isLoading) {
     return (
@@ -107,7 +125,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
 
   return (
     <div className="relative flex-1">
-      <div className="flex h-[--input-height] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/20 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200">
+      <div className="flex gap-2 items-center h-[--input-height] w-full rounded-md border border-white/10 bg-white/5 px-3 py-0 text-sm text-white ring-offset-background placeholder:text-white/40 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/20 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200">
         {value.map((genre) => (
           <span key={genre} className="pill pill--genres">
             {genre}
@@ -133,7 +151,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder={value.length === 0 ? "Search or create genres..." : ""}
-            className="no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 text-sm placeholder:text-white/40"
+            className="text-[12px] uppercase font-mono no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 placeholder:text-white/40"
           />
           <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         </div>
@@ -207,14 +225,13 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
             </button>
           )}
 
-          {filteredGenres.length === 0 &&
-            filteredGroupNames.length === 0 && (
-              <div className="px-2 py-1.5 text-sm text-white/40">
-                {searchQuery.trim()
-                  ? "No matching genres"
-                  : "Type to search or create a new genre"}
-              </div>
-            )}
+          {filteredGenres.length === 0 && filteredGroupNames.length === 0 && (
+            <div className="px-2 py-1.5 text-sm text-white/40">
+              {searchQuery.trim()
+                ? "No matching genres"
+                : "Type to search or create a new genre"}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -34,6 +34,7 @@ export function useReleaseFilters() {
     loading: releasesLoading,
     loadMore: loadMoreReleases,
     backgroundRefetch: refetchReleases,
+    setReleases,
   } = useReleases({
     selectedTypes,
     selectedGenres,
@@ -88,18 +89,12 @@ export function useReleaseFilters() {
       if (releases?.some(r => r.id === release.id)) {
         return;
       }
-      // setReleases is not defined in this context, assuming it's a typo and should be a state update function
-      // If it's not a typo, you should define setReleases or use the correct function to update releases
-      // For the sake of this example, I'll assume it's a typo and comment it out
-      // setReleases([release, ...(releases || [])]);
+      setReleases([release, ...(releases || [])]);
     },
     updateReleaseOptimistically: (release) => {
-      // setReleases is not defined in this context, assuming it's a typo and should be a state update function
-      // If it's not a typo, you should define setReleases or use the correct function to update releases
-      // For the sake of this example, I'll assume it's a typo and comment it out
-      // setReleases((prev) => 
-      //   prev?.map(r => r.id === release.id ? release : r) || []
-      // );
-    }
+      setReleases((prev) => 
+        prev?.map(r => r.id === release.id ? release : r) || []
+      );
+    },
   };
 }
