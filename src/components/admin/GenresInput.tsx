@@ -151,7 +151,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder={value.length === 0 ? "Search or create genres..." : ""}
-            className="text-[12px] uppercase font-mono no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 placeholder:text-white/40"
+            className="text-sm no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 placeholder:text-white/40"
           />
           <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         </div>

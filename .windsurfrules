@@ -4,6 +4,8 @@ This is a react app built with Vite and Tailwind. We use Supabase for our databa
 
 Use Radix and Shadcn when possible.
 
+We prefer to create reusable components and use them in multiple places.
+
 Do not add, remove, or change styles unless asked explicitly.
 
 The app is connected to the production database in Supabase so we should NEVER reset the database. Since we are connected to the production database we do not use Docker. I can push migrations to Supabase. If you want to see anything in the database you need to ask me.
