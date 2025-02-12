@@ -1,7 +1,7 @@
 @use "../abstracts/colors" as *;
 @use "../abstracts/mixins" as *;
 
-input {
+input:not(.no-focus) {
   @include focus-ring;
   @include transition;
 

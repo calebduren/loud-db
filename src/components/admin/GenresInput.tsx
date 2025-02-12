@@ -91,20 +91,20 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
 
   return (
     <div className="relative flex-1">
-      <div className="flex flex-wrap gap-2 p-2 min-h-[2.5rem] bg-white/5 border border-white/10 rounded-md focus-within:ring-2 focus-within:ring-white/20 focus-within:border-white/20 transition-all duration-200">
+      <div className="flex h-[--input-height] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/20 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200">
         {value.map((genre) => (
           <span key={genre} className="pill pill--genres">
             {genre}
             <button
               type="button"
               onClick={() => removeGenre(genre)}
-              className="text-white hover:text-white transition-colors"
+              className="text-white/60 hover:text-white transition-colors"
             >
               <X size={14} strokeWidth={1.5} />
             </button>
           </span>
         ))}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-w-[120px]">
           <input
             ref={inputRef}
             type="text"
@@ -117,9 +117,9 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder={value.length === 0 ? "Search or create genres..." : ""}
-            className="w-full bg-transparent border-none outline-none text-sm placeholder:text-white/40 pr-8"
+            className="no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 text-sm placeholder:text-white/40"
           />
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
                     addGenre(groupName);
                     setIsOpen(false);
                   }}
-                  className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group bg-white/5"
+                  className="w-full px-2 py-1.5 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
                 >
                   <span>{groupName}</span>
                   <Check
@@ -166,7 +166,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
                     addGenre(genre);
                     setIsOpen(false);
                   }}
-                  className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
+                  className="w-full px-2 py-1.5 text-left text-sm hover:bg-white/5 flex items-center justify-between group"
                 >
                   <span>{genre}</span>
                   <Check
@@ -184,7 +184,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
                 addGenre(searchQuery.trim());
                 setIsOpen(false);
               }}
-              className="w-full px-2 py-1 text-left text-sm hover:bg-white/5 flex items-center gap-2 text-emerald-400"
+              className="w-full px-2 py-1.5 text-left text-sm hover:bg-white/5 flex items-center gap-2 text-emerald-400"
             >
               <Plus size={14} />
               <span>Create "{searchQuery.trim()}"</span>
@@ -193,7 +193,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
 
           {filteredGenres.length === 0 &&
             filteredGroupNames.length === 0 && (
-              <div className="px-2 py-1 text-sm text-white/60">
+              <div className="px-2 py-1.5 text-sm text-white/40">
                 {searchQuery.trim()
                   ? "No matching genres"
                   : "Type to search or create a new genre"}
