@@ -86,7 +86,23 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
   }, [searchQuery, value, addGenre]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="relative flex-1">
+        <div className="flex h-[--input-height] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/20 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200">
+          <div className="flex-1 relative min-w-[120px] flex items-center">
+            <input
+              disabled
+              type="text"
+              placeholder="Loading genres..."
+              className="no-focus w-full bg-transparent border-0 outline-0 ring-0 p-0 text-sm placeholder:text-white/40"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <div className="animate-spin h-4 w-4 border-2 border-white/40 border-t-transparent rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

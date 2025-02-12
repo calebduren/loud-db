@@ -5,18 +5,26 @@ import { logger } from "../lib/utils/logger";
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
+// Cache for genre groups
+let cachedGenreGroups: Record<string, string[]> | null = null;
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function useGenreGroups() {
-  const [genreGroups, setGenreGroups] = useState<Record<string, string[]>>({});
-  const [loading, setLoading] = useState(true);
+  const [genreGroups, setGenreGroups] = useState<Record<string, string[]>>(cachedGenreGroups || {});
+  const [loading, setLoading] = useState(!cachedGenreGroups);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let mounted = true;
     let retryCount = 0;
+
+    // If we have cached data, no need to fetch
+    if (cachedGenreGroups) {
+      return;
+    }
 
     async function loadGenreGroups() {
       while (retryCount < MAX_RETRIES) {
@@ -35,6 +43,8 @@ export function useGenreGroups() {
             setGenreGroups(groups);
             setError(null);
             setLoading(false);
+            // Cache the results
+            cachedGenreGroups = groups;
           }
           return; // Success, exit retry loop
         } catch (err) {
@@ -57,7 +67,7 @@ export function useGenreGroups() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, []); // Empty dependency array since we're using module-level cache
 
   return { genreGroups, loading, error };
 }
