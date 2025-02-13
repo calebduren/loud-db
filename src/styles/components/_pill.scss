@@ -1,74 +1,86 @@
-.pill {
-  @apply text-[9px] uppercase font-mono inline-flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[6px] px-1.5 py-0;
+@layer components {
+  .pill {
+    @apply text-[10px] uppercase inline-flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[5px] px-1.5 py-0.5;
 
-  &--release-type {
-    @apply bg-black/40 text-white border-[0.5px] border-white/10 backdrop-blur;
-  }
-
-  &--genre {
-    @apply bg-white/20 text-white border-[0.5px] border-white/10 backdrop-blur;
-  }
-
-  // Default style (used in cards and modals)
-  &--default {
-    @apply bg-[--color-gray-800] text-white/60;
-
-    &:hover {
-      @apply bg-[--color-gray-700] text-white;
-    }
-  }
-
-  &--outline {
-    @apply bg-transparent text-white border-[0.5px] border-white/20;
-  }
-
-  &--recommended {
-    @apply bg-[--color-loud] text-black;
-  }
-
-  // Interactive style (used in filters)
-  &--interactive {
-    @apply bg-[--color-gray-800] text-white/60 cursor-pointer;
-
-    &:hover {
-      @apply bg-[--color-gray-700] text-white;
+    // Release type variants
+    &--release-type {
+      @apply bg-black/40 text-white border-[0.5px] border-white/10 backdrop-blur;
     }
 
-    &.pill--selected {
-      @apply bg-white text-black;
+    // Genre variants
+    &--genre {
+      @apply bg-white/15 text-white border-[0.5px] border-white/10 backdrop-blur font-mono font-semibold;
+    }
 
-      &:hover {
-        @apply bg-white/90;
+    &--genres {
+      @apply bg-white/5 text-white px-2 py-0.5 rounded-md mr-1;
+
+      button {
+        @apply p-0.5 rounded-sm hover:bg-white/10 transition-colors;
       }
     }
-  }
 
-  // Ghost style (used in selected genres)
-  &--ghost {
-    @apply text-white p-0 bg-transparent;
+    // Default style (used in cards and modals)
+    &--default {
+      @apply bg-[--color-gray-800] text-white/60;
 
-    &--deemphasized {
-      @apply text-white/60;
+      &:hover {
+        @apply bg-[--color-gray-700] text-white;
+      }
     }
-  }
 
-  // Sizes
-  &--sm {
-    @apply h-[24px] px-2;
-  }
-
-  // Icon styles
-  &__icon {
-    @apply transition-opacity;
-    @apply opacity-60;
-
-    .pill:hover & {
-      @apply opacity-100;
+    &--outline {
+      @apply bg-transparent text-white border-[0.5px] border-white/20;
     }
-  }
 
-  // Remove button (for selected pills)
-  &__remove {
-    @apply p-[3px] bg-white/10 hover:bg-white hover:text-black rounded-full transition-colors;
+    &--recommended {
+      @apply bg-[--color-loud] text-black;
+    }
+
+    // Interactive style (used in filters)
+    &--interactive {
+      @apply bg-[--color-gray-800] text-white/60 cursor-pointer;
+
+      &:hover {
+        @apply bg-[--color-gray-700] text-white;
+      }
+
+      &.pill--selected {
+        @apply bg-white text-black;
+
+        &:hover {
+          @apply bg-white/90;
+        }
+      }
+    }
+
+    // Ghost style (used in selected genres)
+    &--ghost {
+      @apply text-white p-0 bg-transparent;
+
+      &--deemphasized {
+        @apply text-white/60;
+      }
+    }
+
+    // Sizes
+    &--sm {
+      @apply h-[24px] px-2;
+    }
+
+    // Icon styles
+    &__icon {
+      @apply transition-opacity;
+      @apply opacity-60;
+
+      .pill:hover & {
+        @apply opacity-100;
+      }
+    }
+
+    // Remove button (for selected pills)
+    &__remove {
+      @apply p-[3px] bg-white/10 hover:bg-white hover:text-black rounded-full transition-colors;
+    }
   }
 }

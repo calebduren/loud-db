@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useId as useReactId } from "react";
 import { ChevronDown, Plus, X } from "lucide-react";
 import { cn } from "../../lib/utils";
 import {
@@ -8,6 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/filter-select";
+
+import { Label } from "@/components/ui/origin/label";
+import MultipleSelector, { Option } from "@/components/ui/origin/multiselect";
 
 interface GenreFilterDropdownProps {
   genres: string[];
@@ -262,24 +265,24 @@ export function GenreFilterDropdown({
     onFilterModeChange(filterMode === "include" ? "exclude" : "include");
   };
 
+  const filterModeId = useReactId();
+
   return (
     <div className="genre-dropdown__container">
-      <div className="genre-dropdown__mode">
-        <Select
-          value={filterMode}
-          onValueChange={(value: "include" | "exclude") =>
-            onFilterModeChange(value)
-          }
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Filter mode" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="include">Include</SelectItem>
-            <SelectItem value="exclude">Exclude</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Select
+        value={filterMode}
+        onValueChange={(value: "include" | "exclude") =>
+          onFilterModeChange(value)
+        }
+      >
+        <SelectTrigger id={filterModeId} className="w-[140px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="include">Include</SelectItem>
+          <SelectItem value="exclude">Exclude</SelectItem>
+        </SelectContent>
+      </Select>
 
       <div className="genre-dropdown__input" ref={dropdownRef}>
         <button
