@@ -1,22 +1,22 @@
 @layer components {
   .pill {
-    @apply text-[10px] uppercase inline-flex items-center gap-1 font-semibold transition-colors text-nowrap rounded-[5px] px-1.5 py-0.5;
+    @apply inline-flex items-center gap-1 text-nowrap rounded-[5px] px-1.5 py-0.5 text-[10px] font-semibold uppercase transition-colors;
 
     // Release type variants
     &--release-type {
-      @apply bg-black/40 text-white border-[0.5px] border-white/10 backdrop-blur;
+      @apply border-[0.5px] border-white/10 bg-black/40 text-white backdrop-blur;
     }
 
     // Genre variants
     &--genre {
-      @apply bg-white/15 text-white border-[0.5px] border-white/10 backdrop-blur font-mono font-semibold;
+      @apply border-[0.5px] border-white/10 bg-white/15 font-mono font-semibold text-white backdrop-blur;
     }
 
     &--genres {
-      @apply bg-white/5 text-white px-2 py-0.5 rounded-md mr-1;
+      @apply mr-1 rounded-md bg-white/5 px-2 py-0.5 text-white;
 
       button {
-        @apply p-0.5 rounded-sm hover:bg-white/10 transition-colors;
+        @apply rounded-sm p-0.5 transition-colors hover:bg-white/10;
       }
     }
 
@@ -30,7 +30,7 @@
     }
 
     &--outline {
-      @apply bg-transparent text-white border-[0.5px] border-white/20;
+      @apply border-[0.5px] border-white/20 bg-transparent text-white;
     }
 
     &--recommended {
@@ -39,7 +39,7 @@
 
     // Interactive style (used in filters)
     &--interactive {
-      @apply bg-[--color-gray-800] text-white/60 cursor-pointer;
+      @apply cursor-pointer bg-[--color-gray-800] text-white/60;
 
       &:hover {
         @apply bg-[--color-gray-700] text-white;
@@ -56,7 +56,7 @@
 
     // Ghost style (used in selected genres)
     &--ghost {
-      @apply text-white p-0 bg-transparent;
+      @apply bg-transparent p-0 text-white;
 
       &--deemphasized {
         @apply text-white/60;
@@ -80,7 +80,7 @@
 
     // Remove button (for selected pills)
     &__remove {
-      @apply p-[3px] bg-white/10 hover:bg-white hover:text-black rounded-full transition-colors;
+      @apply rounded-full bg-white/10 p-[3px] transition-colors hover:bg-white hover:text-black;
     }
   }
 }

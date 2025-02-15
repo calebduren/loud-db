@@ -1,10 +1,10 @@
 @use "../utilities/shared";
 
 .top-nav {
-  @apply fixed top-0 left-0 right-0 z-50 bg-[var(--color-background)] border-b-[0.5px] border-[--color-gray-700];
+  @apply fixed left-0 right-0 top-0 z-50 border-b-[0.5px] border-[--color-gray-700] bg-[var(--color-background)];
 
   &__container {
-    @apply max-w-screen-2xl mx-auto h-20 flex items-center justify-between;
+    @apply mx-auto flex h-20 max-w-screen-2xl items-center justify-between;
     @extend %loud-container-px;
   }
 
@@ -21,7 +21,7 @@
   }
 
   &__nav {
-    @apply hidden sm:block flex-1 px-8;
+    @apply hidden flex-1 px-8 sm:block;
 
     &--mobile-open {
       @apply fixed inset-0 top-16 bg-[var(--color-background)] sm:static sm:bg-transparent;
@@ -30,11 +30,11 @@
   }
 
   &__list {
-    @apply flex flex-col sm:flex-row items-start sm:items-center gap-6;
+    @apply flex flex-col items-start gap-6 sm:flex-row sm:items-center;
   }
 
   &__nav-item {
-    @apply flex items-center text-sm font-semibold text-white/60 hover:text-white/80 transition-colors;
+    @apply flex items-center text-sm font-semibold text-white/60 transition-colors hover:text-white/80;
 
     &--active {
       @apply text-white;
@@ -51,17 +51,17 @@
 
   &__user-button {
     @apply flex items-center justify-center;
-    @apply w-8 h-8 rounded-full overflow-hidden;
+    @apply h-8 w-8 overflow-hidden rounded-full;
   }
 
   &__user-menu-items {
     @apply absolute right-0 mt-2 w-56 rounded-lg;
-    @apply bg-[var(--color-gray-800)] border border-white/5;
+    @apply border border-white/5 bg-[var(--color-gray-800)];
     @apply focus:outline-none;
   }
 
   &__user-info {
-    @apply px-4 pt-3 pb-4;
+    @apply px-4 pb-4 pt-3;
   }
 
   &__user-menu-links {
@@ -69,8 +69,8 @@
   }
 
   &__user-menu-item {
-    @apply block w-full font-medium text-left px-4 py-2 text-sm text-[--color-gray-400];
-    @apply hover:bg-[--color-gray-700] hover:text-white transition-colors;
+    @apply block w-full px-4 py-2 text-left text-sm font-medium text-[--color-gray-400];
+    @apply transition-colors hover:bg-[--color-gray-700] hover:text-white;
 
     &--active {
       @apply bg-[--color-gray-700] text-white;
@@ -78,11 +78,11 @@
   }
 
   &__user-menu-footer {
-    @apply px-4 py-4 flex flex-col gap-3;
+    @apply flex flex-col gap-3 px-4 py-4;
   }
 
   &__user-menu-footer-link {
-    @apply text-xs font-semibold text-[--color-gray-400] hover:text-white/60 transition-colors text-left;
+    @apply text-left text-xs font-semibold text-[--color-gray-400] transition-colors hover:text-white/60;
   }
 
   // Mobile menu styles

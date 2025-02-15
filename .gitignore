@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.local
+.env.production
 
 # Supabase
 .supabase
@@ -30,5 +32,12 @@ supabase/.branches
 supabase/.temp
 supabase/.env
 
+# Database dumps
+*.sql
+!supabase/migrations/*.sql
+
 # Local Netlify folder
 .netlify
+
+package-lock.json
+

@@ -1,24 +1,22 @@
-@use "tailwindcss/base";
-@use "tailwindcss/components";
-@use "tailwindcss/utilities";
-
-// Abstracts
+// All @use statements must come first
 @use "abstracts/colors" as *;
 @use "abstracts/mixins";
-
-// Components
-@use "components/pill"; // Load pill styles first
-@use "components/button"; // New button styles
+@use "components/pill"; 
+@use "components/button"; 
 @use "components/inputs";
 @use "components/cards";
 @use "components/releases";
 @use "components/filters";
 @use "components/top-nav";
 @use "components/scroll-button";
-@use "components/datalist"; // Add datalist styles
-@use "components/tabs"; // Add tabs styles
-
+@use "components/datalist"; 
+@use "components/tabs"; 
 @use "utilities/shared";
+
+// Tailwind directives
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 // Font faces
 @font-face {

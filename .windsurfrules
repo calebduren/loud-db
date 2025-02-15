@@ -1,18 +1,18 @@
 # General instructions
 
-This is a react app built with Vite and Tailwind. We use Supabase for our database. This project is connected to the production database so do not prompt to reset. It is preferred that tailwind styles are used in scss files and that we create class names using BEM nomenclature to apply styles instead of applying directly to elements. If you need an icon, use Lucide icon, although they should be used sparingly.
+This is a react app built with Vite and Tailwind. We use Supabase for our database. This project is connected to the production database so do not prompt to reset. It is preferred that tailwind styles are used in scss files and that we create class names using BEM nomenclature to apply styles instead of applying directly in the tsx. If you need an icon, use Lucide icon, although they should be used sparingly.
 
-Use Radix and Shadcn when possible.
+Use Shadcn when possible, otherwise use Radix UI.
 
 We prefer to create reusable components and use them in multiple places.
 
 Do not add, remove, or change styles unless asked explicitly.
 
-The app is connected to the production database in Supabase so we should NEVER reset the database. Since we are connected to the production database we do not use Docker. I can push migrations to Supabase. If you want to see anything in the database you need to ask me.
+The app is connected to a local database but we want to be able to push the data and schema to the production database while building this MVP. Ideally we never have to reset the local database. We should NEVER reset the production database. I can push migrations to Supabase. If you want to see anything in the Supabse dashboard, just ask.
 
 I prefer to run terminal commands myself, so you should give me instruction on what to run but you don’t need to run it for me.
 
-Environment variables for Spotify, Supabase, and Resend are accurate and in the .env file.
+Environment variables for Spotify, Supabase, and Resend are accurate and in the .env.production and .env.local files.
 
 If you have any questions or need clarification feel free to ask.
 

@@ -1,16 +1,16 @@
 .sidebar {
-  @apply w-52 h-screen fixed left-0 top-0 z-0 p-8 pt-24 sm:pt-10 lg:pt-16 lg:pb-16 lg:pl-16 text-white flex flex-col bg-[var(--color-background)] border-r border-[0.5px] border-white/10 sm:border-none;
+  @apply fixed left-0 top-0 z-0 flex h-screen w-52 flex-col border-[0.5px] border-r border-white/10 bg-[var(--color-background)] p-8 pt-24 text-white sm:border-none sm:pt-10 lg:pb-16 lg:pl-16 lg:pt-16;
   @apply transition-transform duration-200 ease-in-out;
 
   // Hide on small screens by default
-  @apply sm:translate-x-0 -translate-x-full;
+  @apply -translate-x-full sm:translate-x-0;
 
   &__nav {
     @apply flex-1;
   }
 
   &__list {
-    @apply flex flex-col gap-6 mt-10;
+    @apply mt-10 flex flex-col gap-6;
   }
 
   &__actions {
@@ -18,7 +18,7 @@
   }
 
   &__action-button {
-    @apply flex items-center gap-2 w-full;
+    @apply flex w-full items-center gap-2;
   }
 
   &__bottom {
@@ -27,11 +27,11 @@
 
   &__footer {
     &-links {
-      @apply flex flex-col text-white/40 gap-6 mt-7;
+      @apply mt-7 flex flex-col gap-6 text-white/40;
     }
 
     &-legal {
-      @apply mt-1.5 flex gap-5 flex-col items-start;
+      @apply mt-1.5 flex flex-col items-start gap-5;
 
       &-link {
         @apply text-xs font-semibold transition-colors hover:text-white/60;
@@ -41,17 +41,17 @@
 
   // Navigation Item
   &__nav-item {
-    @apply flex items-center text-sm font-semibold text-white/60 hover:text-white/80 transition-colors;
+    @apply flex items-center text-sm font-semibold text-white/60 transition-colors hover:text-white/80;
 
     &--active {
       @apply text-white;
     }
 
     .nav-indicator {
-      @apply w-0 h-[8.5px] rounded-full bg-white/0 transition-colors;
+      @apply h-[8.5px] w-0 rounded-full bg-white/0 transition-colors;
 
       &--active {
-        @apply bg-white w-[8.5px] mr-2;
+        @apply mr-2 w-[8.5px] bg-white;
       }
     }
   }
@@ -63,6 +63,6 @@
 
 // Toggle button for mobile
 .sidebar-toggle {
-  @apply fixed top-8 left-8 text-white z-[901] transition-colors;
+  @apply fixed left-8 top-8 z-[901] text-white transition-colors;
   @apply sm:hidden;
 }

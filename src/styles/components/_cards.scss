@@ -2,9 +2,9 @@
 @use "../abstracts/mixins" as *;
 
 .card {
-  @apply bg-[--color-gray-800] rounded-xl p-6 border-[0.5px] border-[--color-gray-700];
+  @apply rounded-xl border-[0.5px] border-[--color-gray-700] bg-[--color-gray-800] p-6;
 
   &__title {
-    @apply text-xl font-semibold mb-2 flex items-center gap-2;
+    @apply mb-2 flex items-center gap-2 text-xl font-semibold;
   }
 }

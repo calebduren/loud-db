@@ -10,6 +10,9 @@ export default defineConfig({
     },
   },
   base: './',
+  css: {
+    postcss: './postcss.config.js'
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -19,5 +22,5 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
-  },
+  }
 });

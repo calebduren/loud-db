@@ -6,7 +6,7 @@
 }
 
 .weekly-group-header {
-  @apply z-[11] flex flex-col md:flex-row items-baseline md:gap-2 text-xl font-semibold;
+  @apply z-[11] flex flex-col items-baseline text-xl font-semibold md:flex-row md:gap-2;
 }
 
 .release__like-button {
@@ -26,19 +26,19 @@
     }
 
     &--not-liked {
-      @apply text-white/40 text-white opacity-30;
+      @apply text-white text-white/40 opacity-30;
     }
   }
 }
 
 .release-card {
-  @apply relative cursor-pointer overflow-hidden rounded-[12px] w-full flex flex-col;
+  @apply relative flex w-full cursor-pointer flex-col overflow-hidden rounded-[12px];
   background-color: var(--color-card-background);
   border: 1px solid var(--color-border);
 
   // Cover section
   &__cover {
-    @apply relative w-full aspect-square;
+    @apply relative aspect-square w-full;
   }
 
   &__image-container {
@@ -46,11 +46,11 @@
   }
 
   &__image {
-    @apply w-full h-full object-cover;
+    @apply h-full w-full object-cover;
   }
 
   &__placeholder {
-    @apply w-full h-full flex items-center justify-center;
+    @apply flex h-full w-full items-center justify-center;
     background-color: var(--color-surface-dark);
   }
 
@@ -65,7 +65,7 @@
   }
 
   &__content {
-    @apply relative z-10 flex flex-col justify-between h-full p-5;
+    @apply relative z-10 flex h-full flex-col justify-between p-5;
   }
 
   // Type pill
@@ -78,13 +78,13 @@
   }
 
   &__label {
-    @apply text-xs font-medium text-[--color-gray-400] mb-0.5;
+    @apply mb-0.5 text-xs font-medium text-[--color-gray-400];
   }
 
   // Title section
   &__title,
   &__artist {
-    @apply text-[24px] font-semibold leading-[1.02] tracking-tight text-balance line-clamp-3 overflow-visible;
+    @apply line-clamp-3 overflow-visible text-balance text-[24px] font-semibold leading-[1.02] tracking-tight;
   }
 
   &__title {
@@ -97,7 +97,7 @@
 
   // Genre pills
   &__genres {
-    @apply flex flex-wrap gap-2 mt-[16px];
+    @apply mt-[16px] flex flex-wrap gap-2;
 
     &-pill {
       @apply rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium backdrop-blur;
@@ -108,7 +108,7 @@
 
   // Details section
   &__details {
-    @apply w-full px-[6px] pb-[6px] bg-[--color-gray-800];
+    @apply w-full bg-[--color-gray-800] px-[6px] pb-[6px];
 
     &-container {
       @apply w-full rounded-[3px_3px_8px_8px] bg-[--color-gray-700];
@@ -121,7 +121,7 @@
     @apply p-[14px] text-[12px] leading-[1.25];
 
     &-row {
-      @apply flex items-start gap-2 min-w-[143px] whitespace-nowrap;
+      @apply flex min-w-[143px] items-start gap-2 whitespace-nowrap;
 
       &:not(:first-child) {
         @apply mt-3;
@@ -141,29 +141,29 @@
 
   // Actions section
   &__actions {
-    @apply flex items-center relative font-semibold border-t-[0.5px] border-white/5;
+    @apply relative flex items-center border-t-[0.5px] border-white/5 font-semibold;
     color: var(--color-text);
   }
 
   &__links {
-    @apply flex-1 flex-shrink-0  basis-0 flex items-center gap-6 px-[14px] py-[12px];
+    @apply flex flex-1 flex-shrink-0 basis-0 items-center gap-6 px-[14px] py-[12px];
   }
 
   &__link {
-    @apply flex items-center gap-1 text-xs whitespace-nowrap transition-colors hover:text-[--color-loud];
+    @apply flex items-center gap-1 whitespace-nowrap text-xs transition-colors hover:text-[--color-loud];
   }
 
   &__divider {
-    @apply w-[1px] h-[42px];
+    @apply h-[42px] w-[1px];
     background-color: var(--color-divider);
   }
 
   .release__like {
-    @apply flex flex-col self-stretch flex-grow-0 flex-shrink-0 whitespace-nowrap border-l-[0.5px] border-white/5 hover:bg-white/10 transition-colors rounded-br-[8px] overflow-hidden;
+    @apply flex flex-shrink-0 flex-grow-0 flex-col self-stretch overflow-hidden whitespace-nowrap rounded-br-[8px] border-l-[0.5px] border-white/5 transition-colors hover:bg-white/10;
   }
 
   .release__like-button {
-    @apply flex h-full px-[14px] items-center justify-center gap-3 text-xs transition-colors;
+    @apply flex h-full items-center justify-center gap-3 px-[14px] text-xs transition-colors;
   }
 
   .release__like-button {
@@ -174,19 +174,19 @@
 }
 
 .release-divider {
-  @apply w-full h-[1px];
+  @apply h-[1px] w-full;
   background-color: var(--color-divider);
 }
 
 .release-modal {
-  @apply rounded-xl overflow-hidden max-w-[400px] lg:max-w-[1280px];
+  @apply max-w-[400px] overflow-hidden rounded-xl lg:max-w-[1280px];
 
   &__grid {
-    @apply lg:grid lg:grid-cols-[640px_1fr] lg:h-full bg-[--color-background];
+    @apply bg-[--color-background] lg:grid lg:h-full lg:grid-cols-[640px_1fr];
   }
 
   &__left {
-    @apply relative w-full aspect-square;
+    @apply relative aspect-square w-full;
   }
 
   &__right {
@@ -194,18 +194,18 @@
   }
 
   &__cover {
-    @apply w-full h-full object-cover;
+    @apply h-full w-full object-cover;
   }
 
   &__close {
-    @apply absolute top-10 right-10 z-[100] text-white/60 hover:text-white transition-colors;
+    @apply absolute right-10 top-10 z-[100] text-white/60 transition-colors hover:text-white;
   }
 
   &__bottom-actions {
-    @apply flex lg:absolute bottom-0 left-0 right-0 overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent z-10 pointer-events-none;
+    @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent lg:absolute;
 
     .release-card__links {
-      @apply p-6 lg:px-10 lg:pt-24 lg:pb-10 flex justify-between;
+      @apply flex justify-between p-6 lg:px-10 lg:pb-10 lg:pt-24;
     }
 
     .btn {
@@ -223,15 +223,15 @@
     }
 
     &--not-liked {
-      @apply bg-[--color-gray-800] text-white hover:text-white/80 hover:bg-[--color-gray-700];
+      @apply bg-[--color-gray-800] text-white hover:bg-[--color-gray-700] hover:text-white/80;
     }
   }
 
   &__track-number {
-    @apply text-sm text-[--color-gray-400] w-6 text-left;
+    @apply w-6 text-left text-sm text-[--color-gray-400];
   }
 
   &__scrollable {
-    @apply flex-1 overflow-y-auto p-6 lg:px-10 lg:pt-10 lg:pb-32 space-y-4 lg:space-y-6;
+    @apply flex-1 space-y-4 overflow-y-auto p-6 lg:space-y-6 lg:px-10 lg:pb-32 lg:pt-10;
   }
 }
