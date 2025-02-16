@@ -93,7 +93,7 @@ export function SpotifyImportSection({
         <Button
           onClick={handleImport}
           disabled={disabled || importing || !url}
-          className="h-10 whitespace-nowrap"
+          className="whitespace-nowrap"
         >
           {importing ? (
             <>

@@ -1,16 +1,16 @@
 // All @use statements must come first
 @use "abstracts/colors" as *;
 @use "abstracts/mixins";
-@use "components/pill"; 
-@use "components/button"; 
+@use "components/pill";
+@use "components/button";
 @use "components/inputs";
 @use "components/cards";
 @use "components/releases";
 @use "components/filters";
 @use "components/top-nav";
 @use "components/scroll-button";
-@use "components/datalist"; 
-@use "components/tabs"; 
+@use "components/datalist";
+@use "components/tabs";
 @use "utilities/shared";
 
 // Tailwind directives
@@ -21,8 +21,7 @@
 // Font faces
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGroteskVF-VF.woff2")
-    format("woff2-variations");
+  src: url("../public/fonts/InnovatorGroteskVF-VF.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -38,8 +37,7 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-RegularItalic.woff2")
-    format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-RegularItalic.woff2") format("woff2");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -71,8 +69,7 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-MediumItalic.woff2")
-    format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-MediumItalic.woff2") format("woff2");
   font-weight: 500;
   font-style: italic;
   font-display: swap;
@@ -88,8 +85,7 @@
 
 @font-face {
   font-family: "Innovator Grotesk";
-  src: url("../public/fonts/InnovatorGrotesk-SemiBoldItalic.woff2")
-    format("woff2");
+  src: url("../public/fonts/InnovatorGrotesk-SemiBoldItalic.woff2") format("woff2");
   font-weight: 600;
   font-style: italic;
   font-display: swap;
@@ -141,6 +137,15 @@
   font-weight: 600;
   font-style: normal;
   font-display: swap;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 // CSS Variables
@@ -217,7 +222,7 @@ body {
 }
 
 .layout {
-  @apply mt-12 relative;
+  @apply relative mt-12;
   @extend %loud-container-px;
 }
 
@@ -299,9 +304,9 @@ p {
 }
 
 .vertical-divider {
-  @apply self-stretch w-[0.5px] bg-[--color-gray-700] mx-1;
+  @apply mx-1 w-[0.5px] self-stretch bg-[--color-gray-700];
 }
 
 .menu-separator {
-  @apply h-[0.5px] my-1 bg-[--color-gray-700];
+  @apply my-1 h-[0.5px] bg-[--color-gray-700];
 }

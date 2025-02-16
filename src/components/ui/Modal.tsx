@@ -9,6 +9,7 @@ interface ModalProps {
   title?: string;
   className?: string;
   width?: number;
+  variant?: "default" | "release";
 }
 
 export function Modal({
@@ -17,7 +18,8 @@ export function Modal({
   children,
   title,
   className,
-  width = 800,
+  width,
+  variant = "default",
 }: ModalProps) {
   // Handle ESC key
   useEffect(() => {
@@ -63,11 +65,12 @@ export function Modal({
         {/* Modal */}
         <div
           className={cn(
-            "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
-            title ? "" : "max-w-[1280px] lg:h-[640px] lg:max-h-[calc(100dvh-32px)]",
+            // Only apply base styles for default variant
+            variant === "default" && "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
+            variant === "release" && "release-modal",
             className
           )}
-          style={{ maxWidth: width }}
+          style={width ? { maxWidth: width } : undefined}
         >
           {title ? (
             <>

@@ -39,7 +39,11 @@ export function ReleaseModal({
   }, [user?.id, isAdmin]);
 
   return (
-    <Modal className="release-modal" isOpen={isOpen} onClose={onClose}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      variant="release"
+    >
       <div className="release-modal__grid">
         {/* Left Column - Cover Art */}
         <div className="release-modal__left">
@@ -119,7 +123,7 @@ export function ReleaseModal({
           {/* Fixed Actions Bar */}
           <div className="release-modal__bottom-actions">
             <div className="release-card__links">
-              <div>
+              <div className="release-card__links--left">
                 {release.spotify_url && (
                   <Button
                     variant="primary"

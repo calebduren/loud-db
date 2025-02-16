@@ -108,7 +108,7 @@
 
   // Details section
   &__details {
-    @apply w-full bg-[--color-gray-800] px-[6px] pb-[6px];
+    @apply w-full px-[6px] pb-[6px];
 
     &-container {
       @apply w-full rounded-[3px_3px_8px_8px] bg-[--color-gray-700];
@@ -179,10 +179,10 @@
 }
 
 .release-modal {
-  @apply max-w-[400px] overflow-hidden rounded-xl lg:max-w-[1280px];
+  @apply w-full max-w-[560px] overflow-hidden rounded-xl bg-[--color-gray-700] xl:h-[640px] xl:max-h-[calc(100dvh-32px)] xl:max-w-[1280px];
 
   &__grid {
-    @apply bg-[--color-background] lg:grid lg:h-full lg:grid-cols-[640px_1fr];
+    @apply xl:grid xl:h-full xl:grid-cols-[640px_1fr];
   }
 
   &__left {
@@ -190,7 +190,7 @@
   }
 
   &__right {
-    @apply relative flex flex-col lg:h-full lg:overflow-hidden;
+    @apply scrollbar-hide relative flex flex-col bg-[--color-gray-800] xl:h-full xl:overflow-hidden;
   }
 
   &__cover {
@@ -202,10 +202,14 @@
   }
 
   &__bottom-actions {
-    @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-[--color-background] to-transparent lg:absolute;
+    @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-[--color-gray-800] to-transparent xl:absolute;
 
     .release-card__links {
-      @apply flex justify-between p-6 lg:px-10 lg:pb-10 lg:pt-24;
+      @apply flex justify-between p-6 xl:px-10 xl:pb-10 xl:pt-24;
+
+      &--left {
+        @apply flex flex-row gap-4;
+      }
     }
 
     .btn {
@@ -219,11 +223,15 @@
     @extend .btn--lg !optional;
 
     &--liked {
-      @apply bg-[--color-gray-800] text-[--color-loud] hover:bg-[--color-gray-700];
+      @apply bg-[--color-gray-700] text-[--color-loud] hover:bg-[--color-gray-700];
     }
 
     &--not-liked {
-      @apply bg-[--color-gray-800] text-white hover:bg-[--color-gray-700] hover:text-white/80;
+      @apply bg-[--color-gray-700] text-white hover:bg-[--color-gray-700] hover:text-white/80;
+    }
+
+    &__icon--not-liked {
+      @apply text-[--color-gray-400] opacity-100;
     }
   }
 
@@ -232,6 +240,6 @@
   }
 
   &__scrollable {
-    @apply flex-1 space-y-4 overflow-y-auto p-6 lg:space-y-6 lg:px-10 lg:pb-32 lg:pt-10;
+    @apply flex-1 space-y-4 overflow-y-auto p-6 xl:space-y-6 xl:px-10 xl:pb-32 xl:pt-10;
   }
 }
