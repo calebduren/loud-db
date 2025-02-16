@@ -422,8 +422,8 @@ export function ReleaseList({
       )}
 
       {hasMore && !loading && (
-        <div className="col-span-full mt-8 flex justify-center">
-          <Button onClick={() => loadMore?.()} disabled={loading}>
+        <div className="col-span-full mt-8 flex w-full">
+          <Button variant="secondary" className="w-full" onClick={() => loadMore?.()} disabled={loading}>
             {loading ? "Loading..." : "Load More Releases"}
           </Button>
         </div>

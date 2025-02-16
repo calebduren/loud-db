@@ -173,12 +173,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                 <NavItem to="/submissions">Submissions</NavItem>
               )}
               {isAdmin && (
-                <>
-                  <NavItem to="/admin/users">Users</NavItem>
-                  <NavItem to="/admin/components">Components</NavItem>
-                  <NavItem to="/admin/genres">Genres</NavItem>
-                  <NavItem to="/admin/invites">Invites</NavItem>
-                </>
+                <NavItem to="/admin/users">Admin</NavItem>
               )}
             </div>
           </nav>

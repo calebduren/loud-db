@@ -25,9 +25,7 @@ export function AdminLayout() {
   return (
     <div className="space-y-8">
       <AdminNav />
-      <div className="container mx-auto px-4">
-        <Outlet />
-      </div>
+      <Outlet />
     </div>
   );
 }

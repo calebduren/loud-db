@@ -1,38 +1,35 @@
-import { NavLink } from 'react-router-dom';
-import { cn } from '../../lib/utils';
+import React from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const navItems = [
-  { path: 'users', label: 'Users' },
-  { path: 'genres', label: 'Genre Mapping' },
-  { path: 'no-genres', label: 'Missing Genres' },
-  { path: 'invites', label: 'Invite Codes' },
-  { path: 'components', label: 'Components' },
+  { path: "users", label: "Users" },
+  { path: "genres", label: "Genres" },
+  { path: "invites", label: "Invites" },
 ];
 
 export function AdminNav() {
+  const location = useLocation();
+  const currentPath = location.pathname.split("/")[2] || "users";
+
   return (
     <nav className="mb-8">
-      <ul className="flex gap-4 border-b border-gray-200 dark:border-gray-800">
-        {navItems.map(({ path, label }) => (
-          <li key={path}>
-            <NavLink
-              to={`/admin/${path}`}
-              className={({ isActive }) =>
-                cn(
-                  'inline-block px-4 py-2 -mb-px text-sm font-medium',
-                  'hover:text-primary transition-colors',
-                  'border-b-2',
-                  isActive
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground'
-                )
-              }
+      <Tabs value={currentPath} className="tabs">
+        <TabsList className="tabs__list">
+          {navItems.map(({ path, label }) => (
+            <TabsTrigger
+              key={path}
+              value={path}
+              className="tabs__trigger"
+              asChild
             >
-              {label}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+              <NavLink to={`/admin/${path}`}>
+                <span className="tabs__trigger-icon">{label}</span>
+              </NavLink>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </nav>
   );
 }

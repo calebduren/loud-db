@@ -222,7 +222,7 @@ body {
 }
 
 .layout {
-  @apply relative mt-12;
+  @apply relative my-12 flex flex-col;
   @extend %loud-container-px;
 }
 
@@ -245,10 +245,6 @@ h6 {
 .min-h-screen,
 .layout {
   min-height: 100dvh !important;
-}
-
-.layout {
-  @apply flex flex-col;
 }
 
 h1 {

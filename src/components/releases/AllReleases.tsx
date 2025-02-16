@@ -201,7 +201,7 @@ export function AllReleases() {
                 : "No releases match your criteria."}
             </p>
             {showLoadMoreButton && (
-              <Button onClick={loadMore} disabled={loading} className="mx-auto">
+              <Button onClick={loadMore} disabled={loading} className="w-full">
                 Load More Releases
               </Button>
             )}

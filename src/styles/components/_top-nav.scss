@@ -73,7 +73,7 @@
   }
 
   &__nav-item {
-    @apply pointer-events-auto flex items-center font-semibold text-[--color-gray-400] transition-colors hover:text-white;
+    @apply pointer-events-auto flex flex-nowrap items-center font-semibold text-[--color-gray-400] transition-colors hover:text-white;
 
     &--active {
       @apply text-white;
