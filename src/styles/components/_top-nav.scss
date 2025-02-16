@@ -3,8 +3,25 @@
 .top-nav {
   @apply fixed left-0 right-0 top-0 z-50;
 
+  &__gradient,
+  &__blur {
+    @apply pointer-events-none fixed left-0 right-0 top-0 block;
+  }
+
+  &__blur {
+    @apply z-[49] h-36;
+    @supports (backdrop-filter: blur(0)) {
+      &::before {
+        content: "";
+        @apply absolute inset-0;
+        backdrop-filter: blur(8px);
+        mask-image: linear-gradient(to bottom, hsla(0, 0%, 12%, 1) 0%, hsla(0, 0%, 12%, 0) 100%);
+      }
+    }
+  }
+
   &__gradient {
-    @apply pointer-events-none fixed left-0 right-0 top-0 z-[49] block h-32;
+    @apply z-[50] h-32;
     background-image: linear-gradient(
       to bottom,
       hsla(0, 0%, 12%, 0.78) 0%,
@@ -25,7 +42,6 @@
       hsla(0, 0%, 12%, 0) 100%
     );
   }
-
   &__container {
     @apply pointer-events-none mx-auto flex h-20 max-w-screen-2xl items-center justify-between;
     @extend %loud-container-px;
@@ -57,7 +73,7 @@
   }
 
   &__nav-item {
-    @apply pointer-events-auto flex items-center text-sm font-semibold text-[--color-gray-400] transition-colors hover:text-white/80;
+    @apply pointer-events-auto flex items-center font-semibold text-[--color-gray-400] transition-colors hover:text-white;
 
     &--active {
       @apply text-white;

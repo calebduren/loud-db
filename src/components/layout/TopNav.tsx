@@ -18,6 +18,7 @@ import { SpotifyConnectModal } from "../spotify/SpotifyConnectModal";
 import { useSpotifyConnection } from "../../hooks/useSpotifyConnection";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MenuIcon, X, Loader2 } from "lucide-react";
+import { Badge } from "../ui/Badge";
 
 interface TopNavProps {
   className?: string;
@@ -140,6 +141,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
   return (
     <>
+      <div className="top-nav__blur"></div>
       <div className="top-nav__gradient"></div>
       <header
         className={cn(
@@ -153,6 +155,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
           <div className="top-nav__left">
             <NavLink to="/" className="top-nav__logo">
               <Logo className="text-white h-6" />
+              <Badge variant="recommended" className="ml-3">Beta</Badge>
             </NavLink>
           </div>
 

@@ -254,13 +254,13 @@ export function AllReleases() {
       <Button
         onClick={scrollToTop}
         className={cn(
-          "scroll-to-top rounded-full btn--glass",
+          "scroll-to-top btn--glass",
           showScrollButton ? "scroll-to-top--visible" : "scroll-to-top--hidden"
         )}
         size="icon"
         tooltip="Scroll to top"
       >
-        <ArrowUpToLine size={20} strokeWidth={1.5} />
+        <ArrowUpToLine size={16} strokeWidth={1.5} />
       </Button>
     </div>
   );
