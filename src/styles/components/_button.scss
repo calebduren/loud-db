@@ -28,7 +28,7 @@
   }
 
   &--secondary {
-    @apply border-[0.5px] border-white/5 bg-white/10 text-white hover:border-white/10 hover:bg-white/[15%];
+    @apply border-[0.5px] border-white/5 bg-white/10 text-white backdrop-blur-lg hover:border-white/10 hover:bg-white/[15%];
 
     &:disabled {
       @apply cursor-not-allowed border-transparent text-white/50;

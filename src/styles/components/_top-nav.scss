@@ -1,10 +1,33 @@
 @use "../utilities/shared";
 
 .top-nav {
-  @apply fixed left-0 right-0 top-0 z-50 border-b-[0.5px] border-[--color-gray-700] bg-[var(--color-background)];
+  @apply fixed left-0 right-0 top-0 z-50;
+
+  &__gradient {
+    @apply pointer-events-none fixed left-0 right-0 top-0 z-[49] block h-32;
+    background-image: linear-gradient(
+      to bottom,
+      hsla(0, 0%, 12%, 0.78) 0%,
+      hsla(0, 0%, 12%, 0.77) 8.1%,
+      hsla(0, 0%, 12%, 0.742) 15.5%,
+      hsla(0, 0%, 12%, 0.699) 22.5%,
+      hsla(0, 0%, 12%, 0.643) 29%,
+      hsla(0, 0%, 12%, 0.578) 35.3%,
+      hsla(0, 0%, 12%, 0.505) 41.2%,
+      hsla(0, 0%, 12%, 0.429) 47.1%,
+      hsla(0, 0%, 12%, 0.351) 52.9%,
+      hsla(0, 0%, 12%, 0.275) 58.8%,
+      hsla(0, 0%, 12%, 0.202) 64.7%,
+      hsla(0, 0%, 12%, 0.137) 71%,
+      hsla(0, 0%, 12%, 0.081) 77.5%,
+      hsla(0, 0%, 12%, 0.038) 84.5%,
+      hsla(0, 0%, 12%, 0.01) 91.9%,
+      hsla(0, 0%, 12%, 0) 100%
+    );
+  }
 
   &__container {
-    @apply mx-auto flex h-20 max-w-screen-2xl items-center justify-between;
+    @apply pointer-events-none mx-auto flex h-20 max-w-screen-2xl items-center justify-between;
     @extend %loud-container-px;
   }
 
@@ -13,11 +36,11 @@
   }
 
   &__logo {
-    @apply flex items-center;
+    @apply pointer-events-auto flex items-center;
   }
 
   &__mobile-toggle {
-    @apply text-white sm:hidden;
+    @apply pointer-events-auto text-white sm:hidden;
   }
 
   &__nav {
@@ -34,7 +57,7 @@
   }
 
   &__nav-item {
-    @apply flex items-center text-sm font-semibold text-white/60 transition-colors hover:text-white/80;
+    @apply pointer-events-auto flex items-center text-sm font-semibold text-[--color-gray-400] transition-colors hover:text-white/80;
 
     &--active {
       @apply text-white;
@@ -43,6 +66,9 @@
 
   &__actions {
     @apply flex items-center gap-4;
+    & * {
+      @apply pointer-events-auto;
+    }
   }
 
   &__user-menu {
@@ -50,12 +76,12 @@
   }
 
   &__user-button {
-    @apply flex items-center justify-center;
+    @apply pointer-events-auto flex items-center justify-center;
     @apply h-8 w-8 overflow-hidden rounded-full;
   }
 
   &__user-menu-items {
-    @apply absolute right-0 mt-2 w-56 rounded-lg;
+    @apply absolute right-0 z-[51] mt-2 w-56 rounded-lg;
     @apply border border-white/5 bg-[var(--color-gray-800)];
     @apply focus:outline-none;
   }

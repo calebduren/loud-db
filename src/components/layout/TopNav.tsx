@@ -140,6 +140,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
   return (
     <>
+      <div className="top-nav__gradient"></div>
       <header
         className={cn(
           "top-nav",

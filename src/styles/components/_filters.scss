@@ -1,4 +1,4 @@
-@use '../components/pill';
+@use "../components/pill";
 
 .filters-container {
   @apply flex flex-col gap-5 xl:h-[--input-height] xl:flex-row xl:items-end;
@@ -18,11 +18,11 @@
 }
 
 .length-divider {
-  @apply h-[0.5px] w-[24px] bg-[--color-gray-500];
+  @apply h-[0.5px] w-[24px] bg-[--color-gray-600];
 }
 
 .filter-divider {
-  @apply h-full w-[0.5px] bg-[--color-gray-500];
+  @apply h-full w-[0.5px] bg-[--color-gray-700];
 }
 
 // Filter Button
