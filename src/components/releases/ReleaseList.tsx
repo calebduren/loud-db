@@ -39,7 +39,6 @@ const SkeletonCard = () => (
     <div className="release-card__cover">
       <div className="release-card__image-container bg-white/5">
         <div className="release-card__placeholder">
-          <Music className="w-12 h-12 text-gray-700" />
         </div>
         <div className="release-card__gradient" />
       </div>
@@ -94,16 +93,20 @@ const SkeletonCard = () => (
   </div>
 );
 
+const SkeletonGrid = () => (
+  <div className="release-grid">
+    {Array.from({ length: 21 }).map((_, i) => (
+      <SkeletonCard key={i} />
+    ))}
+  </div>
+);
+
 const SkeletonWeeklyGroup = () => (
   <div className="my-6">
     <div className="mb-3">
       <div className="h-[28px] w-64 bg-white/5 rounded-lg animate-pulse" />
     </div>
-    <div className="release-grid">
-      {Array.from({ length: 21 }).map((_, i) => (
-        <SkeletonCard key={i} />
-      ))}
-    </div>
+    <SkeletonGrid />
   </div>
 );
 
@@ -385,15 +388,11 @@ export function ReleaseList({
     return (
       <div className="space-y-8">
         {showWeeklyGroups ? (
-          Array.from({ length: 2 }).map((_, i) => (
+          Array.from({ length: 12 }).map((_, i) => (
             <SkeletonWeeklyGroup key={i} />
           ))
         ) : (
-          <div className="release-grid">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
+          <SkeletonGrid />
         )}
       </div>
     );
@@ -439,6 +438,6 @@ export function ReleaseList({
   );
 }
 
-ReleaseList.Skeleton = SkeletonCard;
+ReleaseList.Skeleton = SkeletonGrid;
 
 export default ReleaseList;
