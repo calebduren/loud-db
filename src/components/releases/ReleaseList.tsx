@@ -198,6 +198,15 @@ export function ReleaseList({
     };
   }, []);
 
+  const recommendedReleases = useRecommendedReleases(uniqueReleases);
+  const isRecommended = useCallback(
+    (release: Release) => {
+      // Consider a release recommended if it's in the top 3 recommended releases
+      return recommendedReleases.slice(0, 3).some((r) => r.id === release.id);
+    },
+    [recommendedReleases]
+  );
+
   const weekGroups = useMemo(() => {
     if (!sortedReleases.length || !sortingStabilized) return [];
 
@@ -222,10 +231,24 @@ export function ReleaseList({
       groups.get(weekRange.key)?.releases.push(release);
     });
 
+    // Sort releases within each week group to put recommended releases at the top
+    groups.forEach((group) => {
+      group.releases.sort((a, b) => {
+        const aIsRecommended = isRecommended(a);
+        const bIsRecommended = isRecommended(b);
+        
+        if (aIsRecommended && !bIsRecommended) return -1;
+        if (!aIsRecommended && bIsRecommended) return 1;
+        
+        // If both are recommended or both are not, maintain their original sort order
+        return sortedReleases.indexOf(a) - sortedReleases.indexOf(b);
+      });
+    });
+
     return Array.from(groups.values()).sort(
       (a, b) => b.weekRange.start.getTime() - a.weekRange.start.getTime()
     );
-  }, [sortedReleases, getWeekRange, sortingStabilized]);
+  }, [sortedReleases, getWeekRange, sortingStabilized, isRecommended]);
 
   const formatReleaseType = useCallback((type: string | null) => {
     if (!type) return "Album";
@@ -238,15 +261,6 @@ export function ReleaseList({
         return type;
     }
   }, []);
-
-  const recommendedReleases = useRecommendedReleases(uniqueReleases);
-  const isRecommended = useCallback(
-    (release: Release) => {
-      // Consider a release recommended if it's in the top 3 recommended releases
-      return recommendedReleases.slice(0, 3).some((r) => r.id === release.id);
-    },
-    [recommendedReleases]
-  );
 
   const renderRelease = useCallback(
     (release: Release) => (
