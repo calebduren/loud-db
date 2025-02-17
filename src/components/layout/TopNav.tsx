@@ -43,6 +43,17 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
   const [isImporting, setIsImporting] = React.useState(false);
   const [isSpotifyModalOpen, setIsSpotifyModalOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) { // sm breakpoint is 640px
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn("top-nav__nav-item", isActive && "top-nav__nav-item--active");
 
