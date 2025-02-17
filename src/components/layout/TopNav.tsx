@@ -17,7 +17,7 @@ import { PixelAvatar } from "../user/profile/PixelAvatar";
 import { SpotifyConnectModal } from "../spotify/SpotifyConnectModal";
 import { useSpotifyConnection } from "../../hooks/useSpotifyConnection";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MenuIcon, X, Loader2 } from "lucide-react";
+import { Loader2, MenuIcon, MoreVertical, X } from "lucide-react";
 import { Badge } from "../ui/Badge";
 
 interface TopNavProps {
@@ -149,6 +149,12 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
           {/* Main navigation */}
           <nav className={cn("top-nav__nav", isMobileMenuOpen && "top-nav__nav--mobile-open")}>
+            <div className="top-nav__list">
+              <NavItem to="/">New music</NavItem>
+              <NavItem to="/likes">Likes</NavItem>
+              {(isAdmin || canManageReleases) && <NavItem to="/submissions">Submissions</NavItem>}
+              {isAdmin && <NavItem to="/admin/users">Admin</NavItem>}
+            </div>
             <div className="top-nav__mobile-actions">
               {isAdmin && (
                 <>
@@ -172,7 +178,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                         Importing...
                       </>
                     ) : (
-                      "Reddit Scraper"
+                      "Reddit"
                     )}
                   </Button>
                 </>
@@ -187,59 +193,84 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                 </Button>
               )}
             </div>
-            <div className="top-nav__list">
-              <NavItem to="/">New music</NavItem>
-              <NavItem to="/likes">Likes</NavItem>
-              {(isAdmin || canManageReleases) && <NavItem to="/submissions">Submissions</NavItem>}
-              {isAdmin && <NavItem to="/admin/users">Admin</NavItem>}
-            </div>
           </nav>
 
           <div className="top-nav__actions">
-            <button
-              className="top-nav__mobile-toggle"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X size={20} strokeWidth={1.5} />
-              ) : (
-                <MenuIcon size={20} strokeWidth={1.5} />
+            <div className="hidden items-center gap-4 lg:flex">
+              {isAdmin && (
+                <>
+                  <Button variant="secondary" onClick={() => setIsPlaylistModalOpen(true)}>
+                    Import playlist
+                  </Button>
+                  <Button variant="secondary" onClick={handleRedditImport} disabled={isImporting}>
+                    {isImporting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Importing...
+                      </>
+                    ) : (
+                      "Reddit"
+                    )}
+                  </Button>
+                </>
               )}
-            </button>
-            {isAdmin && (
-              <>
-                <Button
-                  variant="secondary"
-                  className="hidden sm:flex"
-                  onClick={() => setIsPlaylistModalOpen(true)}
-                >
-                  Import playlist
+              {(isAdmin || canManageReleases) && (
+                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+                  Add release
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={handleRedditImport}
-                  className="hidden sm:flex"
-                  disabled={isImporting}
-                >
-                  {isImporting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Importing...
-                    </>
-                  ) : (
-                    "Reddit Scraper"
-                  )}
-                </Button>
-              </>
-            )}
+              )}
+            </div>
+
             {(isAdmin || canManageReleases) && (
-              <Button
-                variant="primary"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="hidden sm:flex"
-              >
-                Add release
-              </Button>
+              <div className="hidden sm:flex lg:hidden">
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <button className="top-nav__more-actions-button">
+                      <MoreVertical size={16} strokeWidth={1.5} />
+                    </button>
+                  </DropdownMenu.Trigger>
+
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                      className="top-nav__user-menu-items"
+                      sideOffset={2}
+                      align="end"
+                    >
+                      {isAdmin && (
+                        <>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="top-nav__user-menu-item"
+                              onClick={() => setIsPlaylistModalOpen(true)}
+                            >
+                              Import playlist
+                            </button>
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="top-nav__user-menu-item"
+                              onClick={handleRedditImport}
+                              disabled={isImporting}
+                            >
+                              {isImporting ? "Importing..." : "Reddit"}
+                            </button>
+                          </DropdownMenu.Item>
+                        </>
+                      )}
+                      {(isAdmin || canManageReleases) && (
+                        <DropdownMenu.Item asChild>
+                          <button
+                            className="top-nav__user-menu-item"
+                            onClick={() => setIsCreateModalOpen(true)}
+                          >
+                            Add release
+                          </button>
+                        </DropdownMenu.Item>
+                      )}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
+              </div>
             )}
 
             <SpotifyIcon />
@@ -331,6 +362,18 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="top-nav__mobile-toggle"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X size={20} strokeWidth={1.5} />
+              ) : (
+                <MenuIcon size={20} strokeWidth={1.5} />
+              )}
+            </Button>
           </div>
         </div>
       </header>

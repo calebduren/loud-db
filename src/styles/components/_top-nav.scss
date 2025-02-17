@@ -94,8 +94,7 @@
     @apply hidden flex-1 px-8 sm:block;
 
     &--mobile-open {
-      @apply fixed inset-0 top-0 z-[49] sm:static sm:bg-transparent;
-      @apply block p-4 pt-20 sm:p-0;
+      @apply fixed inset-0 top-0 z-[49] flex flex-1 flex-col justify-between px-4 pb-4 pt-20 sm:static sm:bg-transparent sm:p-0;
     }
   }
 
@@ -104,7 +103,7 @@
   }
 
   &__nav-item {
-    @apply pointer-events-auto flex flex-nowrap items-center font-semibold text-[--color-gray-400] transition-colors hover:text-white;
+    @apply pointer-events-auto flex flex-nowrap items-center text-nowrap text-xl font-semibold text-[--color-gray-400] transition-colors hover:text-white sm:text-sm;
 
     &--active {
       @apply text-white;
@@ -122,13 +121,12 @@
     }
   }
 
-  &__user-menu {
-    @apply relative bg-[--color-gray-800];
+  &__more-actions-button {
+    @apply pointer-events-auto flex h-[--input-height] w-[--input-height] items-center justify-center rounded-md border-[0.5px] border-white/5 bg-white/10 text-white backdrop-blur-lg hover:border-white/10 hover:bg-white/[15%];
   }
 
   &__user-button {
     @apply pointer-events-auto flex items-center justify-center;
-    @apply h-8 w-8 overflow-hidden rounded-full;
   }
 
   &__user-menu-items {
