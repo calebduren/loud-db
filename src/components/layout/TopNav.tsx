@@ -125,8 +125,16 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
   return (
     <>
-      <div className="top-nav__blur"></div>
-      <div className="top-nav__gradient"></div>
+      <div
+        className={cn("top-nav__blur", className, isMobileMenuOpen && "top-nav__blur--mobile-open")}
+      ></div>
+      <div
+        className={cn(
+          "top-nav__gradient",
+          className,
+          isMobileMenuOpen && "top-nav__gradient--mobile-open"
+        )}
+      ></div>
       <header className={cn("top-nav", className, isMobileMenuOpen && "top-nav--mobile-open")}>
         <div className="top-nav__container">
           {/* Logo and mobile menu button */}
@@ -185,16 +193,6 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
               {(isAdmin || canManageReleases) && <NavItem to="/submissions">Submissions</NavItem>}
               {isAdmin && <NavItem to="/admin/users">Admin</NavItem>}
             </div>
-            <button
-              className="top-nav__mobile-toggle"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X size={20} strokeWidth={1.5} />
-              ) : (
-                <MenuIcon size={20} strokeWidth={1.5} />
-              )}
-            </button>
           </nav>
 
           <div className="top-nav__actions">

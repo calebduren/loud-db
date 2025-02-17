@@ -15,8 +15,15 @@
         content: "";
         @apply absolute inset-0;
         backdrop-filter: blur(40px);
-        mask-image: linear-gradient(to bottom, hsla(0, 0%, 0%, 0.8) 0%, hsla(0, 0%, 0%, 0) 100%);
+        mask-image: linear-gradient(
+          to bottom,
+          hsla(0, 0%, 10.2%, 0.8) 0%,
+          hsla(0, 0%, 10.2%, 0) 100%
+        );
       }
+    }
+    &--mobile-open {
+      @apply h-[100dvh];
     }
   }
 
@@ -41,6 +48,30 @@
       hsla(0, 0%, 10.2%, 0.012) 91.9%,
       hsla(0, 0%, 10.2%, 0) 100%
     );
+
+    &--mobile-open {
+      @apply h-[100dvh];
+
+      background-image: linear-gradient(
+        to bottom,
+        hsl(0, 0%, 10.2%) 0%,
+        hsla(0, 0%, 10.2%, 0.997) 8.1%,
+        hsla(0, 0%, 10.2%, 0.99) 15.5%,
+        hsla(0, 0%, 10.2%, 0.979) 22.5%,
+        hsla(0, 0%, 10.2%, 0.965) 29%,
+        hsla(0, 0%, 10.2%, 0.948) 35.3%,
+        hsla(0, 0%, 10.2%, 0.93) 41.2%,
+        hsla(0, 0%, 10.2%, 0.91) 47.1%,
+        hsla(0, 0%, 10.2%, 0.89) 52.9%,
+        hsla(0, 0%, 10.2%, 0.87) 58.8%,
+        hsla(0, 0%, 10.2%, 0.852) 64.7%,
+        hsla(0, 0%, 10.2%, 0.835) 71%,
+        hsla(0, 0%, 10.2%, 0.821) 77.5%,
+        hsla(0, 0%, 10.2%, 0.81) 84.5%,
+        hsla(0, 0%, 10.2%, 0.803) 91.9%,
+        hsla(0, 0%, 10.2%, 0.8) 100%
+      );
+    }
   }
   &__container {
     @apply pointer-events-none mx-auto flex h-20 max-w-screen-2xl items-center justify-between;
@@ -63,13 +94,13 @@
     @apply hidden flex-1 px-8 sm:block;
 
     &--mobile-open {
-      @apply fixed inset-0 top-0 z-[49] bg-[var(--color-background)] sm:static sm:bg-transparent;
-      @apply block p-4 pt-16 sm:p-0;
+      @apply fixed inset-0 top-0 z-[49] sm:static sm:bg-transparent;
+      @apply block p-4 pt-20 sm:p-0;
     }
   }
 
   &__list {
-    @apply flex flex-col items-start gap-6 sm:flex-row sm:items-center;
+    @apply flex flex-col items-start gap-3 pt-3 sm:flex-row sm:items-center sm:gap-6 sm:pt-0;
   }
 
   &__nav-item {
