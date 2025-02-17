@@ -1,5 +1,5 @@
 .scroll-to-top {
-  @apply fixed bottom-10 right-10 transition-all duration-300 md:bottom-12 md:right-12;
+  @apply fixed bottom-10 right-10 transition-all duration-300 md:bottom-16 md:right-16;
 
   &--hidden {
     @apply pointer-events-none translate-y-4 opacity-0;

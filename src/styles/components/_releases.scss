@@ -203,6 +203,25 @@
 
   &__bottom-actions {
     @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-[--color-gray-800] to-transparent xl:absolute;
+    background-image: linear-gradient(
+      to top,
+      hsla(0, 0%, 14.12%, 0.92) 0%,
+      hsla(0, 0%, 14.12%, 0.908) 8.1%,
+      hsla(0, 0%, 14.12%, 0.875) 15.5%,
+      hsla(0, 0%, 14.12%, 0.824) 22.5%,
+      hsla(0, 0%, 14.12%, 0.759) 29%,
+      hsla(0, 0%, 14.12%, 0.681) 35.3%,
+      hsla(0, 0%, 14.12%, 0.596) 41.2%,
+      hsla(0, 0%, 14.12%, 0.506) 47.1%,
+      hsla(0, 0%, 14.12%, 0.414) 52.9%,
+      hsla(0, 0%, 14.12%, 0.324) 58.8%,
+      hsla(0, 0%, 14.12%, 0.239) 64.7%,
+      hsla(0, 0%, 14.12%, 0.161) 71%,
+      hsla(0, 0%, 14.12%, 0.096) 77.5%,
+      hsla(0, 0%, 14.12%, 0.045) 84.5%,
+      hsla(0, 0%, 14.12%, 0.012) 91.9%,
+      hsla(0, 0%, 14.12%, 0) 100%
+    );
 
     .release-card__links {
       @apply flex justify-between p-6 xl:px-10 xl:pb-10 xl:pt-24;

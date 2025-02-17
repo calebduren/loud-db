@@ -106,7 +106,7 @@ export function ReleaseFilters({
       {isDefaultState ? (
         <div className="w-[--input-height] h-[--input-height] flex items-center justify-center">
           <ListFilter
-            size="24"
+            size="16"
             strokeWidth={1.5}
             color="var(--color-gray-400)"
           />
@@ -119,7 +119,7 @@ export function ReleaseFilters({
             onClick={handleReset}
             className="w-[--input-height] h-[--input-height]"
           >
-            <X size="24" strokeWidth={1.5} />
+            <X size="16" strokeWidth={1.5} />
           </Button>
         </Tooltip>
       )}

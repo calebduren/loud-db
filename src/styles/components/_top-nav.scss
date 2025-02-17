@@ -14,32 +14,32 @@
       &::before {
         content: "";
         @apply absolute inset-0;
-        backdrop-filter: blur(8px);
-        mask-image: linear-gradient(to bottom, hsla(0, 0%, 12%, 1) 0%, hsla(0, 0%, 12%, 0) 100%);
+        backdrop-filter: blur(40px);
+        mask-image: linear-gradient(to bottom, hsla(0, 0%, 0%, 0.8) 0%, hsla(0, 0%, 0%, 0) 100%);
       }
     }
   }
 
   &__gradient {
-    @apply z-[50] h-32;
+    @apply z-[50] h-24 md:h-36;
     background-image: linear-gradient(
       to bottom,
-      hsla(0, 0%, 12%, 0.78) 0%,
-      hsla(0, 0%, 12%, 0.77) 8.1%,
-      hsla(0, 0%, 12%, 0.742) 15.5%,
-      hsla(0, 0%, 12%, 0.699) 22.5%,
-      hsla(0, 0%, 12%, 0.643) 29%,
-      hsla(0, 0%, 12%, 0.578) 35.3%,
-      hsla(0, 0%, 12%, 0.505) 41.2%,
-      hsla(0, 0%, 12%, 0.429) 47.1%,
-      hsla(0, 0%, 12%, 0.351) 52.9%,
-      hsla(0, 0%, 12%, 0.275) 58.8%,
-      hsla(0, 0%, 12%, 0.202) 64.7%,
-      hsla(0, 0%, 12%, 0.137) 71%,
-      hsla(0, 0%, 12%, 0.081) 77.5%,
-      hsla(0, 0%, 12%, 0.038) 84.5%,
-      hsla(0, 0%, 12%, 0.01) 91.9%,
-      hsla(0, 0%, 12%, 0) 100%
+      hsla(0, 0%, 10.2%, 0.92) 0%,
+      hsla(0, 0%, 10.2%, 0.908) 8.1%,
+      hsla(0, 0%, 10.2%, 0.875) 15.5%,
+      hsla(0, 0%, 10.2%, 0.824) 22.5%,
+      hsla(0, 0%, 10.2%, 0.759) 29%,
+      hsla(0, 0%, 10.2%, 0.681) 35.3%,
+      hsla(0, 0%, 10.2%, 0.596) 41.2%,
+      hsla(0, 0%, 10.2%, 0.506) 47.1%,
+      hsla(0, 0%, 10.2%, 0.414) 52.9%,
+      hsla(0, 0%, 10.2%, 0.324) 58.8%,
+      hsla(0, 0%, 10.2%, 0.239) 64.7%,
+      hsla(0, 0%, 10.2%, 0.161) 71%,
+      hsla(0, 0%, 10.2%, 0.096) 77.5%,
+      hsla(0, 0%, 10.2%, 0.045) 84.5%,
+      hsla(0, 0%, 10.2%, 0.012) 91.9%,
+      hsla(0, 0%, 10.2%, 0) 100%
     );
   }
   &__container {
@@ -63,8 +63,8 @@
     @apply hidden flex-1 px-8 sm:block;
 
     &--mobile-open {
-      @apply fixed inset-0 top-16 bg-[var(--color-background)] sm:static sm:bg-transparent;
-      @apply block p-4 sm:p-0;
+      @apply fixed inset-0 top-0 z-[49] bg-[var(--color-background)] sm:static sm:bg-transparent;
+      @apply block p-4 pt-16 sm:p-0;
     }
   }
 
@@ -78,6 +78,10 @@
     &--active {
       @apply text-white;
     }
+  }
+
+  &__mobile-actions {
+    @apply flex flex-col gap-3 sm:hidden;
   }
 
   &__actions {
@@ -125,10 +129,5 @@
 
   &__user-menu-footer-link {
     @apply text-left text-xs font-semibold text-[--color-gray-400] transition-colors hover:text-white/60;
-  }
-
-  // Mobile menu styles
-  &--mobile-open {
-    @apply sm:bg-transparent;
   }
 }

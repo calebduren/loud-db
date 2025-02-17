@@ -59,9 +59,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
         return;
       }
 
-      const result = (await importFromReddit(
-        session.user.id
-      )) as RedditImportResult;
+      const result = (await importFromReddit(session.user.id)) as RedditImportResult;
 
       if (result) {
         const successCount = result.created;
@@ -69,16 +67,12 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
 
         if (successCount > 0) {
           toast.success(
-            `Successfully imported ${successCount} album${
-              successCount === 1 ? "" : "s"
-            }`
+            `Successfully imported ${successCount} album${successCount === 1 ? "" : "s"}`
           );
         }
 
         if (failCount > 0) {
-          toast.error(
-            `Failed to import ${failCount} album${failCount === 1 ? "" : "s"}`
-          );
+          toast.error(`Failed to import ${failCount} album${failCount === 1 ? "" : "s"}`);
         }
       }
     } catch (error) {
@@ -89,19 +83,9 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
     }
   };
 
-  const NavItem = ({
-    to,
-    children,
-  }: {
-    to: string;
-    children: React.ReactNode;
-  }) => {
+  const NavItem = ({ to, children }: { to: string; children: React.ReactNode }) => {
     return (
-      <NavLink
-        to={to}
-        className={linkClass}
-        onClick={() => setIsMobileMenuOpen(false)}
-      >
+      <NavLink to={to} className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
         {() => children}
       </NavLink>
     );
@@ -113,7 +97,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
     return (
       <button
         onClick={() => setIsSpotifyModalOpen(true)}
-        className={`border-[1.5px] rounded-full h-[32px] w-[32px] flex items-center justify-center ${
+        className={`flex h-[32px] w-[32px] items-center justify-center rounded-full border-[1.5px] ${
           isConnected ? "border-[#1DB954]" : "border-[#EF4444]"
         }`}
         title={isConnected ? "Connected to Spotify" : "Connect to Spotify"}
@@ -143,39 +127,74 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
     <>
       <div className="top-nav__blur"></div>
       <div className="top-nav__gradient"></div>
-      <header
-        className={cn(
-          "top-nav",
-          className,
-          isMobileMenuOpen && "top-nav--mobile-open"
-        )}
-      >
+      <header className={cn("top-nav", className, isMobileMenuOpen && "top-nav--mobile-open")}>
         <div className="top-nav__container">
           {/* Logo and mobile menu button */}
           <div className="top-nav__left">
             <NavLink to="/" className="top-nav__logo">
-              <Logo className="text-white h-6" />
-              <Badge variant="recommended" className="ml-3">Beta</Badge>
+              <Logo className="h-6 text-white" />
+              <Badge variant="recommended" className="ml-3">
+                Beta
+              </Badge>
             </NavLink>
           </div>
 
           {/* Main navigation */}
-          <nav
-            className={cn(
-              "top-nav__nav",
-              isMobileMenuOpen && "top-nav__nav--mobile-open"
-            )}
-          >
+          <nav className={cn("top-nav__nav", isMobileMenuOpen && "top-nav__nav--mobile-open")}>
+            <div className="top-nav__mobile-actions">
+              {isAdmin && (
+                <>
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setIsPlaylistModalOpen(true)}
+                  >
+                    Import playlist
+                  </Button>
+
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={handleRedditImport}
+                    disabled={isImporting}
+                  >
+                    {isImporting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Importing...
+                      </>
+                    ) : (
+                      "Reddit Scraper"
+                    )}
+                  </Button>
+                </>
+              )}
+              {(isAdmin || canManageReleases) && (
+                <Button
+                  className="w-full"
+                  variant="primary"
+                  onClick={() => setIsCreateModalOpen(true)}
+                >
+                  Add release
+                </Button>
+              )}
+            </div>
             <div className="top-nav__list">
               <NavItem to="/">New music</NavItem>
               <NavItem to="/likes">Likes</NavItem>
-              {(isAdmin || canManageReleases) && (
-                <NavItem to="/submissions">Submissions</NavItem>
-              )}
-              {isAdmin && (
-                <NavItem to="/admin/users">Admin</NavItem>
-              )}
+              {(isAdmin || canManageReleases) && <NavItem to="/submissions">Submissions</NavItem>}
+              {isAdmin && <NavItem to="/admin/users">Admin</NavItem>}
             </div>
+            <button
+              className="top-nav__mobile-toggle"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X size={20} strokeWidth={1.5} />
+              ) : (
+                <MenuIcon size={20} strokeWidth={1.5} />
+              )}
+            </button>
           </nav>
 
           <div className="top-nav__actions">
@@ -229,12 +248,12 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button className="top-nav__user-button">
-                  <div className="w-8 h-8 rounded-full overflow-hidden">
+                  <div className="h-8 w-8 overflow-hidden rounded-full">
                     {profile?.avatar_url ? (
                       <img
                         src={profile.avatar_url}
                         alt={profile.username}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <PixelAvatar seed={profile?.username || ""} size={32} />
@@ -246,7 +265,8 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
                   className="top-nav__user-menu-items"
-                  sideOffset={4}
+                  sideOffset={2}
+                  align="end"
                 >
                   <div className="top-nav__user-info">
                     <div className="font-medium">{profile?.username}</div>
@@ -258,10 +278,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                     <NavLink
                       to="/profile"
                       className={({ isActive }) =>
-                        cn(
-                          "top-nav__user-menu-item",
-                          isActive && "top-nav__user-menu-item--active"
-                        )
+                        cn("top-nav__user-menu-item", isActive && "top-nav__user-menu-item--active")
                       }
                     >
                       Profile
@@ -272,10 +289,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                     <NavLink
                       to="/account"
                       className={({ isActive }) =>
-                        cn(
-                          "top-nav__user-menu-item",
-                          isActive && "top-nav__user-menu-item--active"
-                        )
+                        cn("top-nav__user-menu-item", isActive && "top-nav__user-menu-item--active")
                       }
                     >
                       Account
@@ -286,10 +300,7 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
                     <NavLink
                       to="/preferences"
                       className={({ isActive }) =>
-                        cn(
-                          "top-nav__user-menu-item",
-                          isActive && "top-nav__user-menu-item--active"
-                        )
+                        cn("top-nav__user-menu-item", isActive && "top-nav__user-menu-item--active")
                       }
                     >
                       Preferences
@@ -326,15 +337,9 @@ export const TopNav = React.memo(({ className }: TopNavProps) => {
         </div>
       </header>
 
-      <PrivacyPolicyModal
-        isOpen={isPrivacyOpen}
-        onClose={() => setIsPrivacyOpen(false)}
-      />
+      <PrivacyPolicyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
       <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
-      <ReleaseFormModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
+      <ReleaseFormModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
       <PlaylistImportModal
         isOpen={isPlaylistModalOpen}
         onClose={() => setIsPlaylistModalOpen(false)}
