@@ -12,7 +12,7 @@ export function AuthForm() {
       <div className="mb-8 text-center">
         <Logo className="w-[20px] mb-6 mx-auto text-white" />
         <h1 className="text-3xl font-bold text-white">Loud</h1>
-        <p className="text-[--color-gray-300] font-medium text-balance">
+        <p className="text-gray-300 font-medium text-balance">
           The new music database
         </p>
       </div>

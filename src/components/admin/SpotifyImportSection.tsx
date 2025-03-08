@@ -112,7 +112,7 @@ export function SpotifyImportSection({
         <div className="space-y-2 mt-4">
           <div className="relative">
             <Progress value={getImportProgress()} className="h-2" />
-            <p className="text-sm font-medium text-[--color-gray-400] mt-1">
+            <p className="text-sm font-medium text-gray-400 mt-1">
               {getImportStatus()}
             </p>
           </div>

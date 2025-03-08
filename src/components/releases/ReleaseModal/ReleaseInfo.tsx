@@ -55,7 +55,7 @@ export function ReleaseInfo({ release }: ReleaseInfoProps) {
           <h3 className="release-card__label">Description</h3>
           <p className="text-sm whitespace-pre-wrap">{release.description}</p>
           {release.description_author && (
-            <div className="mt-2 text-xs font-medium text-[--color-gray-400]">
+            <div className="mt-2 text-xs font-medium text-gray-400">
               Written by{" "}
               <Link
                 to={`/u/${release.description_author.username}`}

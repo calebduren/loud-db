@@ -24,7 +24,7 @@ export function TrackList({ tracks }: TrackListProps) {
             </span>
             <span className="flex-1 text-sm">{track.name}</span>
             {track.duration_ms != null && track.duration_ms > 0 && (
-              <span className="text-[--color-gray-400] text-sm">
+              <span className="text-gray-400 text-sm">
                 {formatDuration(track.duration_ms)}
               </span>
             )}

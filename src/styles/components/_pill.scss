@@ -22,10 +22,10 @@
 
     // Default style (used in cards and modals)
     &--default {
-      @apply bg-[--color-gray-800] text-white/60;
+      @apply bg-gray-800 text-white/60;
 
       &:hover {
-        @apply bg-[--color-gray-700] text-white;
+        @apply bg-gray-700 text-white;
       }
     }
 
@@ -34,15 +34,15 @@
     }
 
     &--recommended {
-      @apply bg-[--color-loud] text-black;
+      @apply bg-loud text-black;
     }
 
     // Interactive style (used in filters)
     &--interactive {
-      @apply cursor-pointer bg-[--color-gray-800] text-white/60;
+      @apply cursor-pointer bg-gray-800 text-white/60;
 
       &:hover {
-        @apply bg-[--color-gray-700] text-white;
+        @apply bg-gray-700 text-white;
       }
 
       &.pill--selected {

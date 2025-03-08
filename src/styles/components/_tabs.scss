@@ -2,7 +2,7 @@
   @apply space-y-6;
 
   &__list {
-    @apply inline-flex h-9 w-auto items-center justify-center rounded-lg bg-[--color-gray-700] p-1 text-white;
+    @apply inline-flex h-9 w-auto items-center justify-center rounded-lg bg-gray-700 p-1 text-white;
   }
 
   &__trigger {
@@ -13,7 +13,7 @@
     }
 
     &[data-state="active"] {
-      @apply bg-[--color-background] text-white shadow;
+      @apply bg-gray-700 text-white shadow;
     }
   }
 

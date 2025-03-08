@@ -161,7 +161,7 @@ export function GenresInput({ value = [], onChange }: GenresInputProps) {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-1 py-1 bg-[--color-gray-900] border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
+          className="absolute z-50 w-full mt-1 py-1 bg-gray-900 border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto"
         >
           {filteredGroupNames.length > 0 && (
             <>

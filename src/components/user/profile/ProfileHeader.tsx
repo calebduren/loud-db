@@ -72,12 +72,12 @@ export function ProfileHeader({
             Joined {formatDate(profile.created_at)}
           </p>
           {profile.role === "admin" && (
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-[--color-loud] px-2 py-1 text-xs font-semibold text-[--color-loud]">
+            <span className="inline-flex items-center rounded-md border-[0.5px] border-loud px-2 py-1 text-xs font-semibold text-loud">
               Admin
             </span>
           )}
           {profile.role === "creator" && (
-            <span className="inline-flex items-center rounded-md border-[0.5px] border-[--color-loud] px-2 py-1 text-xs font-semibold text-[--color-loud]">
+            <span className="inline-flex items-center rounded-md border-[0.5px] border-loud px-2 py-1 text-xs font-semibold text-loud">
               Creator
             </span>
           )}

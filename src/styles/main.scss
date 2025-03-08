@@ -300,9 +300,9 @@ p {
 }
 
 .vertical-divider {
-  @apply mx-1 w-[0.5px] self-stretch bg-[--color-gray-700];
+  @apply mx-1 w-[0.5px] self-stretch bg-gray-700;
 }
 
 .menu-separator {
-  @apply my-1 h-[0.5px] bg-[--color-gray-700];
+  @apply my-1 h-[0.5px] bg-gray-700;
 }

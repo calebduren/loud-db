@@ -55,7 +55,7 @@ export function PasswordForm() {
                 <FormControl>
                   <Input {...field} type="password" />
                 </FormControl>
-                <p className="text-xs text-[--color-gray-400]">
+                <p className="text-xs text-gray-400">
                   Password must be at least 16 characters
                 </p>
                 <FormMessage />

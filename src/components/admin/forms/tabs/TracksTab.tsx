@@ -85,7 +85,7 @@ export function TracksTab({ form }: TracksTabProps) {
         {tracks.map((track, index) => (
           <div
             key={index}
-            className="flex gap-4 items-start p-4 border-[0.5px] border-[--color-gray-600] rounded-lg"
+            className="flex gap-4 items-start p-4 border-[0.5px] border-gray-600 rounded-lg"
           >
             <div className="w-8 text-center py-3 text-sm text-white/60">
               {index + 1}

@@ -12,7 +12,7 @@ export const PageTitle = ({ title, subtitle, actions }: PageTitleProps) => {
       <div>
         <h1 className="text-4xl font-[650] text-white">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-[--color-gray-400] font-medium">
+          <p className="text-sm text-gray-400 font-medium">
             {subtitle}
           </p>
         )}

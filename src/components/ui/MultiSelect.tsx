@@ -99,7 +99,7 @@ export function MultiSelect({
         <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
       </Button>
       {open && (
-        <div className="absolute z-10 w-full mt-1 bg-[--color-gray-800] border border-[--color-gray-700] rounded-md shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg">
           <div className="max-h-60 overflow-auto py-1">
             {options.map((option) => (
               <div

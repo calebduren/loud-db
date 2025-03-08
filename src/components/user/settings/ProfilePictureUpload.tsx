@@ -62,7 +62,7 @@ export function ProfilePictureUpload() {
         )}
       </div>
 
-      <div className="text-xs text-[--color-gray-400] font-medium">
+      <div className="text-xs text-gray-400 font-medium">
         <p>{MAX_IMAGE_SIZE_MB}MB maximum. PNG and JPG accepted.</p>
       </div>
 

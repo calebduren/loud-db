@@ -29,15 +29,15 @@ export function RatingSlider({
         aria-label="Rating"
       >
         <Slider.Track className="relative h-1 w-full grow rounded-full bg-white/10">
-          <Slider.Range className="absolute h-full rounded-full bg-[--color-loud]" />
+          <Slider.Range className="absolute h-full rounded-full bg-loud" />
         </Slider.Track>
-        <Slider.Thumb className="block h-5 w-5 rounded-full bg-gradient-to-b from-[--color-gray-500] to-[--color-gray-700] shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[--color-loud] disabled:pointer-events-none disabled:opacity-50 cursor-drag" />
+        <Slider.Thumb className="block h-5 w-5 rounded-full bg-gradient-to-b from-gray-500 to-gray-700 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-loud disabled:pointer-events-none disabled:opacity-50 cursor-drag" />
       </Slider.Root>
       <div className="relative flex justify-between px-[7px]">
         {Array.from({ length: max + 1 }, (_, i) => (
           <div key={i} className="flex flex-col items-center">
             <div className="h-1.5 w-[1px] bg-white/20 mb-1.5 -mt-0.5" />
-            <span className="text-[10px] text-[--color-gray-400] font-mono">
+            <span className="text-[10px] text-gray-400 font-mono">
               {i}
             </span>
           </div>

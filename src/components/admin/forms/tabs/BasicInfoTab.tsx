@@ -50,7 +50,7 @@ export function BasicInfoTab({
           <FormItem>
             <div>
               <FormLabel>Cover artwork</FormLabel>
-              <FormDescription className="text-[--color-gray-400]">
+              <FormDescription className="text-gray-400">
                 640px&times;640px recommended
               </FormDescription>
             </div>

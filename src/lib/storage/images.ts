@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { normalizeUrl, denormalizeUrl } from '../utils/environmentUtils';
 
 /**
  * Downloads an image from a URL and uploads it to Supabase storage
@@ -8,8 +9,11 @@ import { supabase } from '../supabase';
  */
 export async function uploadImageFromUrl(imageUrl: string, path: string): Promise<string> {
   try {
+    // Normalize the URL for the current environment
+    const normalizedUrl = normalizeUrl(imageUrl) || imageUrl;
+    
     // Download the image
-    const response = await fetch(imageUrl);
+    const response = await fetch(normalizedUrl);
     if (!response.ok) {
       throw new Error(`Failed to download image: ${response.statusText}`);
     }
@@ -37,7 +41,8 @@ export async function uploadImageFromUrl(imageUrl: string, path: string): Promis
       .from('covers')
       .getPublicUrl(data.path);
 
-    return publicUrl;
+    // Ensure the URL is denormalized for storage (points to production)
+    return denormalizeUrl(publicUrl) || publicUrl;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;

@@ -5,6 +5,7 @@ import { findOrCreateArtist } from "../artists/artistService";
 import { findOrCreateGenre } from "../genres/genreService";
 import { processReleaseImage } from "../storage/imageUtils";
 import { logger } from "../utils/logger";
+import { normalizeUrl, denormalizeUrl } from "../utils/environmentUtils";
 import {
   ReleaseServiceError,
   ArtistValidationError,
@@ -38,9 +39,21 @@ export async function createOrUpdateRelease(
 
   try {
     // Download and upload cover image if it's a URL
-    const coverUrl = data.cover_url
-      ? await processReleaseImage(data.cover_url)
-      : null;
+    let coverUrl = null;
+    if (data.cover_url) {
+      try {
+        // Normalize the URL before processing
+        const normalizedUrl = normalizeUrl(data.cover_url) || data.cover_url;
+        coverUrl = await processReleaseImage(normalizedUrl);
+      } catch (error) {
+        // If image processing fails completely, use the original URL
+        logger.warn("Image processing failed, using original URL", {
+          error,
+          originalUrl: data.cover_url,
+        });
+        coverUrl = data.cover_url;
+      }
+    }
 
     logger.debug("Processed cover image", {
       originalUrl: data.cover_url,

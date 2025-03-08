@@ -161,7 +161,7 @@ export function SignUpForm() {
               <FormItem>
                 <div>
                   <FormLabel>Password</FormLabel>
-                  <p className="text-xs text-[--color-gray-400] m-0 p-0">
+                  <p className="text-xs text-gray-400 m-0 p-0">
                     Password must be at least 16 characters
                   </p>
                 </div>

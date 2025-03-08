@@ -11,7 +11,7 @@
 
 .release__like-button {
   &--liked {
-    @apply bg-[--color-gray-600] text-[--color-loud];
+    @apply bg-gray-600 text-loud;
   }
 
   &--not-liked {
@@ -22,7 +22,7 @@
     @apply transition-all duration-200;
 
     &--liked {
-      @apply text-[--color-loud];
+      @apply text-loud;
     }
 
     &--not-liked {
@@ -78,7 +78,7 @@
   }
 
   &__label {
-    @apply mb-0.5 text-xs font-medium text-[--color-gray-400];
+    @apply mb-0.5 text-xs font-medium text-gray-400;
   }
 
   // Title section
@@ -111,7 +111,7 @@
     @apply w-full px-[6px] pb-[6px];
 
     &-container {
-      @apply w-full rounded-[3px_3px_8px_8px] bg-[--color-gray-700];
+      @apply w-full rounded-[3px_3px_8px_8px] bg-gray-700;
       box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.02);
     }
   }
@@ -129,7 +129,7 @@
     }
 
     &-label {
-      @apply w-16 text-[--color-gray-400];
+      @apply w-16 text-gray-400;
     }
 
     &-value {
@@ -150,7 +150,7 @@
   }
 
   &__link {
-    @apply flex items-center gap-1 whitespace-nowrap text-xs transition-colors hover:text-[--color-loud];
+    @apply flex items-center gap-1 whitespace-nowrap text-xs transition-colors hover:text-loud;
   }
 
   &__divider {
@@ -179,18 +179,18 @@
 }
 
 .release-modal {
-  @apply w-full max-w-[560px] overflow-hidden rounded-xl bg-[--color-gray-700] xl:h-[640px] xl:max-h-[calc(100dvh-32px)] xl:max-w-[1280px];
+  @apply w-full max-w-[560px] overflow-hidden rounded-xl bg-gray-700 border-[0.5px] border-gray-700 xl:h-[640px] xl:max-h-[calc(100dvh-32px)] xl:max-w-[1280px];
 
   &__grid {
     @apply xl:grid xl:h-full xl:grid-cols-[640px_1fr];
   }
 
   &__left {
-    @apply relative aspect-square w-full;
+    @apply relative aspect-square w-full bg-gray-600;
   }
 
   &__right {
-    @apply scrollbar-hide relative flex flex-col bg-[--color-gray-800] xl:h-full xl:overflow-hidden;
+    @apply scrollbar-hide relative flex flex-col bg-gray-800 xl:h-full xl:overflow-hidden;
   }
 
   &__cover {
@@ -202,7 +202,7 @@
   }
 
   &__bottom-actions {
-    @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-[--color-gray-800] to-transparent xl:absolute;
+    @apply pointer-events-none bottom-0 left-0 right-0 z-10 flex overflow-hidden bg-gradient-to-t from-gray-800 to-transparent xl:absolute;
     background-image: linear-gradient(
       to top,
       hsla(0, 0%, 14.12%, 0.92) 0%,
@@ -242,20 +242,20 @@
     @extend .btn--lg !optional;
 
     &--liked {
-      @apply bg-[--color-gray-700] text-[--color-loud] hover:bg-[--color-gray-700];
+      @apply bg-gray-700 text-loud hover:bg-gray-700;
     }
 
     &--not-liked {
-      @apply bg-[--color-gray-700] text-white hover:bg-[--color-gray-700] hover:text-white/80;
+      @apply bg-gray-700 text-white hover:bg-gray-700 hover:text-white/80;
     }
 
     &__icon--not-liked {
-      @apply text-[--color-gray-400] opacity-100;
+      @apply text-gray-400 opacity-100;
     }
   }
 
   &__track-number {
-    @apply w-6 text-left text-sm text-[--color-gray-400];
+    @apply w-6 text-left text-sm text-gray-400;
   }
 
   &__scrollable {

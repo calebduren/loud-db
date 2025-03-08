@@ -60,13 +60,13 @@ export function Modal({
     >
       <div className="flex min-h-full items-center justify-center p-4">
         {/* Backdrop */}
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+        <div className="fixed inset-0 bg-black/50" />
 
         {/* Modal */}
         <div
           className={cn(
             // Only apply base styles for default variant
-            variant === "default" && "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-[--color-gray-700]",
+            variant === "default" && "relative bg-background rounded-lg shadow-xl w-full border-[0.5px] border-gray-700",
             variant === "release" && "release-modal",
             className
           )}
@@ -75,11 +75,11 @@ export function Modal({
           {title ? (
             <>
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b-[0.5px] border-[--color-gray-700]">
+              <div className="flex items-center justify-between p-4 border-b-[0.5px] border-gray-700">
                 <h2 className="text-xl font-semibold">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="h-8 w-8 flex items-center justify-center text-white hover:bg-[--color-gray-800] rounded transition-colors"
+                  className="h-8 w-8 flex items-center justify-center text-white hover:bg-gray-800 rounded transition-colors"
                 >
                   <X size={16} strokeWidth={1.5} />
                 </button>
